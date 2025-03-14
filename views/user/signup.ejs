@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Jordan Express</title>
+
+    <!-- Font Icon -->
+    <link rel="stylesheet" href="registration/fonts/material-icon/css/material-design-iconic-font.min.css">
+
+    <!-- Main css -->
+    <link rel="stylesheet" href="registration/css/style.css">
+
+    <style>
+      .error-messege{
+        margin-top: -26px;
+        color: red;
+        font-size: 0.7rem;
+        display: none;
+        padding-bottom: 12px;
+      }
+      
+    </style>
+</head>
+<body>
+
+    <div class="main">
+
+        <!-- Sign up form -->
+        <section class="signup">
+            <div class="container">
+                <div class="signup-content">
+                    <div class="signup-form">
+                        <h2 class="form-title">Sign up</h2>
+                        <form method="post" class="register-form" id="signForm" action="/signup">
+                            <div class="form-group " >
+                                <label for="name"><i class="zmdi zmdi-account material-icons-name"></i></label>
+                                <input type="text" name="name" id="name" placeholder="Your Name"/>
+                            </div>
+                            <div id="error-1" class="error-messege"></div>
+
+
+                            <div class="form-group" style="display: flex; align-items: center; justify-content: center;">
+                                <label for="email"><i class="zmdi zmdi-email"></i></label>
+                                <input type="email" name="email" id="email" placeholder="Your Email"/>
+                            </div>
+                            <div id="error-2" class="error-messege"></div>
+
+                            
+                            <div class="form-group">
+                                <label for="name"><i class="zmdi zmdi-phone "></i></label>
+                                <input type="text" name="phone" id="phone" placeholder="Mobile No"/>                                             
+                            </div>
+                            <div id="error-3" class="error-messege"></div>
+
+                            <div class="form-group">
+                                <label for="pass"><i class="zmdi zmdi-lock"></i></label>
+                                <input type="password" name="password" id="password" placeholder="Password"/>
+                            </div>
+                            <div id="error-4" class="error-messege"></div>
+
+
+                            <div class="form-group">
+                                <label for="confirm_pass"><i class="zmdi zmdi-lock-outline"></i></label>
+                                <input type="password" name="confirm_pass" id="confirm_pass" placeholder="Confirm password"/>                                                              
+                            </div>
+                            <div id="error-5" class="error-messege"></div>
+
+                            <div class="form-group form-button">
+                                <input type="submit" name="signup" id="signup" class="form-submit" value="Register"/>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="signup-image">
+                        <figure><img src="registration/images/signup-image.jpg" alt="sing up image"></figure>
+                        <a href="/login" class="signup-image-link">I am already member</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- JS -->
+    <script src="registration/vendor/jquery/jquery.min.js"></script>
+    <script src="registration/js/main.js"></script>
+
+    <script>
+      const nameId = document.getElementById('name')
+      const emailId = document.getElementById('email')
+      const phoneId = document.getElementById('phone')
+      const passId = document.getElementById('password')
+      const confirmPassId = document.getElementById('confirm_pass')
+      
+      const error1 = document.getElementById('error-1')
+      const error2 = document.getElementById('error-2')
+      const error3 = document.getElementById('error-3')
+      const error4 = document.getElementById('error-4')
+      const error5 = document.getElementById('error-5')
+
+      const signForm = document.getElementById('signForm')
+
+
+      function nameValidateChecking(e){ 
+        const nameValue = nameId.value;
+        const namePattern = /^[A-Za-z\s]+$/
+
+        if(nameValue.trim()===''){
+          error1.style.display = 'block'
+          error1.innerHTML= 'Please enter a valid Name'
+        }else if(!namePattern.test(nameValue)){
+          error1.style.display = 'block'
+          error1.innerHTML = 'Name only contain alphabets and spaces '
+        }else{
+          error1.style.display = 'none'
+          error1.innerHTML = ''
+        }
+      }
+
+      function emailValidateChecking(e){
+        const emailValue = emailId.value
+        const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+        if(!emailPattern.test(emailValue)){
+          error2.style.display = 'block';
+          error2.innerHTML = 'Invalid format'
+        }else{
+          error2.style.display = 'none'
+          error2.innerHTML = ''
+        }
+      }
+
+      function phoneValidateChecking(e){
+        const phoneValue = phoneId.value
+        
+        if(phoneValue.trim()===''){
+          error3.style.display='block'
+          error3.innerHTML='Enter a valid Phone number'
+        }else if(phoneValue.length <10 || phoneValue.length >10){
+          error3.style.display = 'block';
+          error3.innerHTML = 'Enter 10 digit'
+        }else{
+          error3.style.display = 'none'
+          error3.innerHTML = ''
+        }
+
+      }
+
+      function passValidateChecking(e){
+        const passvalue = passId.value
+        const confirmPassValue = confirmPassId.value
+        const alpha = /[a-zA-Z]/
+        const digit = /\d/ 
+
+        if(passvalue.length<8){
+          error4.style.display = 'block'
+          error4.innerHTML = 'Should conatin atleat 8 characters'
+        }else if(!alpha.test(passvalue) || !digit.test(passvalue)){
+          error4.style.display ='block'
+          error4.innerHTML = 'Should contain number and alpahabets'
+        }else{
+          error4.style.display = 'none'
+          error4.innerHTML = ''
+        }
+
+
+        if(passvalue !== confirmPassValue){
+          error5.style.display = 'block'
+          error5.innerHTML = 'Password and confirm password are not match'
+        }else{
+          error5.style.display = 'none';
+          error5.innerHTML = ''
+        }
+      }
+
+
+      document.addEventListener('DOMContentLoaded',function(){
+        signForm.addEventListener('submit',function(e){
+
+          nameValidateChecking();
+          emailValidateChecking();
+          phoneValidateChecking();
+          passValidateChecking();
+
+          if(
+            !nameId||
+            !emailId||
+            !phoneId||
+            !passId||
+            !confirmPassId||
+            !error1||
+            !error2||
+            !error3||
+            !error4||
+            !error5||
+            !signForm
+          ){
+            console.log('one or more field missing')
+          }
+
+          if(
+            error1.innerHTML||
+            error2.innerHTML||
+            error3.innerHTML||
+            error4.innerHTML||
+            error5.innerHTML
+          ){
+            e.preventDefault()
+          }
+
+
+        })
+      })
+
+
+
+
+    </script>
+</body>
+</html>

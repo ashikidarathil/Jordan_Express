@@ -20,7 +20,7 @@ const userSchema = new Schema({
   },
   googleID: {
     type: String,
-    unique: true
+    default:null
   },
   password: {
     type: String,
@@ -71,7 +71,7 @@ const userSchema = new Schema({
       ref: 'Category'
     },
     brand: {
-      type: sting
+      type: String
     },
     searchOn: {
       type: Date,

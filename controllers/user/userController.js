@@ -1,4 +1,7 @@
 const userModel = require ('../../models/userSchema')
+const nodemailer = require('nodemailer')
+const env = require('dotenv').config()
+const bcrypt = require('bcrypt')
 
 
 const loadHome = async (req,res)=>{
@@ -31,18 +34,157 @@ const loadSignup = async(req,res)=>{
   }
 }
 
-const signup = async (req,res)=>{
-  const {name,email,password,phone} = req.body
+function generateOtp (){
+  return Math.floor(100000 + Math.random()*900000).toString()
+}
+
+async function sendVerificationEmail(email,otp) {
   try {
-    const newUser = new userModel({name,email,phone,password})
-    await newUser.save()
-    console.log(newUser);
-    
-    return res.redirect('/login')
+    const transporter = nodemailer.createTransport({
+      service:'gmail',
+      port:587,
+      secure:false,
+      requireTLS:true,
+      auth:{
+        user:process.env.NODEMAILER_EMAIL,
+        pass:process.env.NODEMAILER_PASSWORD
+      }
+    })
+
+    const info = await transporter.sendMail({
+      from:process.env.NODEMAILER_EMAIL,
+      to:email,
+      subject:'Verify your account',
+      text:`Your OTP is ${otp}`, 
+      html:`<b>Your OTP:${otp}</b>`
+    })
+
+    return info.accepted.length>0
 
   } catch (error) {
-    console.log('Error for save User',error);
-    res.status(500).send('Internal server error')
+    console.error('Error Sending Email',error)
+    return false
+  }
+  
+}
+
+const signup = async (req,res)=>{
+    try {
+      const {name,email,phone,password,confirm_pass} = req.body
+      if(password !== confirm_pass){
+        return res.render('signup',{message:'Password and confirm password are not match'})
+      }
+
+      const findUser = await userModel.findOne({email})
+      if(findUser){
+        return res.render('signup',{message:'User with this email already exists'})
+      }
+
+      const otp = generateOtp()
+
+      const emailSend = sendVerificationEmail(email,otp)
+
+      if(!emailSend){
+        return res.json('Email-error')
+      }
+
+      req.session.userOtp = otp;
+      req.session.userData = {name,email,phone,password}
+
+      res.render('verifyOtp')
+      console.log(`Your OTP is ${otp}`)
+
+    } catch (error) {
+      console.error('Signup error',error)
+      res.redirect('/pafeNotFound')
+    }
+}
+
+const securePassword = async(password)=>{
+  try {
+    const passwordHash = await bcrypt.hash(password,10)
+    return passwordHash;
+
+  } catch (error) {
+    
+  }
+}
+
+const verifyOtp = async (req,res)=>{
+  try {
+    const {otp} = req.body
+    console.log(otp);
+
+    if(otp===req.session.userOtp){
+      const user = req.session.userData
+      const passwordHash = await securePassword(user.password)
+
+      const saveUserdata = new userModel({
+        name: user.name,
+        email:user.email,
+        phone:user.phone,
+        password:passwordHash
+      })
+
+      await saveUserdata.save()
+      req.session.user = saveUserdata._id;
+      res.status(200).json({
+        success:true,
+        redirectUrl:'/'
+      })
+    }
+    else{
+      res.status(400).json({
+        success:false,
+        message:'Invaid OTP, Please try again '
+      })
+    }
+    
+  } catch (error) {
+    console.log('Error verifying OTP',error)
+    res.status(500).json({
+      success:false,
+      message:'An error occured'
+    })
+  }
+}
+
+
+const resendOtp = async (req,res)=>{
+  try {
+    const {email} = req.session.userData;
+    if(!email){
+      return res.status(400).json({
+        success:false,
+        message:'Email Not found in session'
+      })
+    }
+
+    const otp = generateOtp()
+
+    req.session.userOtp = otp
+
+    const emailSend = await sendVerificationEmail(email,otp)
+
+    if(emailSend){
+      console.log(`Resend OTP : ${otp}`)
+      res.status(200).json({
+        success:true,
+        message:'OTP resend successfully'
+      })
+    }
+    else{
+      res.status(500).json({
+        success:false,
+        message:"Failed to resend OTP. Please try again"
+      })
+    }
+  } catch (error) {
+    console.error('Error resending OTP',error)
+    res.status(500).json({
+      success:false,
+      message:'Internal Server error.Please try again'
+    })
     
   }
 }
@@ -61,5 +203,7 @@ module.exports = {
   pageNotFound,
   loadLogin,
   loadSignup,
-  signup
+  signup,
+  verifyOtp,
+  resendOtp
 }

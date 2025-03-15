@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="description" content="Jordan Express - Email Verification" />
+  <meta name="keywords" content="Jordan Express, verification, OTP" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+  <title>Jordan Express - Verify Email</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="css/bootstrap.min.css" type="text/css" />
+  <link rel="stylesheet" href="css/style.css" type="text/css" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" rel="stylesheet" />
+  <!-- sweet alert -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+  <style>
+    :root {
+      --primary-color: #277ed0;
+      --secondary-color: #4292dc;
+      --accent-color: #4895ef;
+      --text-color: #333;
+      --light-bg: #f8f9fa;
+      --border-radius: 10px;
+      --box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    body,
+    html {
+      height: 100%;
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      overflow: hidden;
+    }
+
+    .container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100%;
+      padding: 20px;
+    }
+
+    .login_wrap {
+      width: 100%;
+      max-width: 450px;
+      padding: 40px;
+      border-radius: var(--border-radius);
+      background: #fff;
+      box-shadow: var(--box-shadow);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .login_wrap::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 5px;
+      background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+    }
+
+    .heading_s1 {
+      margin-bottom: 30px;
+      text-align: center;
+    }
+
+    .heading_s1 h3 {
+      margin: 0;
+      font-size: 28px;
+      font-weight: 600;
+      color: var(--text-color);
+      position: relative;
+      display: inline-block;
+    }
+
+    .heading_s1 h3::after {
+      content: "";
+      display: block;
+      width: 50%;
+      height: 3px;
+      background: var(--primary-color);
+      margin: 10px auto 0;
+      border-radius: 2px;
+    }
+
+    .form-group {
+      margin-bottom: 25px;
+      position: relative;
+    }
+
+    .form-group label {
+      font-weight: 500;
+      margin-bottom: 8px;
+      display: block;
+      color: var(--text-color);
+    }
+
+    .form-control {
+      height: 50px;
+      border-radius: var(--border-radius);
+      border: 1px solid #e5e5e5;
+      padding: 10px 15px;
+      font-size: 16px;
+      width: 100%;
+      transition: all 0.3s;
+      letter-spacing: 8px;
+      text-align: center;
+      font-weight: 600;
+
+    }
+
+    .form-control:focus {
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+      outline: none;
+    }
+
+    .otp-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 20px;
+    }
+
+    .timer-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .otp-timer {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: #f8f9fa;
+      border: 3px solid var(--primary-color);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 15px;
+      position: relative;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+    }
+
+    .otp-timer::before {
+      content: "";
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      right: 3px;
+      bottom: 3px;
+      border-radius: 50%;
+      border: 1px solid #e0e0e0;
+    }
+
+    #timerValue {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--primary-color);
+    }
+
+    #timerValue.expired {
+      color: #dc3545;
+      font-size: 16px;
+    }
+
+    .btn {
+      height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: var(--border-radius);
+      font-weight: 600;
+      font-size: 16px;
+      transition: all 0.3s ease;
+      cursor: pointer;
+
+    }
+
+    .btn-primary {
+      background-color: var(--primary-color);
+      border: none;
+      color: white;
+      width: 100%;
+      box-shadow: 0 4px 6px rgba(67, 97, 238, 0.2);
+    }
+
+    .btn-primary:hover {
+      background-color: var(--secondary-color);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 10px rgba(67, 97, 238, 0.3);
+    }
+
+    .btn-secondary {
+      background-color: transparent;
+      border: 2px solid var(--primary-color);
+      color: var(--primary-color);
+      margin-top: 5px;
+      font-weight: 500;
+      width: auto;
+      padding: 0 30px;
+    }
+
+    .btn-secondary:hover {
+      background-color: rgba(67, 97, 238, 0.1);
+    }
+
+    .alert-danger {
+      margin-top: 15px;
+      text-align: center;
+      padding: 15px;
+      background-color: #f8d7da;
+      border: 1px solid #f5c6cb;
+      border-radius: var(--border-radius);
+      color: #721c24;
+    }
+
+    /* Add this to your existing styles */
+    body.swal2-shown> :not(.swal2-container) {
+      filter: blur(2px);
+    }
+
+    body.swal2-shown {
+      overflow-y: auto !important;
+      padding-right: 0 !important;
+    }
+
+    .swal2-container {
+      padding: 0 !important;
+    }
+
+    /* these are swirl styles */
+
+
+    .text-center {
+      text-align: center;
+    }
+
+    .text-muted {
+      color: #6c757d;
+    }
+
+    .pt-25 {
+      padding-top: 25px;
+    }
+
+    .footer-link {
+      margin-top: 30px;
+      padding-top: 20px;
+      border-top: 1px solid #e5e5e5;
+    }
+
+    .footer-link a {
+      color: var(--primary-color);
+      font-weight: 500;
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+
+    .footer-link a:hover {
+      color: var(--secondary-color);
+      text-decoration: underline;
+    }
+
+    /* Animation for OTP input */
+    @keyframes pulse {
+      0% {
+        transform: scale(1);
+      }
+
+      50% {
+        transform: scale(1.05);
+      }
+
+      100% {
+        transform: scale(1);
+      }
+    }
+
+    .form-control:focus {
+      animation: pulse 1s;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="login_wrap">
+      <div class="padding_eight_all bg-white">
+        <div class="heading_s1">
+          <h3>Verify Your Email</h3>
+        </div>
+        <p class="text-center text-muted">We've sent a verification code to your email address</p>
+
+        <form id="otpForm" action="/verify-otp" method="post" onsubmit="return validationOtpForm()">
+          <div class="form-group">
+            <label for="otp">Enter Verification Code:</label>
+            <input type="text" id="otp" name="otp" class="form-control" required maxlength="6" pattern="\d*"
+              autocomplete="off" />
+          </div>
+
+          <button type="submit" class="btn btn-primary">
+            <i class="fas fa-check-circle mr-2"></i>
+            Verify Email
+          </button>
+
+          <div class="otp-container">
+            <div class="timer-container">
+              <div class="otp-timer">
+                <span id="timerValue">60</span>
+              </div>
+              <small>Seconds remaining</small>
+            </div>
+
+            <button type="button" id="resendBtn" class="btn btn-secondary" onclick="resendOtp()">
+              <i class="fas fa-redo-alt mr-2"></i>
+              Resend Code
+            </button>
+          </div>
+
+          <% if (locals.message && message.length> 0) { %>
+            <div class="alert alert-danger">
+              <%= message %>
+            </div>
+            <% } %>
+        </form>
+
+        <div class="text-muted text-center footer-link">
+          Already verified? <a href="/login">Login now</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script>
+    document.getElementById("otp").focus();
+
+    let timer = 60;
+    let timerInterval;
+
+    function startTimer() {
+      timerInterval = setInterval(() => {
+        timer--;
+        document.getElementById("timerValue").textContent = timer;
+        if (timer <= 0) {
+          clearInterval(timerInterval);
+          document.getElementById("timerValue").classList.add("expired");
+          document.getElementById("timerValue").textContent = "Expired";
+          document.getElementById("otp").disabled = true;
+        }
+      }, 1000);
+    }
+    startTimer();
+
+
+    function validationOtpForm() {
+      const otpInput = document.getElementById('otp').value;
+
+      $.ajax({
+        type: 'POST',
+        url: 'verify-otp',
+        data: { otp: otpInput },
+        success: function (response) {
+          if (response.success) {
+            Swal.fire({
+              icon: 'success',
+              title: 'OTP verified successfully',
+              showConfirmButton: false,
+              timer: 1500,
+              heightAuto: false,
+              scrollbarPadding: false
+            }).then(() => {
+              window.location.href = response.redirectUrl;
+            })
+          } else {
+            Swal.fire({
+              icon: 'error',
+              text: response.message,
+              heightAuto: false,
+              scrollbarPadding: false
+            })
+          }
+        },
+        error: function () {
+          Swal.fire({
+            icon: 'error',
+            title: 'Invalid OTP',
+            text: "Please try again",
+            heightAuto: false,
+            scrollbarPadding: false
+          })
+        }
+      })
+      return false
+    }
+
+    // Set global SweetAlert2 defaults
+    Swal.mixin({
+      heightAuto: false,
+      scrollbarPadding: false,
+      allowOutsideClick: false,
+      didOpen: () => {
+        // Prevent body style manipulation
+        document.body.style.paddingRight = '';
+        document.body.style.overflow = 'auto';
+      }
+    });
+
+    function resendOtp() {
+      clearInterval(timerInterval)
+      timer = 60;
+      document.getElementById('otp').disabled = false;
+      document.getElementById('timerValue').classList.remove('expired');
+      document.getElementById('timerValue').textContent = timer;
+      startTimer()
+
+      Swal.fire({
+        title: 'Sending new OTP...',
+        text: 'Please wait',
+        allowOutsideClick: false,
+        heightAuto: false,
+        scrollbarPadding: false,
+        didOpen: () => {
+          Swal.showLoading();
+        }
+      });
+
+      $.ajax({
+        type: 'POST',
+        url: '/resend-otp',
+        success: function (response) {
+          if (response.success) {
+            Swal.fire({
+              icon: 'success',
+              title: 'OTP resend successfully',
+              showConfirmButton: false,
+              timer: 1500,
+              heightAuto: false,
+              scrollbarPadding: false
+            })
+          } else {
+            Swal.fire({
+              icon: 'error',
+              title: 'error',
+              text: 'An error occured while sending resend OTP.Please try again ',
+              heightAuto: false,
+              scrollbarPadding: false
+            })
+          }
+        }
+      })
+      return false
+    }
+
+  </script>
+</body>
+
+</html>

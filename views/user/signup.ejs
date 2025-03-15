@@ -67,10 +67,21 @@
                             </div>
                             <div id="error-5" class="error-messege"></div>
 
-                            <div class="form-group form-button">
+                            <div class="form-group form-button" style="display: flex; flex-direction: row; align-items: center; justify-content: space-between; ">
                                 <input type="submit" name="signup" id="signup" class="form-submit" value="Register"/>
+
+                                  <span class="social-label" style="padding-top: 25px; padding-left: 20px;">Or login with</span>
+                                  <ul class="socials" style="padding-top: 25px;">
+                                    <li><a href="/auth/google"><i class="display-flex-center zmdi zmdi-google"></i></a></li>
+                                  </ul>
+                      
+
                             </div>
+
+
+
                         </form>
+                        
                     </div>
                     <div class="signup-image">
                         <figure><img src="registration/images/signup-image.jpg" alt="sing up image"></figure>
@@ -122,7 +133,11 @@
         const emailValue = emailId.value
         const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
-        if(!emailPattern.test(emailValue)){
+        if(emailValue.trim()===''){
+          error2.style.display = 'block'
+          error2.innerHTML= 'Please enter a valid Email'
+        }
+        else if(!emailPattern.test(emailValue)){
           error2.style.display = 'block';
           error2.innerHTML = 'Invalid format'
         }else{

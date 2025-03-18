@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Login</title>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Poppins", sans-serif;
+    }
+
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background: linear-gradient(135deg, #232526, #414345);
+    }
+
+    .login-container {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      padding: 40px;
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      width: 400px;
+      text-align: center;
+      color: white;
+    }
+
+    .login-container h2 {
+      margin-bottom: 20px;
+      font-size: 28px;
+      font-weight: bold;
+      color: #f8f8f8;
+    }
+
+    .form-group {
+      position: relative;
+      margin-bottom: 20px;
+      text-align: left;
+    }
+
+    .form-group label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 5px;
+      font-size: 14px;
+      color: #ddd;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 12px;
+      font-size: 15px;
+      border: none;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      outline: none;
+      transition: 0.3s;
+    }
+
+    .form-group input:focus {
+      background: rgba(255, 255, 255, 0.3);
+      box-shadow: 0 0 8px rgba(255, 255, 255, 0.4);
+    }
+
+    .password-wrapper {
+      position: relative;
+    }
+
+    .toggle-password {
+      position: absolute;
+      top: 50%;
+      right: 10px;
+      transform: translateY(-50%);
+      cursor: pointer;
+      color: white;
+      font-size: 16px;
+      transition: 0.3s;
+    }
+
+    ::placeholder {
+      color: #cbbfbf;
+      font-weight: 500;
+      opacity: 1;
+    }
+
+    .toggle-password:hover {
+      color: #ff4e50;
+    }
+
+    .btn {
+      width: 100%;
+      background: #ff4e50;
+      color: white;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      font-size: 18px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .btn:hover {
+      background: #ff3b3f;
+      transform: scale(1.05);
+    }
+
+    .links {
+      margin-top: 15px;
+    }
+
+    .links a {
+      color: #ff4e50;
+      text-decoration: none;
+      font-weight: 600;
+      transition: 0.3s;
+    }
+
+    .links a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="login-container">
+    <h2>Admin Login</h2>
+    <form id="loginForm" method="post" action="/admin/login">
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" name="email" id="email" placeholder="Enter your email" autocomplete="off" />
+        <span class="error-message-email" id="emailError"></span>
+      </div>
+
+      <div class="form-group password-wrapper">
+        <label for="password">Password</label>
+        <input type="password" name="password" id="password" placeholder="Enter your password" />
+        <span class="toggle-password" onclick="togglePassword()">👁️</span>
+        <span class="error-message-password" id="passwordError"></span>
+      </div>
+
+      <button type="submit" class="btn">Login</button>
+    </form>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <script>
+
+    function togglePassword() {
+      const passwordField = document.getElementById("password");
+      if (passwordField.type === "password") {
+        passwordField.type = "text";
+      } else {
+        passwordField.type = "password";
+      }
+    }
+
+    document.getElementById('loginForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value.trim();
+      const emailError = document.getElementById("emailError");
+      const passwordError = document.getElementById("passwordError");
+
+      emailError.textContent = "";
+      passwordError.textContent = "";
+
+      let isValid = true;
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      const passwordRegex = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}$/;
+
+      if (email === "") {
+        emailError.textContent = "Email Required";
+        emailError.style.color = "red";
+        emailError.style.fontSize = "13px";
+        isValid = false;
+      } else if (!emailRegex.test(email)) {
+        emailError.textContent = "Please enter a valid Email";
+        emailError.style.color = "red";
+        emailError.style.fontSize = "13px";
+        isValid = false;
+      }
+
+      if (password === "") {
+        passwordError.textContent = "Password is required";
+        passwordError.style.color = "red";
+        passwordError.style.fontSize = "13px";
+        isValid = false;
+      } else if (!passwordRegex.test(password)) {
+        passwordError.textContent = "Password invalid";
+        passwordError.style.color = "red";
+        passwordError.style.fontSize = "13px";
+        isValid = false;
+      }
+
+      if (isValid) {
+        this.submit();
+      }
+    });
+  </script>
+</body>
+
+</html>

@@ -1,129 +1,118 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <title>Jordan Express</title>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Mukta:300,400,700"> 
-    <link rel="stylesheet" href="fonts/icomoon/style.css">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Happy Code</title>
 
-    <link rel="stylesheet" href="css/bootstrap.min.css">
-    <link rel="stylesheet" href="css/magnific-popup.css">
-    <link rel="stylesheet" href="css/jquery-ui.css">
-    <link rel="stylesheet" href="css/owl.carousel.min.css">
-    <link rel="stylesheet" href="css/owl.theme.default.min.css">
+  <!-- Link File CSS -->
+  <link rel="stylesheet" href="css/style.css">
+
+  <link rel="stylesheet" href="https://unpkg.com/boxicons@latest/css/boxicons.min.css">
+
+  <!-- link Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 
-    <link rel="stylesheet" href="css/aos.css">
+  <style>
+    .drop-down {
+      position: relative;
+      display: inline-block;
+      font-size: 14px;
+      padding-right: -30px;
+    }
 
-    <link rel="stylesheet" href="css/style.css">
+    .drop-down a {
+      color: grey;
+      text-decoration: none;
+      padding: 8px 15px;
+      border-radius: 5px;
+      background: #f9f9f9;
+      font-weight: 600;
+      transition: 0.3s;
+    }
 
-    <style>
-      .size-btn {
-        width: 35px;
-        height: 35px;
-        text-align: center;
-        font-weight: bold;
-        font-size: 16px;
-        line-height: 30px;
-        margin-right: 10px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border: 2px solid #895D39;
-        cursor: pointer;
-        transition: all 0.3s ease;
-      }
-    
-      .size-btn input {
-        display: none;
-      }
-    
-      .size-btn:hover {
-        background-color: #895D39;
-        color: white;
-      }
-    
-      .size-btn input:checked + label {
-        background-color: #895D39;
-        color: white;
-      }
-    </style>
-    
-  </head>
-  <body>
-  
-  <div class="site-wrap">
-    <div class="site-navbar navbar navbar-expand-lg navbar-light bg-light">
-      <div class="container">
-          <!-- Logo -->
-          <a class="navbar-brand" href="index.html">
-              <img src="images/logo.png" style="height: 150px; width: 150px; margin-top: -40px; margin-left: -100px; margin-right: 50px;"  alt="Logo">
-          </a>
-  
-          <!-- Mobile Toggle Button -->
-          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-              <span class="navbar-toggler-icon"></span>
-          </button>
-  
-          <!-- Navigation Links -->
-          <nav class="site-navigation text-right text-md-center" role="navigation" >
-            <div class="container" >
-              <ul class="site-menu js-clone-nav d-none d-md-block">
-                <li class="has-children">
-                  <a href="index.html">Home</a>
-                  <ul class="dropdown">
-                    <li><a href="#">Menu One</a></li>
-                    <li><a href="#">Menu Two</a></li>
-                    <li><a href="#">Menu Three</a></li>
-                    <li class="has-children">
-                      <a href="#">Sub Menu</a>
-                      <ul class="dropdown">
-                        <li><a href="#">Menu One</a></li>
-                        <li><a href="#">Menu Two</a></li>
-                        <li><a href="#">Menu Three</a></li>
-                      </ul>
-                    </li>
-                  </ul>
-                </li>
-                <li class="has-children">
-                  <a href="about.html">About</a>
-                  <ul class="dropdown">
-                    <li><a href="#">Menu One</a></li>
-                    <li><a href="#">Menu Two</a></li>
-                    <li><a href="#">Menu Three</a></li>
-                  </ul>
-                </li>
-                <li class="active"><a href="shop.html">Shop</a></li>
-                <li><a href="#">Catalogue</a></li>
-                <li><a href="#">New Arrivals</a></li>
-                <li><a href="contact.html">Contact</a></li>
-              </ul>
+    .drop-down a:hover {
+      background: #895D39;
+      color: white;
+    }
+
+    .drop-down-content {
+      display: none;
+      position: absolute;
+      top: 25px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: white;
+      min-width: 120px;
+      box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+      border-radius: 5px;
+      overflow: hidden;
+      z-index: 999;
+    }
+
+    .drop-down-content a {
+      display: block;
+      padding: 10px;
+      color: #333;
+      text-align: center;
+      font-size: 13px;
+      transition: 0.3s;
+    }
+
+    .drop-down-content a:hover {
+      background: #895D39;
+      color: white;
+    }
+
+    .drop-down:hover .drop-down-content {
+      display: block;
+    }
+  </style>
+
+</head>
+
+<body>
+  <header>
+
+    <a href="" class="logo"><img src="/img/Image.PNG" alt=""></a>
+
+    <ul class="navigation">
+      <li><a href="">Home</a></li>
+      <li><a href="">Shop</a></li>
+      <li><a href="">About</a></li>
+      <li><a href="">Contact</a></li>
+      <li><a href="">Settings</a></li>
+    </ul>
+
+    <div class="nav-right">
+      <div class="nav-icon">
+        <div class="search-box">
+          <a href=""><i class='fa-solid fa-search' style="margin-left: 10px; color:#895D39;"></i></a>
+          <input type="text" placeholder="Search here...">
+        </div>
+        <a href=""><i class='fa-regular fa-heart'></i></a>
+        <a href=""><i class='fa-solid fa-cart-shopping'></i></a>
+        <% if (locals.user) { %>
+          <div class="drop-down">
+            <a href="#">
+              <%= locals.user.name %>
+            </a>
+            <div class="drop-down-content">
+              <a href="/userProfile">Profile</a>
+              <a href="/logout">Logout</a>
             </div>
-          </nav>
-  
-          <!-- Right Icons -->
-          <div class="col-4 col-md-3 " style="margin-left: 40px; margin-right: -100px;">
-            <div class="site-top-icons" >  
-              <ul class="d-flex justify-content-end align-items-center" style="gap: 15px; list-style: none; ">
-                <li><a href="/signup">Sign Up</a></li>
-                <li><a href="/login">Login</a></li>
-                <!-- <li><a href="#"><span class="icon icon-person"></span></a></li> -->
-                <li><a href="#"><span class="icon icon-heart-o"></span></a></li>
-                <li>
-                  <a href="cart.html" class="site-cart">
-                    <span class="icon icon-shopping_cart"></span>
-                    <span class="count">2</span>
-                  </a>
-                </li> 
-                <li class="d-inline-block d-md-none ml-md-0">
-                  <a href="#" class="site-menu-toggle js-menu-toggle"><span class="icon-menu"></span></a>
-                </li>
-              </ul>
-            </div> 
           </div>
-          </div>
-
+          <% } else { %>
+            <a href="/login">
+              <i class='fa-regular fa-user'></i>
+              <span style="margin-left: -2px; font-weight: 700; ">Login</span>
+            </a>
+            <% } %>
       </div>
+
+
     </div>
+  </header>

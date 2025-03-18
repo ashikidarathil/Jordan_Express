@@ -1,0 +1,94 @@
+<%- include("../../views/partials/admin/header") %>
+<h1 class="dashboard-title">Dashboard</h1>
+
+    <div class="dashboard-content">
+      <div class="card">
+        <div class="card-icon">
+          <i class="fas fa-users"></i>
+        </div>
+        <div class="card-title">Total Customers</div>
+        <div class="card-value">1,254</div>
+      </div>
+
+      <div class="card">
+        <div class="card-icon">
+          <i class="fas fa-box"></i>
+        </div>
+        <div class="card-title">Total Products</div>
+        <div class="card-value">374</div>
+      </div>
+
+      <div class="card">
+        <div class="card-icon">
+          <i class="fas fa-shopping-cart"></i>
+        </div>
+        <div class="card-title">Total Orders</div>
+        <div class="card-value">628</div>
+      </div>
+
+      <div class="card">
+        <div class="card-icon">
+          <i class="fas fa-dollar-sign"></i>
+        </div>
+        <div class="card-title">Revenue</div>
+        <div class="card-value">$21,589</div>
+      </div>
+    </div>
+
+    <div class="recent-section">
+      <div class="section-header">
+        <div class="section-title">Recent Orders</div>
+        <div class="section-action">View All</div>
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Order ID</th>
+            <th>Customer</th>
+            <th>Date</th>
+            <th>Amount</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>#ORD-7895</td>
+            <td>John Smith</td>
+            <td>Mar 14, 2025</td>
+            <td>$125.00</td>
+            <td><span class="status completed">Completed</span></td>
+          </tr>
+          <tr>
+            <td>#ORD-7894</td>
+            <td>Sarah Johnson</td>
+            <td>Mar 13, 2025</td>
+            <td>$245.99</td>
+            <td><span class="status pending">Pending</span></td>
+          </tr>
+          <tr>
+            <td>#ORD-7893</td>
+            <td>Michael Brown</td>
+            <td>Mar 12, 2025</td>
+            <td>$84.50</td>
+            <td><span class="status completed">Completed</span></td>
+          </tr>
+          <tr>
+            <td>#ORD-7892</td>
+            <td>Emma Wilson</td>
+            <td>Mar 12, 2025</td>
+            <td>$189.75</td>
+            <td><span class="status cancelled">Cancelled</span></td>
+          </tr>
+          <tr>
+            <td>#ORD-7891</td>
+            <td>James Taylor</td>
+            <td>Mar 11, 2025</td>
+            <td>$312.25</td>
+            <td><span class="status completed">Completed</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+<%- include("../../views/partials/admin/footer") %>

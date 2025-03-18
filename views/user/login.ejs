@@ -12,6 +12,36 @@
 
   <!-- Main css -->
   <link rel="stylesheet" href="registration/css/style.css">
+
+
+
+  <style>
+    .error-messege {
+      margin-top: -26px;
+      color: red;
+      font-size: 0.7rem;
+      display: none;
+      padding-bottom: 12px;
+    }
+
+    .alert {
+      position: fixed;
+      top: 50px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #ff4d4d;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 5px;
+      font-weight: bold;
+      text-align: center;
+      width: 80%;
+      max-width: 500px;
+      box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+      display: block;
+    }
+  </style>
+
 </head>
 
 <body>
@@ -20,39 +50,53 @@
     <!-- Sing in  Form -->
     <section class="sign-in">
       <div class="container">
-        <div class="signin-content">
-          <div class="signin-image">
-            <figure><img src="registration/images/signin-image.jpg" alt="sing up image"></figure>
-            <a href="/signup" class="signup-image-link">Create an account</a>
-          </div>
 
-          <div class="signin-form">
-            <h2 class="form-title">Login</h2>
-            <form method="POST" class="register-form" id="login-form">
-              <div class="form-group">
-                <label for="email"><i class="zmdi zmdi-email"></i></label>
-                <input type="email" name="email" id="email" placeholder="Your Email" />
-              </div>
-              <div class="form-group">
-                <label for="your_pass"><i class="zmdi zmdi-lock"></i></label>
-                <input type="password" name="your_pass" id="your_pass" placeholder="Password" />
-              </div>
-              <div class="form-group">
-                <a href="#" class="signup-image-link" style="text-align: left;">forget password?</a>
-              </div>
-              <div class="form-group form-button">
-                <input type="submit" name="signin" id="signin" class="form-submit" value="Log in" />
-              </div>
-            </form>
-            <div class="social-login">
-              <span class="social-label">Or login with</span>
-              <ul class="socials">
-                <li><a href="#"><i class="display-flex-center zmdi zmdi-google"></i></a></li>
-              </ul>
-            </div>
+        <% if (locals.message && locals.message.length> 0) { %>
+          <div class="alert" id="alert">
+            <%= locals.message %>
           </div>
-        </div>
-        
+          <% } %>
+
+
+            <div class="signin-content">
+              <div class="signin-image">
+                <figure><img src="registration/images/signin-image.jpg" alt="sing up image"></figure>
+                <a href="/signup" class="signup-image-link">Create an account</a>
+              </div>
+
+              <div class="signin-form">
+                <h2 class="form-title">Login</h2>
+                <form method="POST" class="register-form" id="login-form" action="/login" novalidate>
+
+                  <div class="form-group">
+                    <label for="email"><i class="zmdi zmdi-email"></i></label>
+                    <input type="text" name="email" id="email" placeholder="Your Email" />
+                  </div>
+                  <div id="error-2" class="error-messege"></div>
+
+                  <div class="form-group">
+                    <label for="your_pass"><i class="zmdi zmdi-lock"></i></label>
+                    <input type="password" name="password" id="password" placeholder="Password" />
+                  </div>
+                  <div id="error-4" class="error-messege"></div>
+
+                  <div class="form-group">
+                    <a href="#" class="signup-image-link" style="text-align: left;">forget password?</a>
+                  </div>
+
+                  <div class="form-group form-button"
+                    style="display: flex; flex-direction: row; align-items: center; justify-content: space-between; ">
+                    <input type="submit" name="signup" id="signup" class="form-submit" value="login" />
+
+                    <span class="social-label" style="padding-top: 25px; padding-left: 20px;">Or login with</span>
+                    <ul class="socials" style="padding-top: 25px;">
+                      <li><a href="/auth/google"><i class="display-flex-center zmdi zmdi-google"></i></a></li>
+                    </ul>
+                  </div>
+
+              </div>
+            </div>
+
       </div>
     </section>
 
@@ -61,6 +105,82 @@
   <!-- JS -->
   <script src="registration/vendor/jquery/jquery.min.js"></script>
   <script src="registration/js/main.js"></script>
-</body><!-- This templates was made by Colorlib (https://colorlib.com) -->
+
+  <script>
+    const emailId = document.getElementById('email');
+    const passId = document.getElementById('password');
+    const error2 = document.getElementById('error-2');
+    const error4 = document.getElementById('error-4');
+    const loginForm = document.getElementById('login-form');
+
+    function validateEmail() {
+      const emailValue = emailId.value.trim();
+      const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+      if (emailValue === '') {
+        error2.innerHTML = 'Please enter your Email';
+        error2.style.display = 'block';
+        return false;
+      } else if (!emailPattern.test(emailValue)) {
+        error2.innerHTML = 'Invalid Email format';
+        error2.style.display = 'block';
+        return false;
+      } else {
+        error2.style.display = 'none';
+        return true;
+      }
+    }
+
+    function validatePassword() {
+      const passValue = passId.value.trim();
+      const alpha = /[a-zA-Z]/;
+      const digit = /\d/;
+
+
+      if (passValue === '') {
+        error4.innerHTML = 'Please enter your Password';
+        error4.style.display = 'block';
+        return false
+      }
+      else if (passValue.length < 8 || !alpha.test(passValue) || !digit.test(passValue)) {
+        error4.innerHTML = 'Password must be at least 8 characters and contain letters & numbers';
+        error4.style.display = 'block';
+        return false;
+      } else {
+        error4.style.display = 'none';
+        return true;
+      }
+    }
+
+    // Validate on input
+    emailId.addEventListener('input', validateEmail);
+    passId.addEventListener('input', validatePassword);
+
+    loginForm.addEventListener('submit', function (e) {
+      if (!validateEmail() || !validatePassword()) {
+        e.preventDefault();
+      }
+    });
+
+    // Get alert and input fields
+    const alertBox = document.getElementById("alert");
+    const inputs = document.querySelectorAll("input");
+
+    // Function to hide alert when user starts typing
+    inputs.forEach(input => {
+      input.addEventListener("input", () => {
+        alertBox.style.display = "none";
+      });
+    });
+  </script>
+
+
+
+</body>
+
+</html>
+
+
+</body>
 
 </html>

@@ -1,0 +1,203 @@
+<%- include("../partials/admin/header") %>
+
+  <style>
+    .sidebar.collapsed~.main-content {
+      margin-left: 70px;
+    }
+
+    .content-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .content-title {
+      font-size: 24px;
+      color: #333;
+      font-weight: 600;
+    }
+
+    .card-header {
+      background-color: white;
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      margin-bottom: 20px;
+    }
+
+    .input-group {
+      display: flex;
+      align-items: center;
+    }
+
+    .input-group input {
+      flex: 1;
+      border: none;
+      outline: none;
+      padding: 8px;
+      font-size: 14px;
+    }
+
+    .input-group button {
+      background-color: #895D39;
+      color: white;
+      border: none;
+     
+      padding: 8px 16px;
+      border-radius: 50px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .input-group button:hover {
+      background-color: #6e4a2d;
+    }
+
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    .table th,
+    .table td {
+      padding: 12px 15px;
+      text-align: left;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .table th {
+      font-weight: 500;
+      color: #777;
+      font-size: 14px;
+    }
+
+    .table td {
+      color: #333;
+    }
+
+    .btn {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      transition: background-color 0.3s ease;
+    }
+
+    .btn-danger {
+      background-color: #e74c3c;
+      color: white;
+    }
+
+    .btn-danger:hover {
+      background-color: #c0392b;
+    }
+
+    .btn-success {
+      background-color: #2ecc71;
+      color: white;
+    }
+
+    .btn-success:hover {
+      background-color: #27ae60;
+    }
+
+    .pagination {
+      display: flex;
+      justify-content: center;
+      margin-top: 20px;
+    }
+
+    .pagination .page-item {
+      margin: 0 5px;
+    }
+
+    .pagination .page-link {
+      padding: 8px 12px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      color: #555;
+      text-decoration: none;
+      transition: all 0.3s ease;
+    }
+
+    .pagination .page-link:hover {
+      background-color: #895D39;
+      color: white;
+      border-color: #895D39;
+    }
+  </style>
+
+  <div>
+    <div class="content-header">
+      <h2 class="content-title">Customers</h2>
+    </div>
+  
+    <header class="card-header">
+      <form action="/admin/users" method="get" class="d-inline">
+        <div class="input-group">
+          <input type="text" class="form-control" placeholder="Search customers..." name="search">
+          <button class="btn" type="submit">Search</button>
+        </div>
+      </form>
+    </header>
+  
+    <div class="right">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Phone No</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if (data.length > 0) { %>
+            <% for (let i = 0; i < data.length; i++) { %>
+              <tr>
+                <td><%= data[i].name %></td>
+                <td><%= data[i].email %></td>
+                <td><%= data[i].phone %></td>
+                <td>
+                  <% if (data[i].isBlocked === false) { %>
+                    <button class="btn btn-danger">
+                      <a style="text-decoration: none; color: white;" href="/admin/blockCustomer?id=<%= data[i]._id %>">Block</a>
+                    </button>
+                  <% } else { %>
+                    <button class="btn btn-success">
+                      <a style="text-decoration: none; color: white;" href="/admin/unblockCustomer?id=<%= data[i]._id %>">Unblock</a>
+                    </button>
+                  <% } %>
+                </td>
+              </tr>
+            <% } %>
+          <% } else { %>
+            <tr>
+              <td style="text-align: center;"  colspan="4">No customers found.</td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  
+    <div class="container mt-3">
+      <nav aria-label="Page navigation">
+        <ul class="pagination">
+          <%for(let i=1;i<=totalPages;i++){%> 
+          <li class="page-item <%=(i===currentPage) ? 'active' : '' %>">
+            <a class="page-link" href="?page=<%=i %>"><%=i %></a>
+          </li>
+          <%}%>
+        </ul>
+      </nav>
+    </div>
+  </div>
+
+
+  <%- include("../partials/admin/footer") %>

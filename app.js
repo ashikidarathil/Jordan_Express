@@ -27,7 +27,7 @@ app.use(passport.initialize())
 app.use(passport.session())
 
 app.set('view engine','ejs')
-app.set('views',[path.join(__dirname,'views/user'),path.join(__dirname,'views/admin')])
+app.set('views',[path.join(__dirname,'views/user'),path.join(__dirname,'views/admin'),path.join(__dirname,'views/partials')])
 app.use(express.static(path.join(__dirname,'public')))
 
 

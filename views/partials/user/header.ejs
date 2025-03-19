@@ -95,22 +95,22 @@
         </div>
         <a href=""><i class='fa-regular fa-heart'></i></a>
         <a href=""><i class='fa-solid fa-cart-shopping'></i></a>
-        <% if (locals.user) { %>
+        <% if (typeof user !== 'undefined' && user) { %>
           <div class="drop-down">
-            <a href="#">
-              <%= locals.user.name %>
+            <a href="#" class="drop-down-trigger">
+              <%= user.name %> 
             </a>
             <div class="drop-down-content">
               <a href="/userProfile">Profile</a>
               <a href="/logout">Logout</a>
             </div>
           </div>
-          <% } else { %>
-            <a href="/login">
-              <i class='fa-regular fa-user'></i>
-              <span style="margin-left: -2px; font-weight: 700; ">Login</span>
-            </a>
-            <% } %>
+        <% } else { %>
+          <a href="/login" class="login-link">
+            <i class='fa-regular fa-user'></i>
+            <span style="margin-left: -2px; font-weight: 700;">Login</span>
+          </a>
+        <% } %>
       </div>
 
 

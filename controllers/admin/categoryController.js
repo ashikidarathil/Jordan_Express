@@ -3,33 +3,41 @@ const productModel = require('../../models/productSchema')
 
 const categoryInfo = async (req, res) => {
   try {
-
-    const page = parseInt(req.query.page)
-    const limit = 4
+    const page = parseInt(req.query.page) || 1;
+    const limit = 4;
     const skip = (page - 1) * limit;
+    const searchQuery = req.query.search || '';
 
-    const categoryData = await categoryModel.find({})
+    let query = {};
+    if (searchQuery) {
+      query = { name: { $regex: new RegExp('^' + searchQuery, 'i') } }; // Case-insensitive search by category name
+    }
+
+    const categoryData = await categoryModel.find(query)
       .sort({ createdAt: -1 })
       .skip(skip)
-      .limit(limit)
+      .limit(limit);
 
-    const totalCategories = await categoryModel.countDocuments();
+    console.log(categoryData.map(cat => ({ name: cat.name, createdAt: cat.createdAt })));
+
+    const totalCategories = await categoryModel.countDocuments(query);
     const totalPages = Math.ceil(totalCategories / limit);
 
     res.render('category', {
       cat: categoryData,
       currentPage: page,
       totalPages: totalPages,
-      totalCategories: totalCategories
-    })
+      totalCategories: totalCategories,
+      search: searchQuery // Pass the search term back to the EJS template
+    });
 
   } catch (error) {
-
-    console.log(error)
-    res.redirect('/admin/pageError')
-
+    console.log(error);
+    res.redirect('/admin/pageError');
   }
-}
+};
+
+
 
 
 const addCategory = async (req, res) => {
@@ -152,10 +160,10 @@ const getListCategory = async (req, res) => {
 
     let id = req.query.id;
     await categoryModel.updateOne({ _id: id }, { $set: { isListed: false } })
-    res.redirect('/admin/category')
+    res.json({ success: true, message: 'Category unlisted successfully' });
 
   } catch (error) {
-    res.redirect('/pageError')
+    res.status(500).json({ success: false, message: 'Internal server error' });
   }
 
 }
@@ -166,63 +174,89 @@ const getUnListCategory = async (req, res) => {
   try {
     let id = req.query.id;
     await categoryModel.updateOne({ _id: id }, { $set: { isListed: true } });
-    res.redirect('/admin/category')
+    res.json({ success: true, message: 'Category listed successfully' });
 
   } catch (error) {
 
-    res.redirect('/pageError')
+    res.status(500).json({ success: false, message: 'Internal server error' });
 
   }
 }
 
 
 
-const getEditCategory = async(req,res)=>{
+const getEditCategory = async (req, res) => {
   try {
 
     const id = req.query.id;
-    const category = await categoryModel.findOne({_id:id})
-    res.render('edit-category',{category:category })
-    
+    const category = await categoryModel.findOne({ _id: id })
+    res.render('edit-category', { category: category })
+
   } catch (error) {
 
     res.redirect('/pageError')
-    
+
   }
 }
 
 
-const editCategory = async(req,res)=>{
+const editCategory = async (req, res) => {
   try {
+    const id = req.params.id;
+    const { categoryName, description } = req.body;
 
-    const id = req.params.id
-    const {categoryName,description} = req.body
-    const existingCategory = await categoryModel.findOne({name:categoryName})
-
-    if(existingCategory){
-      return res.status(400).json({
-        error:'Category exists ,Please choose another nmae'
-      })
-    }
-
-    const updatecategory = await categoryModel.findByIdAndUpdate(id,{
-      name:categoryName,
-      description:description
-    },{new:true})
-
-    if(updatecategory){
-      return res.redirect('/admin/category')
-    }else{
-      res.status(400).json({
-        error:'Category not found'
-      })
-    }
     
-  } catch (error) {
+    const existingCategory = await categoryModel.findOne({ name: categoryName, _id: { $ne: id } });
+    if (existingCategory) {
+      return res.status(400).json({ success: false, message: 'Category already exists. Please choose another name.' });
+    }
 
-    res.status(500).json('Internal server error')
+    
+    const updatedCategory = await categoryModel.findByIdAndUpdate(
+      id,
+      { name: categoryName, description },
+      { new: true }
+    );
+
+    if (updatedCategory) {
+      res.json({ success: true, message: 'Category updated successfully' }); 
+    } else {
+      res.status(404).json({ success: false, message: 'Category not found' });
+    }
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Internal server error' });
   }
-}
+};
+
+const softDeleteCategory = async (req, res) => {
+  try {
+    const categoryId = req.params.id; // Get the category ID from the request parameters
+
+
+
+    // Find the category and update the `isDeleted` field
+    const updatedCategory = await categoryModel.findByIdAndUpdate(
+      categoryId,
+      { isDeleted: true },
+      { new: true } // Return the updated document
+    );
+
+    console.log(updatedCategory)
+
+    if (!updatedCategory) {
+      return res.status(404).json({ message: 'Category not found' });
+    }
+
+    res.redirect('/admin/category'); // Redirect to the category list page
+  } catch (error) {
+    console.error('Error in softDeleteCategory:', error);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+
+
+
 
 module.exports = {
   categoryInfo,
@@ -232,6 +266,7 @@ module.exports = {
   getListCategory,
   getUnListCategory,
   getEditCategory,
-  editCategory
+  editCategory,
+  softDeleteCategory
 
 }

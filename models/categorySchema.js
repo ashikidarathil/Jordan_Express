@@ -7,6 +7,10 @@ const categorySchema = new Schema({
     required:true,
     unique:true
   },
+  isDeleted: {
+    type: Boolean,
+    default: false, // Default to false (not deleted)
+  },
   description:{
     type:String,
     required:true
@@ -19,12 +23,16 @@ const categorySchema = new Schema({
     type:Number,
     default:0
   },
-  createAt:{
+  createdAt:{
     type:Date,
     default:Date.now
+  },
+  isBlock:{
+    type:Boolean,
+    default:false
   }
 
-})
+},{ timestamps: true })
 
 const Category = mongoose.model('Category',categorySchema)
 

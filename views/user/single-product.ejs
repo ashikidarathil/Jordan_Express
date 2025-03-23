@@ -1,0 +1,966 @@
+<%-include('../../views/partials/user/header')%>
+
+  <title>Product Detail | Your Brand</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+
+    * {
+      padding: 0;
+      margin: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', sans-serif;
+      text-decoration: none;
+      transition: 0.3s;
+    }
+
+    body {
+      background-color: #f8f9fa;
+      color: #895D39;
+    }
+
+
+    main {
+      padding: 4rem 10rem;
+    }
+
+    .product-detail {
+      display: flex;
+      gap: 2rem;
+      align-items: flex-start;
+    }
+
+    .detail-gallery {
+      flex: 1;
+      position: relative;
+    }
+
+    .product-image-main {
+      width: 100%;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+    }
+
+    .slider-nav-thumbnails {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+    }
+
+    .slider-nav-thumbnails img {
+      width: 80px;
+      height: 80px;
+      border-radius: 8px;
+      cursor: pointer;
+      opacity: 0.7;
+      border: 1px solid #ddd;
+    }
+
+    .slider-nav-thumbnails img.active {
+      opacity: 1;
+      border: 2px solid #895D39;
+    }
+
+    .detail-info {
+      flex: 1;
+      background: white;
+      padding: 1.5rem;
+      border-radius: 8px;
+    }
+
+    .title-detail {
+      font-size: 25px;
+      font-weight: 700;
+      color: #895D39;
+      margin-bottom: 0.5rem;
+      transition: color 0.2s;
+    }
+
+    .title-detail:hover {
+      color: #895D39;
+    }
+
+    .product-price {
+      margin-bottom: 0.5rem;
+
+    }
+
+    .product-price span {
+      color: #895D39;
+      font-size: 24px;
+      font-weight: 600;
+    }
+
+    .product-price small {
+      display: block;
+      color: #606060;
+      font-size: 0.85rem;
+    }
+
+
+
+    .product-color {
+      margin-bottom: 1rem;
+      color: #606060;
+      font-size: 0.9rem;
+    }
+
+    .product-thumbnails {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+
+
+    .size-selection {
+      margin-bottom: 1rem;
+    }
+
+    .size-selection label {
+      display: block;
+      font-size: 0.9rem;
+      color: #111;
+      margin-bottom: 0.5rem;
+    }
+
+    .size-container {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .size-option {
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      cursor: pointer;
+      color: #606060;
+      font-weight: 500;
+      transition: border-color 0.2s, background-color 0.2s, color 0.2s;
+    }
+
+    .size-option:hover {
+      border-color: #895D39;
+      color: #895D39;
+    }
+
+    .size-option.selected {
+      background-color: #895D39;
+      color: white;
+      border-color: #895D39;
+    }
+
+    .size-guide {
+      display: block;
+      margin-top: 0.5rem;
+      color: #895D39;
+      font-size: 0.85rem;
+      text-decoration: underline;
+    }
+
+    .size-guide:hover {
+      color: #7a4f2e;
+    }
+
+    .cart-actions {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .button-add-to-cart {
+      background-color: #895D39;
+      color: white;
+      border: none;
+      padding: 0.75rem 2rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 500;
+      width: 100%;
+      text-align: center;
+    }
+
+    .button-add-to-cart:hover {
+      background-color: #7a4f2e;
+    }
+
+    .icon-product {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .icon-product i {
+      width: 40px;
+      height: 40px;
+      text-align: center;
+      line-height: 40px;
+      border: 1px solid #7a4f2e;
+      color: #7a4f2e;
+      background-color: #fff;
+      font-size: 18px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .icon-product i:hover {
+      background-color: #895D39;
+      color: #fff;
+    }
+
+    .extra-info {
+      margin-top: 1rem;
+      font-size: 0.85rem;
+      color: #606060;
+    }
+
+    .extra-info p {
+      margin-bottom: 0.5rem;
+    }
+
+    .extra-info i {
+      margin-right: 0.5rem;
+      color: #895D39;
+    }
+
+    .toggle-section {
+      margin-top: 2rem;
+    }
+
+    .toggle-buttons {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .toggle-btn {
+      font-size: 14px;
+      background-color: #fff;
+      border: 1px solid #ddd;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      color: #606060;
+      font-weight: 500;
+    }
+
+    .toggle-btn.active {
+      background-color: #895D39;
+      color: white;
+      border-color: #895D39;
+    }
+
+    .toggle-content {
+      display: none;
+      background-color: #fff;
+      padding: 2rem;
+      border-radius: 7px;
+    }
+
+    .toggle-content.active {
+      display: block;
+    }
+
+    .product-description {
+      line-height: 1.6;
+      color: #606060;
+    }
+
+    .dropdown {
+      margin-bottom: 1rem;
+      font-size: 12px;
+    
+      
+    }
+
+    .dropdown-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.5rem 0;
+      cursor: pointer;
+      
+    }
+
+    .dropdown-header h3 {
+
+      font-size: 15 px;
+      font-weight: 600;
+      color: #895D39;
+    }
+
+    .dropdown-content {
+      display: none;
+      padding: 0.5rem 0;
+      
+    }
+
+    .dropdown-content.active {
+      display: block;
+      
+    }
+
+    .dropdown-content p {
+      margin-bottom: 1rem;
+    }
+
+    .dropdown-content ul {
+      list-style: none;
+      margin-left: 1rem;
+    }
+
+    .dropdown-content ul li {
+      position: relative;
+      margin-bottom: 0.5rem;
+      padding-left: 1.5rem;
+    }
+
+    .dropdown-content ul li:before {
+      content: '\f058';
+      font-family: 'Font Awesome 6 Free';
+      font-weight: 900;
+      color: #895D39;
+      position: absolute;
+      left: 0;
+    }
+
+    .reviews-container {
+      color: #606060;
+    }
+
+    .reviews-container h3 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #895D39;
+      margin-bottom: 1rem;
+    }
+
+    .review-item {
+      border-bottom: 1px solid #eee;
+      padding-bottom: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .review-item:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+    }
+
+    .review-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+
+    .review-author {
+      font-weight: 600;
+      color: #111;
+    }
+
+    .review-stars i {
+      color: #ffdc19;
+    }
+
+    .review-text {
+      line-height: 1.6;
+    }
+
+    .similar-products-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1rem;
+      justify-content: center;
+    }
+
+    .similar-product-card {
+      width: 100%;
+      margin-bottom: 20px;
+      position: relative;
+      border: 1px solid lightgray;
+      border-radius: 8px;
+      overflow: hidden;
+      padding: 10px;
+      background: white;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .similar-product-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    }
+
+    .similar-product-card img {
+      width: 100%;
+      margin-bottom: 20px;
+      border-radius: 8px;
+    }
+
+    .similar-product-card h4 {
+      color: #111;
+      font-size: 20px;
+      transition: color 0.2s;
+    }
+
+    .similar-product-card h4:hover {
+      color: #895D39;
+    }
+
+    .similar-product-card .stars {
+      margin: 10px 0;
+    }
+
+    .similar-product-card .stars i {
+      color: #ffdc19;
+    }
+
+    .similar-product-card .price span {
+      color: #895D39;
+      font-size: 24px;
+      font-weight: 600;
+      margin-right: 30px;
+    }
+
+    .dropdown {
+      border: 1px solid #895D39;
+      padding: 5px 20px;
+      border-radius: 5px;
+
+    }
+
+    .dropdown-content{
+      
+    }
+
+    .similar-product-card .price del {
+      color: #606060;
+      font-size: 20px;
+      text-decoration: line-through;
+    }
+
+    .similar-product-card .icon-product {
+      position: absolute;
+      top: 30%;
+      transform: translateY(-50%);
+      right: -50px;
+      display: flex;
+      flex-direction: column;
+      transition: right 0.3s;
+    }
+
+    .similar-product-card:hover .icon-product {
+      right: 10px;
+    }
+
+    .similar-product-card .icon-product i {
+      width: 40px;
+      height: 40px;
+      text-align: center;
+      line-height: 40px;
+      border: 1px solid #1111116e;
+      color: #111;
+      background-color: #fff;
+      font-size: 18px;
+      margin-bottom: 10px;
+      border-radius: 8px;
+      transition: background 0.2s, color 0.2s;
+    }
+
+    .similar-product-card .icon-product i:hover {
+      background-color: #895D39;
+      color: #fff;
+    }
+
+    @media (max-width: 768px) {
+      .product-detail {
+        flex-direction: column;
+      }
+
+      .detail-info {
+        padding: 1rem;
+      }
+
+      .title-detail {
+        font-size: 1.5rem;
+      }
+
+      .product-thumbnails img {
+        width: 50px;
+        height: 50px;
+      }
+
+      .size-option {
+        width: 35px;
+        height: 35px;
+        font-size: 0.85rem;
+      }
+
+      .similar-products-grid {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      }
+    }
+
+    @media (max-width: 480px) {
+      .title-detail {
+        font-size: 1.25rem;
+      }
+
+      .product-thumbnails img {
+        width: 40px;
+        height: 40px;
+      }
+
+      .size-option {
+        width: 30px;
+        height: 30px;
+        font-size: 0.75rem;
+      }
+
+      .similar-products-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+
+  <main class="main">
+    <div class="container">
+      <div class="product-detail">
+        <div class="detail-gallery">
+          <img src="image/Jorden express mens/1201A942-001.jpg" alt="Main Product" class="product-image-main"
+            id="main-image">
+          <div class="slider-nav-thumbnails">
+            <img src="image/Jorden express mens/1201A942-001.jpg" alt="Thumbnail 1" class="active">
+            <img src="image/Jorden express mens/1203A268-101.jpg" alt="Thumbnail 2">
+            <img src="image/Jorden express mens/1203A330-250.jpg" alt="Thumbnail 3">
+            <img src="image/Jorden express mens/B75807.jpg" alt="Thumbnail 4">
+          </div>
+        </div>
+
+
+        <div class="detail-info">
+          <h4 class="title-detail" style="margin-bottom: 15px;">Broderie Anglaise-Detail Ribbed Top</h4>
+          <div class="product-color">
+            <span style="font-size: 13px;">Colour: Cream</span>
+          </div>
+          <div class="product-price">
+            <span class="" style="font-size: 20px; ">Rs. 1,299.00</span>
+            <div style="margin-top: 5px; font-size: 12px; margin-bottom: 20px;">MRP inclusive of all taxes</div>
+            <div style="font-size: 18px; color: green; font-weight: 600; margin-bottom: 30px;">In stock </div>
+          </div>
+
+
+          <div class="size-selection">
+            <label>Select Size</label>
+            <div class="size-container">
+              <div class="size-option" data-size="XXS">6</div>
+              <div class="size-option" data-size="XS">7</div>
+              <div class="size-option" data-size="S">8</div>
+              <div class="size-option" data-size="M">9</div>
+              <div class="size-option" data-size="L">10</div>
+              <div class="size-option" data-size="XL">11</div>
+            </div>
+            <a href="#" class="size-guide">Size Guide</a>
+          </div>
+          <div class="cart-actions">
+            <button class="button-add-to-cart">Add</button>
+            <div class="icon-product">
+              <i class="fa-regular fa-heart" title="Add to Wishlist"></i>
+            </div>
+          </div>
+          <div class="extra-info" style="margin-top: 30px;">
+            <p><i class="fa-solid fa-store"></i> Find in Store</p>
+            <p><i class="fa-solid fa-info-circle"></i> Delivery Time: 2-7 days</p>
+
+          </div>
+
+          <div style="margin-top: 40px; font-size: 14px; margin-bottom: 40px;">
+            <p>Broderie Anglaise-Detail Ribbed Top - Cream - Ladies | JORDAN EXPRESS</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="toggle-section">
+        <div class="toggle-buttons">
+          <button class="toggle-btn active" data-target="description">Product Description</button>
+          <button class="toggle-btn" data-target="reviews">Reviews</button>
+          <button class="toggle-btn" data-target="similar">Similar Products</button>
+        </div>
+        <div class="toggle-content active" id="description">
+          <div class="product-description">
+            <div class="dropdown" >
+              <div class="dropdown-header">
+                <h3>Description</h3>
+                <i class="fa-solid fa-chevron-down"></i>
+              </div>
+              <div class="dropdown-content">
+                <p>Elevate your wardrobe with the Broderie Anglaise-Detail Ribbed Top, a timeless piece that blends
+                  elegant charm with modern comfort. Crafted from premium ribbed fabric, this top offers a fitted
+                  silhouette that’s perfect for pairing with your favorite jeans or skirts.</p>
+                <p>Designed with delicate broderie anglaise detailing, it features a round neckline and short sleeves
+                  for a chic, casual look.</p>
+              </div>
+            </div>
+            <div class="dropdown">
+              <div class="dropdown-header">
+                <h3>Fit</h3>
+                <i class="fa-solid fa-chevron-down"></i>
+              </div>
+              <div class="dropdown-content">
+                <p>Fitted silhouette - Perfect for a chic, casual look.</p>
+              </div>
+            </div>
+            <div class="dropdown">
+              <div class="dropdown-header">
+                <h3>Material</h3>
+                <i class="fa-solid fa-chevron-down"></i>
+              </div>
+              <div class="dropdown-content">
+                <ul>
+                  <li>95% Cotton, 5% Elastane</li>
+                </ul>
+              </div>
+            </div>
+            <div class="dropdown">
+              <div class="dropdown-header">
+                <h3>Care Guide</h3>
+                <i class="fa-solid fa-chevron-down"></i>
+              </div>
+              <div class="dropdown-content">
+                <ul>
+                  <li>Machine Washable</li>
+                  <li>Tumble Dry Low</li>
+                  <li>Do Not Bleach</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="toggle-content" id="reviews">
+          <div class="reviews-container">
+          
+            <div class="review-item">
+              <div class="review-header">
+                <span class="review-author">John D.</span>
+                <div class="review-stars">
+                  <i class="fa-solid fa-star"></i>
+                  <i class="fa-solid fa-star"></i>
+                  <i class="fa-solid fa-star"></i>
+                  <i class="fa-solid fa-star"></i>
+                  <i class="fa-solid fa-star"></i>
+                </div>
+              </div>
+              <p class="review-text">Absolutely love this top! The fit is spot on, and the quality is top-notch. It’s
+                become my everyday staple.</p>
+            </div>
+            <div class="review-item">
+              <div class="review-header">
+                <span class="review-author">Sarah M.</span>
+                <div class="review-stars">
+                  <i class="fa-solid fa-star"></i>
+                  <i class="fa-solid fa-star"></i>
+                  <i class="fa-solid fa-star"></i>
+                  <i class="fa-solid fa-star"></i>
+                  <i class="fa-solid fa-star-half-stroke"></i>
+                </div>
+              </div>
+              <p class="review-text">Great color and super comfortable. The only reason it’s not 5 stars is I wish it
+                had a bit more stretch.</p>
+            </div>
+          </div>
+        </div>
+        <div class="toggle-content" id="similar">
+          <div class="similar-products-grid">
+            <div class="similar-product-card">
+              <img src="image/Jorden express mens/1203A268-101.jpg" alt="Similar Product 1">
+              <h4>Classic Sneakers</h4>
+              <div class="stars">
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star-half-stroke"></i>
+              </div>
+              <div class="price">
+                <span>$45</span>
+                <del>$60</del>
+              </div>
+              <div class="icon-product">
+                <i class="fa-regular fa-heart"></i>
+                <i class="fa-solid fa-cart-shopping"></i>
+                <i class="fa-solid fa-right-left"></i>
+              </div>
+            </div>
+            <div class="similar-product-card">
+              <img src="image/Jorden express mens/1203A330-250.jpg" alt="Similar Product 2">
+              <h4>Leather Boots</h4>
+              <div class="stars">
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star-half-stroke"></i>
+              </div>
+              <div class="price">
+                <span>$60</span>
+                <del>$80</del>
+              </div>
+              <div class="icon-product">
+                <i class="fa-regular fa-heart"></i>
+                <i class="fa-solid fa-cart-shopping"></i>
+                <i class="fa-solid fa-right-left"></i>
+              </div>
+            </div>
+            <div class="similar-product-card">
+              <img src="image/Jorden express mens/B75807.jpg" alt="Similar Product 3">
+              <h4>Casual Hoodie</h4>
+              <div class="stars">
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star-half-stroke"></i>
+              </div>
+              <div class="price">
+                <span>$30</span>
+                <del>$40</del>
+              </div>
+              <div class="icon-product">
+                <i class="fa-regular fa-heart"></i>
+                <i class="fa-solid fa-cart-shopping"></i>
+                <i class="fa-solid fa-right-left"></i>
+              </div>
+            </div>
+            <div class="similar-product-card">
+              <img src="image/Jorden express ladies/FJ2260-001_1.jpg" alt="Similar Product 4">
+              <h4>Denim Shorts</h4>
+              <div class="stars">
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star-half-stroke"></i>
+              </div>
+              <div class="price">
+                <span>$25</span>
+                <del>$35</del>
+              </div>
+              <div class="icon-product">
+                <i class="fa-regular fa-heart"></i>
+                <i class="fa-solid fa-cart-shopping"></i>
+                <i class="fa-solid fa-right-left"></i>
+              </div>
+            </div>
+            <!-- Additional similar products -->
+            <div class="similar-product-card">
+              <img src="image/Jorden express ladies/FJ2260-001_1.jpg" alt="Similar Product 5">
+              <h4>Denim Shorts</h4>
+              <div class="stars">
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star-half-stroke"></i>
+              </div>
+              <div class="price">
+                <span>$25</span>
+                <del>$35</del>
+              </div>
+              <div class="icon-product">
+                <i class="fa-regular fa-heart"></i>
+                <i class="fa-solid fa-cart-shopping"></i>
+                <i class="fa-solid fa-right-left"></i>
+              </div>
+            </div>
+            <div class="similar-product-card">
+              <img src="image/Jorden express ladies/FJ2260-001_1.jpg" alt="Similar Product 6">
+              <h4>Denim Shorts</h4>
+              <div class="stars">
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star-half-stroke"></i>
+              </div>
+              <div class="price">
+                <span>$25</span>
+                <del>$35</del>
+              </div>
+              <div class="icon-product">
+                <i class="fa-regular fa-heart"></i>
+                <i class="fa-solid fa-cart-shopping"></i>
+                <i class="fa-solid fa-right-left"></i>
+              </div>
+            </div>
+            <div class="similar-product-card">
+              <img src="image/Jorden express ladies/FJ2260-001_1.jpg" alt="Similar Product 7">
+              <h4>Denim Shorts</h4>
+              <div class="stars">
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star-half-stroke"></i>
+              </div>
+              <div class="price">
+                <span>$25</span>
+                <del>$35</del>
+              </div>
+              <div class="icon-product">
+                <i class="fa-regular fa-heart"></i>
+                <i class="fa-solid fa-cart-shopping"></i>
+                <i class="fa-solid fa-right-left"></i>
+              </div>
+            </div>
+            <div class="similar-product-card">
+              <img src="image/Jorden express ladies/FJ2260-001_1.jpg" alt="Similar Product 8">
+              <h4>Denim Shorts</h4>
+              <div class="stars">
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star-half-stroke"></i>
+              </div>
+              <div class="price">
+                <span>$25</span>
+                <del>$35</del>
+              </div>
+              <div class="icon-product">
+                <i class="fa-regular fa-heart"></i>
+                <i class="fa-solid fa-cart-shopping"></i>
+                <i class="fa-solid fa-right-left"></i>
+              </div>
+            </div>
+            <div class="similar-product-card">
+              <img src="image/Jorden express ladies/FJ2260-001_1.jpg" alt="Similar Product 9">
+              <h4>Denim Shorts</h4>
+              <div class="stars">
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star-half-stroke"></i>
+              </div>
+              <div class="price">
+                <span>$25</span>
+                <del>$35</del>
+              </div>
+              <div class="icon-product">
+                <i class="fa-regular fa-heart"></i>
+                <i class="fa-solid fa-cart-shopping"></i>
+                <i class="fa-solid fa-right-left"></i>
+              </div>
+            </div>
+            <div class="similar-product-card">
+              <img src="image/Jorden express ladies/FJ2260-001_1.jpg" alt="Similar Product 10">
+              <h4>Denim Shorts</h4>
+              <div class="stars">
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star"></i>
+                <i class="fa-solid fa-star-half-stroke"></i>
+              </div>
+              <div class="price">
+                <span>$25</span>
+                <del>$35</del>
+              </div>
+              <div class="icon-product">
+                <i class="fa-regular fa-heart"></i>
+                <i class="fa-solid fa-cart-shopping"></i>
+                <i class="fa-solid fa-right-left"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // Thumbnail image switching
+    const thumbnails = document.querySelectorAll('.slider-nav-thumbnails img');
+    const mainImage = document.getElementById('main-image');
+    thumbnails.forEach(thumb => {
+      thumb.addEventListener('click', function () {
+        thumbnails.forEach(t => t.classList.remove('active'));
+        this.classList.add('active');
+        mainImage.src = this.src;
+      });
+    });
+
+    // Size selection
+    let selectedSize = null;
+    const sizeOptions = document.querySelectorAll('.size-option');
+    sizeOptions.forEach(option => {
+      option.addEventListener('click', function () {
+        sizeOptions.forEach(opt => opt.classList.remove('selected'));
+        this.classList.add('selected');
+        selectedSize = this.getAttribute('data-size');
+      });
+    });
+
+    // Add to cart functionality
+    document.querySelector('.button-add-to-cart').addEventListener('click', function () {
+      if (!selectedSize) {
+        alert('Please select a size!');
+        return;
+      }
+      alert(`Added Broderie Anglaise-Detail Ribbed Top (Size ${selectedSize}) to cart!`);
+    });
+
+    // Icon actions (wishlist)
+    document.querySelectorAll('.icon-product i').forEach(icon => {
+      icon.addEventListener('click', function () {
+        if (this.classList.contains('fa-heart')) {
+          this.classList.toggle('fa-regular');
+          this.classList.toggle('fa-solid');
+          alert(this.classList.contains('fa-solid') ? 'Added to wishlist!' : 'Removed from wishlist!');
+        }
+      });
+    });
+
+    // Toggle section functionality
+    const toggleButtons = document.querySelectorAll('.toggle-btn');
+    const toggleContents = document.querySelectorAll('.toggle-content');
+    toggleButtons.forEach(button => {
+      button.addEventListener('click', function () {
+        toggleButtons.forEach(btn => btn.classList.remove('active'));
+        toggleContents.forEach(content => content.classList.remove('active'));
+        this.classList.add('active');
+        const target = document.getElementById(this.getAttribute('data-target'));
+        target.classList.add('active');
+      });
+    });
+
+    // Dropdown functionality
+    const dropdownHeaders = document.querySelectorAll('.dropdown-header');
+    dropdownHeaders.forEach(header => {
+      header.addEventListener('click', function () {
+        const content = this.nextElementSibling;
+        content.classList.toggle('active');
+        const arrow = this.querySelector('i');
+        arrow.classList.toggle('fa-chevron-down');
+        arrow.classList.toggle('fa-chevron-up');
+      });
+    });
+  </script>
+</body>
+
+
+
+
+
+
+<%-include('../../views/partials/user/footer')%>

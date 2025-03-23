@@ -32,18 +32,34 @@ const productSchema = new Schema(
       type: Number,
       default: 0
     },
-    sizes: [
+    createdAt:{
+      type:Date,
+      deafult:Date.now,
+    },
+    size: [
       {
-        size: { type: String, required: true }, 
-        quantity: { type: Number, required: true, min: 0 } 
+        size: {
+          type: String,
+          required: true,
+          enum: ['UK 6', 'UK 7', 'UK 8', 'UK 9', 'UK 10'] // Allowed sizes
+        },
+        quantity: {
+          type: Number,
+          required: true,
+          min: 0 // Ensure quantity is non-negative
+        }
       }
     ],
     color: {
       type: String,
       required: true
     },
+    isListed: {
+      type: Boolean,
+      default: true
+    },
     productImage: {
-      type: [String], 
+      type: [String],
       required: true
     },
     isBlocked: {
@@ -57,7 +73,7 @@ const productSchema = new Schema(
       default: 'Available'
     }
   },
-  { timestamps: true } 
+  { timestamps: true }
 );
 
 const Product = mongoose.model('Product', productSchema);

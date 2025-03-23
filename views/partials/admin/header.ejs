@@ -271,11 +271,11 @@
         <i class="fas fa-tags"></i>
         <span>Brands</span>
       </a>
-      <a href="#" class="nav-link">
+      <a href="/admin/addProducts" class="nav-link">
         <i class="fas fa-plus"></i>
         <span>Add Product</span>
       </a>
-      <a href="#" class="nav-link">
+      <a href="/admin/products" class="nav-link">
         <i class="fas fa-box"></i>
         <span>Products</span>
       </a>
@@ -346,7 +346,7 @@
 
         // Add active class to clicked nav link
         const navLinks = document.querySelectorAll('.nav-link');
-        navLinks.forEach(link => {
+        navLinks.forEach((link, index) => {
           link.addEventListener('click', function (e) {
             // Remove active class from all links
             navLinks.forEach(l => l.classList.remove('active'));
@@ -355,7 +355,7 @@
             this.classList.add('active');
 
             // Store active link in local storage
-            localStorage.setItem('activeLink', Array.from(navLinks).indexOf(this));
+            localStorage.setItem('activeLink', index);
           });
         });
 
@@ -365,12 +365,45 @@
           document.querySelector('.sidebar').classList.add('collapsed');
         }
 
-        // Restore active link
+        // Check if this is a fresh login or if there's an active link already stored
+        const currentPath = window.location.pathname;
         const activeIndex = localStorage.getItem('activeLink');
+
         if (activeIndex !== null) {
+          // If there's an active link stored, use it
           navLinks.forEach(l => l.classList.remove('active'));
           navLinks[activeIndex]?.classList.add('active');
+        } else {
+          // If no active link stored (fresh login), make Dashboard active by default
+          navLinks.forEach(l => l.classList.remove('active'));
+
+          // Find the Dashboard link (first link or link with href="/admin")
+          const dashboardLink = Array.from(navLinks).find(link =>
+            link.getAttribute('href') === '/admin' ||
+            link.querySelector('span').textContent.trim() === 'Dashboard'
+          );
+
+          if (dashboardLink) {
+            dashboardLink.classList.add('active');
+            // Store this as active in localStorage
+            const dashboardIndex = Array.from(navLinks).indexOf(dashboardLink);
+            localStorage.setItem('activeLink', dashboardIndex);
+          } else {
+            // Fallback to first link if dashboard link not found
+            navLinks[0]?.classList.add('active');
+            localStorage.setItem('activeLink', 0);
+          }
         }
+
+        // Match the current URL path with nav links and set active accordingly
+        navLinks.forEach((link, index) => {
+          const linkHref = link.getAttribute('href');
+          if (linkHref && currentPath === linkHref) {
+            navLinks.forEach(l => l.classList.remove('active'));
+            link.classList.add('active');
+            localStorage.setItem('activeLink', index);
+          }
+        });
 
         // Add tooltip functionality for collapsed sidebar
         const sidebar = document.querySelector('.sidebar');

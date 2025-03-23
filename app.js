@@ -10,6 +10,7 @@ const passport = require('./config/passport')
 
 connectDB()
 
+app.set('view cache', false);
 app.use(express.json())
 app.use(express.urlencoded({extended:true}))
 app.use(session({

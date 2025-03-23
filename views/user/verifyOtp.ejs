@@ -299,7 +299,7 @@
         <p class="text-center text-muted">We've sent a verification code to your email address</p>
 
         <form id="otpForm" action="/verify-otp" method="post" onsubmit="return validationOtpForm()">
-          <div class="form-group">
+          <div class="form-group" style="margin-top: 20px;">
             <label for="otp">Enter Verification Code:</label>
             <input type="text" id="otp" name="otp" class="form-control" required maxlength="6" pattern="\d*"
               autocomplete="off" />
@@ -318,7 +318,7 @@
               <small>Seconds remaining</small>
             </div>
 
-            <button type="button" id="resendBtn" class="btn btn-secondary" onclick="resendOtp()">
+            <button type="button" id="resendBtn" class="btn btn-secondary" onclick="resendOtp()" disabled>
               <i class="fas fa-redo-alt mr-2"></i>
               Resend Code
             </button>
@@ -355,6 +355,9 @@
           document.getElementById("timerValue").classList.add("expired");
           document.getElementById("timerValue").textContent = "Expired";
           document.getElementById("otp").disabled = true;
+
+          // Enable the Resend OTP button when the timer expires
+          document.getElementById("resendBtn").disabled = false;
         }
       }, 1000);
     }
@@ -415,13 +418,18 @@
     });
 
     function resendOtp() {
-      clearInterval(timerInterval)
+      // Disable the Resend OTP button again
+      document.getElementById("resendBtn").disabled = true;
+
+      // Reset the timer
+      clearInterval(timerInterval);
       timer = 60;
       document.getElementById('otp').disabled = false;
       document.getElementById('timerValue').classList.remove('expired');
       document.getElementById('timerValue').textContent = timer;
-      startTimer()
+      startTimer();
 
+      // Show loading state
       Swal.fire({
         title: 'Sending new OTP...',
         text: 'Please wait',
@@ -433,6 +441,7 @@
         }
       });
 
+      // Send AJAX request to resend OTP
       $.ajax({
         type: 'POST',
         url: '/resend-otp',
@@ -445,19 +454,20 @@
               timer: 1500,
               heightAuto: false,
               scrollbarPadding: false
-            })
+            });
           } else {
             Swal.fire({
               icon: 'error',
               title: 'error',
-              text: 'An error occured while sending resend OTP.Please try again ',
+              text: 'An error occurred while resending OTP. Please try again.',
               heightAuto: false,
               scrollbarPadding: false
-            })
+            });
           }
         }
-      })
-      return false
+      });
+
+      return false;
     }
 
   </script>

@@ -1,10 +1,6 @@
 <%- include("../partials/admin/header") %>
 
   <style>
-    .sidebar.collapsed~.main-content {
-      margin-left: 70px;
-    }
-
     .content-header {
       display: flex;
       justify-content: space-between;
@@ -43,7 +39,7 @@
       background-color: #895D39;
       color: white;
       border: none;
-     
+
       padding: 8px 16px;
       border-radius: 50px;
       cursor: pointer;
@@ -107,6 +103,10 @@
       background-color: #27ae60;
     }
 
+    a {
+      text-decoration: none;
+    }
+
     .pagination {
       display: flex;
       justify-content: center;
@@ -118,9 +118,9 @@
     }
 
     .pagination .page-link {
-      padding: 8px 12px;
+      padding: 8px 16px;
       border: 1px solid #ddd;
-      border-radius: 6px;
+      border-radius: 3px;
       color: #555;
       text-decoration: none;
       transition: all 0.3s ease;
@@ -131,22 +131,40 @@
       color: white;
       border-color: #895D39;
     }
+
+    .page-item {
+      list-style: none;
+    }
+
+    .page-link {
+      padding: 0.5rem 1rem;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      color: #895D39;
+      text-decoration: none;
+      transition: background-color 0.3s, color 0.3s;
+    }
   </style>
 
   <div>
     <div class="content-header">
       <h2 class="content-title">Customers</h2>
     </div>
-  
     <header class="card-header">
       <form action="/admin/users" method="get" class="d-inline">
         <div class="input-group">
-          <input type="text" class="form-control" placeholder="Search customers..." name="search">
-          <button class="btn" type="submit">Search</button>
+          <input type="text" class="form-control" placeholder="Search customers..." name="search"
+            value="<%= search || '' %>">
+          <button class="btn btn-primary" type="submit">Search</button>
+          <!-- Cancel/Reset Button -->
+          <% if (search) { %>
+            <a href="/admin/users" class="btn btn-primary"
+              style="padding: 8px 14px; background-color: #895D39 ; color: white; border-radius: 100px; margin-left: 3px; ">Cancel</a>
+            <% } %>
         </div>
       </form>
     </header>
-  
+
     <div class="right">
       <table class="table">
         <thead>
@@ -158,46 +176,131 @@
           </tr>
         </thead>
         <tbody>
-          <% if (data.length > 0) { %>
-            <% for (let i = 0; i < data.length; i++) { %>
+          <% if (data.length> 0) { %>
+            <% for (let i=0; i < data.length; i++) { %>
               <tr>
-                <td><%= data[i].name %></td>
-                <td><%= data[i].email %></td>
-                <td><%= data[i].phone %></td>
                 <td>
-                  <% if (data[i].isBlocked === false) { %>
-                    <button class="btn btn-danger">
-                      <a style="text-decoration: none; color: white;" href="/admin/blockCustomer?id=<%= data[i]._id %>">Block</a>
-                    </button>
-                  <% } else { %>
-                    <button class="btn btn-success">
-                      <a style="text-decoration: none; color: white;" href="/admin/unblockCustomer?id=<%= data[i]._id %>">Unblock</a>
-                    </button>
-                  <% } %>
+                  <%= data[i].name %>
+                </td>
+                <td>
+                  <%= data[i].email %>
+                </td>
+                <td>
+                  <%= data[i].phone %>
+                </td>
+
+                <td>
+                  <% if (data[i].isBlocked===false) { %>
+                    <button class="btn btn-danger"
+                      onclick="confirmBlock('<%= data[i]._id %>', '<%= data[i].name %>')">Block</button>
+                    <% } else { %>
+                      <button class="btn btn-success"
+                        onclick="confirmUnblock('<%= data[i]._id %>', '<%= data[i].name %>')">Unblock</button>
+                      <% } %>
                 </td>
               </tr>
-            <% } %>
-          <% } else { %>
-            <tr>
-              <td style="text-align: center;"  colspan="4">No customers found.</td>
-            </tr>
-          <% } %>
+              <% } %>
+                <% } else { %>
+                  <tr>
+                    <td style="text-align: center;" colspan="4">No customers found.</td>
+                  </tr>
+                  <% } %>
         </tbody>
       </table>
     </div>
-  
+
     <div class="container mt-3">
       <nav aria-label="Page navigation">
         <ul class="pagination">
-          <%for(let i=1;i<=totalPages;i++){%> 
-          <li class="page-item <%=(i===currentPage) ? 'active' : '' %>">
-            <a class="page-link" href="?page=<%=i %>"><%=i %></a>
-          </li>
-          <%}%>
+          <!-- Previous Button -->
+          <% if (currentPage> 1) { %>
+            <li class="page-item">
+              <a class="page-link" href="?page=<%= currentPage - 1 %><%= search ? `&search=${search}` : '' %>"
+                aria-label="Previous">
+                <span aria-hidden="true">&laquo;</span>
+              </a>
+            </li>
+            <% } %>
+
+              <!-- Page Numbers -->
+              <% for (let i=1; i <=totalPages; i++) { %>
+                <li class="page-item <%= currentPage === i ? 'active' : '' %>">
+                  <a class="page-link" href="?page=<%= i %><%= search ? `&search=${search}` : '' %>">
+                    <%= i %>
+                  </a>
+                </li>
+                <% } %>
+
+                  <!-- Next Button -->
+                  <% if (currentPage < totalPages) { %>
+                    <li class="page-item">
+                      <a class="page-link" href="?page=<%= currentPage + 1 %><%= search ? `&search=${search}` : '' %>"
+                        aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                      </a>
+                    </li>
+                    <% } %>
         </ul>
       </nav>
     </div>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <script>
+    // Function to get query parameters from the URL
+    function getQueryParam(param) {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get(param);
+    }
+  
+    // Check for a message in the query parameters
+    const message = getQueryParam('message');
+    if (message) {
+      Swal.fire({
+        icon: 'success',
+        title: 'Success',
+        text: message,
+      });
+  
+      // Remove the message from the URL to avoid showing it again on page reload
+      const url = new URL(window.location);
+      url.searchParams.delete('message');
+      window.history.replaceState({}, '', url);
+    }
+  
+    // Block and Unblock confirmation functions
+    function confirmBlock(userId, userName) {
+      Swal.fire({
+        title: 'Block User?',
+        text: `Are you sure you want to block ${userName}?`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#e74c3c',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Yes, block user'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          window.location.href = `/admin/blockCustomer?id=${userId}`;
+        }
+      });
+    }
+  
+    function confirmUnblock(userId, userName) {
+      Swal.fire({
+        title: 'Unblock User?',
+        text: `Are you sure you want to unblock ${userName}?`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#2ecc71',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Yes, unblock user'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          window.location.href = `/admin/unblockCustomer?id=${userId}`;
+        }
+      });
+    }
+  </script>
 
   <%- include("../partials/admin/footer") %>

@@ -65,7 +65,7 @@
 <div class="container">
   <div class="row justify-content-center">
       <div class="col-md-6 mt-60">
-          <form method="post" action="/admin/editCategory/<%= category._id %>" class="styled-form">
+          <form method="post" action="/admin/editCategory/<%= category._id %>" class="styled-form" id="editCategoryForm">
               <div class="mb-4 mt-30">
                   <label for="product_name" class="form-label" style="margin-bottom: 10px;">Name</label>
                   <input type="text" name="categoryName" value="<%= category.name %>" class="form-control border" />
@@ -83,4 +83,50 @@
       </div>
   </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+  // Handle form submission
+  document.getElementById('editCategoryForm').addEventListener('submit', function (event) {
+    event.preventDefault(); // Prevent the default form submission
+
+    const formData = new FormData(this);
+
+    fetch(this.action, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        categoryName: formData.get('categoryName'),
+        description: formData.get('description'),
+      }),
+    })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          Swal.fire({
+            icon: 'success',
+            title: 'Success',
+            text: data.message,
+          }).then(() => {
+            window.location.href = '/admin/category'; // Redirect to the category list page
+          });
+        } else {
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: data.message || 'Failed to update the category.',
+          });
+        }
+      })
+      .catch(error => {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'An error occurred while updating the category.',
+        });
+      });
+  });
+</script>
 

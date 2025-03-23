@@ -31,7 +31,7 @@ const login = async(req,res)=>{
         return res.redirect('/admin')
       }
       else{
-        return res.redirect('/ login')
+        return res.redirect('/login')
       }
     }else{
       return res.redirect('/login')
@@ -49,8 +49,8 @@ const login = async(req,res)=>{
 const loadDashboard = async (req,res)=>{
   if(req.session.admin){
     try {
-      const currentRoute = req.originalUrl;
-      return res.render('dashboard',{currentRoute})
+     
+      return res.render('dashboard')
     } catch (error) {
       res.redirect('/pageError')
     }

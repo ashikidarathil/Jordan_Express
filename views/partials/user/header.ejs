@@ -15,7 +15,6 @@
   <!-- link Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-
   <style>
     .drop-down {
       position: relative;
@@ -23,6 +22,8 @@
       font-size: 14px;
       padding-right: -30px;
     }
+
+
 
     .drop-down a {
       color: grey;
@@ -70,18 +71,207 @@
     .drop-down:hover .drop-down-content {
       display: block;
     }
-  </style>
 
+    /* Responsive Styles */
+    @media (max-width: 1024px) {
+      header {
+        padding: 10px 5%;
+        /* Reduce padding slightly */
+      }
+
+      .navigation {
+        margin-left: -300px;
+        /* Adjust margin for smaller screens */
+        padding-left: 20px;
+        padding-bottom: 15px;
+      }
+
+      .nav-right {
+        margin-right: -60px;
+        /* Adjust margin */
+      }
+
+      .nav-icon {
+        margin-left: -30px;
+        gap: 1rem;
+        /* Add some spacing between icons */
+      }
+
+      .search-box  {
+        right: 200px;
+        /* Adjust search box position */
+        max-width: 250px;
+       
+      }
+
+      .search-box input {
+        font-size: 11px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 10px 5%;
+      }
+
+      .logo img {
+        margin-left: 0;
+        /* Remove negative margin */
+        margin-top: 0;
+        width: 120px;
+        /* Slightly reduce logo size */
+      }
+
+      .navigation {
+        margin-left: 0;
+        /* Remove negative margin */
+        padding-left: 0;
+        padding-bottom: 10px;
+        width: 100%;
+        justify-content: space-between;
+        flex-wrap: wrap;
+       
+        
+      }
+
+      .navigation a {
+        font-size: 13px;
+        padding: 8px 15px;
+      }
+
+
+      .nav-right {
+        margin-right: 0;
+        width: 100%;
+        justify-content: flex-end;
+      }
+
+      .nav-icon {
+        margin-left: 0;
+        gap: 0.75rem;
+        flex-direction: row;
+        justify-content: flex-end;
+        width: 100%;
+      }
+
+      .search-box form{
+        position: relative;
+        /* Change to relative to stack properly */
+        right: auto;
+        max-width: 200px;
+        height: 40px;
+      }
+
+      .search-box i {
+        bottom: 25%;
+        /* Adjust icon position */
+        left: 5%;
+      }
+
+      .search-box input {
+        padding-left: 35px;
+        font-size: 11px;
+      }
+
+      .drop-down a {
+        font-size: 13px;
+        padding: 6px 12px;
+      }
+
+      .drop-down-content {
+        top: 30px;
+        min-width: 100px;
+      }
+
+      .drop-down-content a {
+        font-size: 12px;
+        padding: 8px;
+      }
+
+      .login-link {
+        font-size: 13px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      header {
+        padding: 5px 3%;
+      }
+
+      .logo img {
+        width: 100px;
+        /* Further reduce logo size */
+      }
+
+      .navigation {
+        justify-content: center;
+        gap: 0.5rem;
+      }
+
+      .navigation a {
+        font-size: 12px;
+        padding: 5px 10px;
+      }
+
+      .nav-icon {
+        gap: 0.5rem;
+      }
+
+      .search-box form{
+        max-width: 150px;
+        height: 35px;
+      }
+
+      .search-box i {
+        bottom: 20%;
+        left: 5%;
+      }
+
+      .search-box input {
+        padding-left: 30px;
+        font-size: 10px;
+      }
+
+      .nav-icon i {
+        font-size: 14px;
+        margin-right: 10px;
+      }
+
+      .drop-down a {
+        font-size: 12px;
+        padding: 5px 10px;
+      }
+
+      .drop-down-content {
+        top: 25px;
+        min-width: 90px;
+      }
+
+      .drop-down-content a {
+        font-size: 11px;
+        padding: 6px;
+      }
+
+      .login-link {
+        font-size: 12px;
+      }
+
+      .login-link i {
+        font-size: 14px;
+      }
+    }
+  </style>
 </head>
 
 <body>
   <header>
-
     <a href="" class="logo"><img src="/img/Image.PNG" alt=""></a>
 
-    <ul class="navigation">
-      <li><a href="">Home</a></li>
-      <li><a href="">Shop</a></li>
+    <ul class="navigation" style="list-style-type: none;">
+      <li><a href="/">Home</a></li>
+      <li><a href="/shop">Shop</a></li>
       <li><a href="">About</a></li>
       <li><a href="">Contact</a></li>
       <li><a href="">Settings</a></li>
@@ -90,29 +280,78 @@
     <div class="nav-right">
       <div class="nav-icon">
         <div class="search-box">
-          <a href=""><i class='fa-solid fa-search' style="margin-left: 10px; color:#895D39;"></i></a>
-          <input type="text" placeholder="Search here...">
+          <form action="/search" method="post">
+            <i class='fa-solid fa-search' id="search" style="margin-left: 40px; color:#895D39; margin-bottom: 2px;" ></i>
+            <i class='fa-solid fa-xmark clear-icon' id="clear" style="color:#895D39; margin-left: 320px; margin-bottom: 2px;"></i>
+            <input type="text" name="query" placeholder="Search here...">
+            <button type="submit" style="display: none;"></button>
+          </form>
         </div>
         <a href=""><i class='fa-regular fa-heart'></i></a>
         <a href=""><i class='fa-solid fa-cart-shopping'></i></a>
-        <% if (typeof user !== 'undefined' && user) { %>
+        <% if (typeof user !=='undefined' && user) { %>
           <div class="drop-down">
             <a href="#" class="drop-down-trigger">
-              <%= user.name %> 
+              <%= user.name %>
             </a>
             <div class="drop-down-content">
               <a href="/userProfile">Profile</a>
               <a href="/logout">Logout</a>
             </div>
           </div>
-        <% } else { %>
-          <a href="/login" class="login-link">
-            <i class='fa-regular fa-user'></i>
-            <span style="margin-left: -2px; font-weight: 700;">Login</span>
-          </a>
-        <% } %>
+          <% } else { %>
+            <a href="/login" class="login-link">
+              <i class='fa-regular fa-user'></i>
+              <span style="margin-left: -2px; font-weight: 700;">Login</span>
+            </a>
+            <% } %>
       </div>
-
-
     </div>
   </header>
+</body>
+
+<script>
+
+
+ 
+  const searchInput = document.querySelector('.search-box input');
+  const searchIcon = document.querySelector('#search');
+  const clearIcon = document.querySelector('#clear');
+
+
+  clearIcon.style.display = 'none';
+
+  searchInput.addEventListener('focus', function () {
+
+    if (searchInput.value.trim() !== '') {
+      clearIcon.style.display = 'inline-block';
+    }
+  });
+
+  // When typing in the search input
+  searchInput.addEventListener('input', function () {
+
+    clearIcon.style.display = searchInput.value.trim() !== '' ? 'inline-block' : 'none';
+
+  });
+
+  // When the clear icon is clicked
+  clearIcon.addEventListener('click', function (e) {
+    e.stopPropagation();
+    searchInput.value = '';
+    clearIcon.style.display = 'none';
+
+    searchInput.focus();
+  });
+
+  // When clicking outside the search input
+  document.addEventListener('click', function (event) {
+    if (event.target !== searchInput && event.target !== clearIcon) {
+ 
+      clearIcon.style.display = 'none';
+    }
+  });
+
+</script>
+
+</html>

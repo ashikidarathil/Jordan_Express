@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jordan-Express - User Dashboard</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary-color: #2c3e50;
+      --secondary-color: #34495e;
+      --accent-color: #3498db;
+      --text-color: #ecf0f1;
+      --text-secondary: #bdc3c7;
+      --success-color: #2ecc71;
+      --warning-color: #f39c12;
+      --danger-color: #e74c3c;
+      --light-bg: #f5f6fa;
+      --dark-bg: #2f3640;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background-color: var(--light-bg);
+      color: #333;
+      overflow-x: hidden;
+    }
+
+    .dashboard-container {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* Sidebar Styles */
+    .sidebar {
+      width: 250px;
+      background-color: var(--primary-color);
+      color: var(--text-color);
+      transition: all 0.3s ease;
+      position: fixed;
+      height: 100vh;
+      z-index: 1000;
+      box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+      
+    }
+
+    .sidebar.collapsed {
+      width: 70px;
+   
+    }
+
+    .sidebar.collapsed .sidebar-header h2,
+    .sidebar.collapsed .menu-item span {
+      display: none;
+    }
+
+    .sidebar.collapsed .menu-item {
+      justify-content: center;
+      
+    }
+
+    .sidebar-header {
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .sidebar-header h2 {
+      font-size: 1.5rem;
+      margin: 0;
+      color: white;
+    }
+
+    .toggle-btn {
+      background: none;
+      border: none;
+      color: var(--text-color);
+      font-size: 1.2rem;
+      cursor: pointer;
+      padding: 5px;
+    }
+
+    .menu {
+      padding: 20px 0;
+    }
+
+    .menu-item {
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      color: var(--text-color);
+      text-decoration: none;
+      transition: all 0.3s ease;
+      border-left: 3px solid transparent;
+    }
+
+    .menu-item:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+      border-left: 3px solid var(--accent-color);
+    }
+
+    .menu-item.active {
+      background-color: rgba(255, 255, 255, 0.1);
+      border-left: 3px solid var(--accent-color);
+    }
+
+    .menu-item i {
+      margin-right: 10px;
+      font-size: 1.1rem;
+      width: 20px;
+      text-align: center;
+    }
+
+    .sidebar.collapsed .menu-item i {
+      margin-right: 0;
+      font-size: 1.3rem;
+    }
+
+    /* Main Content Styles */
+    .main-content {
+      flex: 1;
+      margin-left: 250px;
+      transition: all 0.3s ease;
+    }
+
+    .main-content.expanded {
+      margin-left: 70px;
+    }
+
+    .top-nav {
+      background-color: white;
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+    }
+
+    .user-info img {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      margin-right: 10px;
+      object-fit: cover;
+    }
+
+    .user-name {
+      font-weight: 600;
+    }
+
+    .content-area {
+      padding: 20px;
+    }
+
+    .page-title {
+      font-size: 1.8rem;
+      margin-bottom: 20px;
+      color: var(--primary-color);
+      display: flex;
+      align-items: center;
+    }
+
+    .page-title i {
+      margin-right: 10px;
+    }
+
+    .card {
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #eee;
+    }
+
+    .card-title {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: var(--primary-color);
+    }
+
+    .btn {
+      padding: 8px 15px;
+      border-radius: 4px;
+      border: none;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.3s ease;
+    }
+
+    .btn-primary {
+      background-color: var(--accent-color);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background-color: #2980b9;
+    }
+
+    .profile-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .profile-img {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 5px solid white;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      margin-bottom: 15px;
+    }
+
+    .profile-name {
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 5px;
+    }
+
+    .profile-email {
+      color: #777;
+      margin-bottom: 15px;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 500;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 1rem;
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: var(--accent-color);
+    }
+
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+      margin: 0 -10px;
+    }
+
+    .col-md-6 {
+      flex: 0 0 50%;
+      max-width: 50%;
+      padding: 0 10px;
+    }
+
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .table th,
+    .table td {
+      padding: 12px 15px;
+      text-align: left;
+      border-bottom: 1px solid #eee;
+    }
+
+    .table th {
+      background-color: #f8f9fa;
+      font-weight: 600;
+      color: var(--primary-color);
+    }
+
+    .table tr:hover {
+      background-color: #f8f9fa;
+    }
+
+    .badge {
+      padding: 5px 10px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 500;
+    }
+
+    .badge-success {
+      background-color: #d4edda;
+      color: #155724;
+    }
+
+    .badge-warning {
+      background-color: #fff3cd;
+      color: #856404;
+    }
+
+    .badge-danger {
+      background-color: #f8d7da;
+      color: #721c24;
+    }
+
+    .wallet-balance {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--primary-color);
+      margin: 20px 0;
+      text-align: center;
+    }
+
+    .wallet-actions {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-top: 20px;
+    }
+
+    .referral-code {
+      background-color: #f8f9fa;
+      padding: 15px;
+      border-radius: 8px;
+      margin-top: 20px;
+      text-align: center;
+    }
+
+    .referral-code h4 {
+      margin-bottom: 10px;
+      color: var(--primary-color);
+    }
+
+    .code {
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      color: var(--accent-color);
+      background-color: white;
+      padding: 10px 20px;
+      border-radius: 4px;
+      display: inline-block;
+      margin: 10px 0;
+    }
+
+    .social-share {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-top: 20px;
+    }
+
+    .social-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 1.2rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .social-icon:hover {
+      transform: translateY(-3px);
+    }
+
+    .facebook {
+      background-color: #3b5998;
+    }
+
+    .twitter {
+      background-color: #1da1f2;
+    }
+
+    .whatsapp {
+      background-color: #25d366;
+    }
+
+    .address-card {
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      padding: 20px;
+      margin-bottom: 20px;
+      position: relative;
+    }
+
+    .address-card .default-badge {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background-color: var(--success-color);
+      color: white;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 0.8rem;
+    }
+
+    .address-card h4 {
+      margin-bottom: 10px;
+      color: var(--primary-color);
+    }
+
+    .address-card p {
+      margin-bottom: 5px;
+      color: #555;
+    }
+
+    .address-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    .tab-container {
+      margin-bottom: 20px;
+    }
+
+    .tabs {
+      display: flex;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .tab {
+      padding: 10px 20px;
+      cursor: pointer;
+      font-weight: 500;
+      color: #555;
+      border-bottom: 3px solid transparent;
+    }
+
+    .tab.active {
+      color: var(--accent-color);
+      border-bottom: 3px solid var(--accent-color);
+    }
+
+    .tab-content {
+      display: none;
+      padding: 20px 0;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    @media (max-width: 768px) {
+      .sidebar {
+        width: 70px;
+      }
+
+      .sidebar .sidebar-header h2,
+      .sidebar .menu-item span {
+        display: none;
+      }
+
+      .sidebar .menu-item {
+        justify-content: center;
+      }
+
+      .main-content {
+        margin-left: 70px;
+      }
+
+      .col-md-6 {
+        flex: 0 0 100%;
+        max-width: 100%;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="dashboard-container">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <a style="text-decoration: none;" href="/"><h2>JORDAN </h2></a>
+        <button class="toggle-btn" id="toggleSidebar">
+          <i class="fas fa-bars"></i>
+        </button>
+      </div>
+      <div class="menu">
+        <a href="/userProfile" class="menu-item active">
+          <i class="fas fa-user"></i>
+          <span>My Profile</span>
+        </a>
+        <a href="/orders" class="menu-item">
+          <i class="fas fa-shopping-bag"></i>
+          <span>My Orders</span>
+        </a>
+        <a href="/edit-profile" class="menu-item">
+          <i class="fas fa-user-edit"></i>
+          <span>Edit Profile</span>
+        </a>
+        <a href="/change-pass" class="menu-item">
+          <i class="fas fa-key"></i>
+          <span>Change Password</span>
+        </a>
+        <a href="/address" class="menu-item">
+          <i class="fas fa-map-marker-alt"></i>
+          <span>My Address</span>
+        </a>
+        <a href="#wallet" class="menu-item">
+          <i class="fas fa-wallet"></i>
+          <span>Wallet</span>
+        </a>
+        <a href="#refer" class="menu-item">
+          <i class="fas fa-user-plus"></i>
+          <span>Refer a Friend</span>
+        </a>
+        <a href="/logout" class="menu-item">
+          <i class="fas fa-sign-out-alt"></i>
+          <span>Logout</span>
+        </a>
+      </div>
+    </div>
+
+
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent">
+      <div class="top-nav">
+        <div>
+          <!-- <h3>Dashboard</h3> -->
+        </div>
+        <div class="user-info">
+          <img src="" alt="">
+          <!-- <span class="user-name">User</span> -->
+        </div>
+      </div>
+
+      <div class="content-area">
+        <script>
+          // Toggle sidebar
+          document.getElementById('toggleSidebar').addEventListener('click', function () {
+            document.querySelector('.sidebar').classList.toggle('collapsed');
+            document.querySelector('.main-content').classList.toggle('expanded');
+          });
+
+          // Function to update active menu item and section based on hash
+          function updateActiveSection() {
+            const hash = window.location.hash; // Get the current hash (e.g., #userProfile)
+            const menuItems = document.querySelectorAll('.menu-item');
+            const sections = document.querySelectorAll('.section');
+
+            // Remove active class from all menu items and sections
+            menuItems.forEach(item => item.classList.remove('active'));
+            sections.forEach(section => section.classList.remove('active'));
+
+            // If there's a hash, activate the corresponding section
+            if (hash) {
+              const targetSectionId = hash.substring(1); // Remove the '#' from the hash
+              const targetMenuItem = document.querySelector(`.menu-item[data-section="${targetSectionId}"]`);
+              const targetSection = document.getElementById(targetSectionId);
+
+              // Add active class to the matching menu item and section if they exist
+              if (targetMenuItem && targetSection) {
+                targetMenuItem.classList.add('active');
+                targetSection.classList.add('active');
+              }
+            }
+            // If there's no hash, no section will be active (no default activation)
+          }
+
+          // Update active section on hash change
+          window.onhashchange = updateActiveSection;
+
+          // Update active section on initial load
+          document.addEventListener('DOMContentLoaded', function () {
+            updateActiveSection();
+            setTimeout(() => {
+              document.querySelector('.content-area').style.opacity = '1';
+            }, 300);
+          });
+        </script>
+</body>
+
+</html>

@@ -8,11 +8,11 @@ const addressSchema = new Schema({
     unique: true
   },
   address: [{
-    addressType: {
+    label: {
       type: String,
       required: true
     },
-    name: {
+    street: {
       type: String,
       required: true
     },
@@ -20,30 +20,30 @@ const addressSchema = new Schema({
       type: String,
       required: true
     },
-    landMark: {
-      type: String,
-      required: true
-    },
     state: {
       type: String,
       required: true
     },
-    pincode: {
+    zipCode: {
       type: Number,
+      required: true
+    },
+    country: {
+      type: String,
       required: true
     },
     phone: {
       type: String,
       required: true
     },
-    altPhone: {
-      type: String,
-      required: true
-    }
+    // altPhone: {
+    //   type: String,
+    //   required: true
+    // }
   }]
 
 })
 
-const Address = mongoose.Model('Address',addressSchema) 
+const Address = mongoose.model('Address',addressSchema) 
 
 module.exports = Address

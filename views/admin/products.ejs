@@ -1,650 +1,629 @@
 <%- include("../partials/admin/header") %>
 
-  <head>
+<head>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.css">
     <style>
-      /* Label Styling */
-      .form-label {
-        font-size: 13px;
-        color: #333;
-        font-weight: 600;
-        margin-bottom: 5px;
-        margin-top: 8px;
-        display: block;
-      }
+        /* Label Styling */
+        .form-label {
+            font-size: 13px;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 5px;
+            margin-top: 8px;
+            display: block;
+        }
 
-      .form-label {
-        font-weight: 800;
-        font-size: 14px;
-      }
+        .form-label {
+            font-weight: 800;
+            font-size: 14px;
+        }
 
-      /* Input Field Styling */
-      .form-control {
-        width: 100%;
-        padding: 10px;
-        border: 1px solid #ddd;
-        border-radius: 6px;
-        font-size: 14px;
-        color: #333;
-        outline: none;
-        transition: border-color 0.3s ease, box-shadow 0.3s ease;
-      }
+        /* Input Field Styling */
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            color: #333;
+            outline: none;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
 
-      .form-control:focus {
-        border-color: #895D39;
-        box-shadow: 0 0 5px rgba(137, 93, 57, 0.3);
-      }
+        .form-control:focus {
+            border-color: #895D39;
+            box-shadow: 0 0 5px rgba(137, 93, 57, 0.3);
+        }
 
-      /* Error Message Styling */
-      .error-message {
-        color: #e74c3c;
-        font-size: 12px;
-        margin-top: 2px;
-        display: none;
-        /* Hidden by default */
-      }
+        /* Error Message Styling */
+        .error-message {
+            color: #e74c3c;
+            font-size: 12px;
+            margin-top: 2px;
+            display: none;
+        }
 
-      /* Error State for Input Field */
-      .form-control.error {
-        border-color: #e74c3c;
-      }
+        /* Error State for Input Field */
+        .form-control.error {
+            border-color: #e74c3c;
+        }
 
-      .form-control.error:focus {
-        border-color: #e74c3c;
-        box-shadow: 0 0 5px rgba(231, 76, 60, 0.3);
-      }
+        .form-control.error:focus {
+            border-color: #e74c3c;
+            box-shadow: 0 0 5px rgba(231, 76, 60, 0.3);
+        }
 
-      .content-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 20px;
-      }
+        .content-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
 
-      .content-title {
-        font-size: 24px;
-        color: #333;
-        font-weight: 600;
-      }
+        .content-title {
+            font-size: 24px;
+            color: #333;
+            font-weight: 600;
+        }
 
-      .card-header {
-        background-color: white;
-        padding: 15px;
-        border-radius: 8px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-        margin-bottom: 20px;
-      }
+        .card-header {
+            background-color: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+        }
 
-      .input-group {
-        display: flex;
-        align-items: center;
-      }
+        .input-group {
+            display: flex;
+            align-items: center;
+        }
 
-      .input-group input {
-        flex: 1;
-        border: none;
-        outline: none;
-        padding: 8px;
-        font-size: 14px;
-      }
+        .input-group input {
+            flex: 1;
+            border: none;
+            outline: none;
+            padding: 8px;
+            font-size: 14px;
+        }
 
-      a {
-        text-decoration: none;
-        color: white;
-      }
+        a {
+            text-decoration: none;
+            color: white;
+        }
 
-      .input-group button {
-        background-color: #895D39;
-        color: white;
-        border: none;
-        padding: 8px 16px;
-        border-radius: 50px;
-        margin-left: 5px;
-        cursor: pointer;
-        transition: background-color 0.3s ease;
-      }
+        .input-group button {
+            background-color: #895D39;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 50px;
+            margin-left: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
 
-      .input-group button:hover {
-        background-color: #6e4a2d;
-      }
+        .input-group button:hover {
+            background-color: #6e4a2d;
+        }
 
-      .table {
-        width: 100%;
-        border-collapse: collapse;
-        background-color: white;
-        border-radius: 8px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-      }
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
 
-      .table th,
-      .table td {
-        padding: 12px 15px;
-        text-align: left;
-        border-bottom: 1px solid #f0f0f0;
-      }
+        .table th,
+        .table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #f0f0f0;
+        }
 
-      .table th {
-        font-weight: 500;
-        color: #777;
-        font-size: 14px;
-      }
+        .table th {
+            font-weight: 500;
+            color: #777;
+            font-size: 14px;
+        }
 
-      .table td {
-        color: #333;
-      }
+        .table td {
+            color: #333;
+        }
 
-      .btn {
-        padding: 8px 16px;
-        border: none;
-        border-radius: 6px;
-        cursor: pointer;
-        font-size: 14px;
-        font-weight: 500;
-        transition: background-color 0.3s ease;
-      }
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background-color 0.3s ease;
+        }
 
-      .btn-submit {
-        background-color: #895D39;
-        color: white;
-        padding: 8px 16px;
-        border-radius: 5px;
-        cursor: pointer;
-        margin-top: 8px;
-        border: none;
-        margin-bottom: 12px;
-      }
+        .btn-submit {
+            background-color: #895D39;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 8px;
+            border: none;
+            margin-bottom: 12px;
+        }
 
-      .btn-submit:hover {
-        background-color: #6f4f34;
-      }
+        .btn-submit:hover {
+            background-color: #6f4f34;
+        }
 
-      .btn-danger {
-        background-color: #e74c3c;
-        color: white;
-      }
+        .btn-danger {
+            background-color: #e74c3c;
+            color: white;
+        }
 
-      .btn-danger:hover {
-        background-color: #c0392b;
-      }
+        .btn-danger:hover {
+            background-color: #c0392b;
+        }
 
-      .btn-success {
-        background-color: #2ecc71;
-        color: white;
-      }
+        .btn-success {
+            background-color: #2ecc71;
+            color: white;
+        }
 
-      .btn-success:hover {
-        background-color: #27ae60;
-      }
+        .btn-success:hover {
+            background-color: #27ae60;
+        }
 
-      .btn-info {
-        background-color: #17a2b8;
-        color: white;
-      }
+        .btn-info {
+            background-color: #17a2b8;
+            color: white;
+        }
 
-      .btn-info:hover {
-        background-color: #138496;
-      }
+        .btn-info:hover {
+            background-color: #138496;
+        }
 
-      /* Pagination Styling */
-      .pagination {
-        display: flex;
-        justify-content: center;
-        margin-top: 20px;
-      }
+        /* Pagination Styling */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
 
-      .pagination .page-item {
-        margin: 0 5px;
-      }
+        .pagination .page-item {
+            margin: 0 5px;
+        }
 
-      .pagination .page-link {
-        padding: 8px 16px;
-        border: 1px solid #ddd;
-        border-radius: 3px;
-        color: #555;
-        text-decoration: none;
-        transition: all 0.3s ease;
-      }
+        .pagination .page-link {
+            padding: 8px 16px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            color: #555;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
 
-      .pagination .page-link:hover {
-        background-color: #895D39;
-        color: white;
-        border-color: #895D39;
-      }
+        .pagination .page-link:hover {
+            background-color: #895D39;
+            color: white;
+            border-color: #895D39;
+        }
 
-      .page-item {
-        list-style: none;
-      }
+        .page-item {
+            list-style: none;
+        }
 
-      .page-link {
-        padding: 0.5rem 1rem;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        color: #895D39;
-        text-decoration: none;
-        transition: background-color 0.3s, color 0.3s;
-      }
+        .page-link {
+            padding: 0.5rem 1rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            color: #895D39;
+            text-decoration: none;
+            transition: background-color 0.3s, color 0.3s;
+        }
 
-      ul.size-list {
-        list-style-type: none;
-        padding: 0;
-        margin: 0;
-      }
+        ul.size-list {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
 
-      ul.size-list li {
-        padding: 5px 0;
-        border-bottom: 1px solid #ddd;
-      }
+        ul.size-list li {
+            padding: 5px 0;
+            border-bottom: 1px solid #ddd;
+        }
 
-      ul.size-list li:last-child {
-        border-bottom: none;
-      }
+        ul.size-list li:last-child {
+            border-bottom: none;
+        }
     </style>
-  </head>
+</head>
 
-  <div class="content-header">
+<div class="content-header">
     <h2 class="content-title">Products</h2>
-  </div>
+</div>
 
-  <header class="card-header">
+<header class="card-header">
     <form id="searchForm" action="/admin/products" method="get" class="d-inline">
-      <div class="input-group">
-        <input type="text" class="form-control" placeholder="Search products or brands" name="search"
-          value="<%= search || '' %>">
-        <button class="btn btn-primary" type="submit">Search</button>
-        <!-- Cancel/Reset Button -->
-        <% if (search) { %>
-          <button type="button" class="btn btn-danger" onclick="resetSearch()">Cancel</button>
-          <% } %>
-      </div>
-    </form>
-  </header>
-
-  <div class="card">
-    <div class="card-body">
-      <div class="table-responsive">
-        <table class="table table-hover">
-          <thead>
-            <tr>
-              <th>Product Name</th>
-              <th>Brand</th>
-              <th>Category</th>
-              <th>Sale Price</th>
-              <th>Offer Price</th>
-              <th>Offer</th>
-              <th>Quantity by Size</th>
-              <th>Listing Status</th>
-              <th>Action</th>
-              <th>Edit</th>
-            </tr>
-          </thead>
-          <tbody>
-            <% if (products.length> 0) { %>
-              <% products.forEach(product=> { %>
-                <tr>
-                  <td>
-                    <%= product.productName %>
-                  </td>
-                  <td>
-                    <%= product.brand %>
-                  </td>
-                  <td>
-                    <% if (product.category) { %>
-                      <%= product.category.name || 'Unnamed Category' %>
-                        <% } else { %>
-                          No Category
-                          <% } %>
-                  </td>
-                  <td>
-                    <%= product.salePrice %>
-                  </td>
-                  <td>
-                    <%= product.offerPrice || 'N/A' %>
-                  </td>
-                  <td>
-                    <% if (product.offerPrice) { %>
-                      <button class="btn btn-info" onclick="removeOffer('<%= product._id %>')">Remove Offer</button>
-                      <% } else { %>
-                        <button class="btn btn-info" onclick="addOffer('<%= product._id %>')">Add Offer</button>
-                        <% } %>
-                  </td>
-                  <td>
-                    <% if (product.size && product.size.length> 0) { %>
-                      <ul class="size-list">
-                        <% product.size.forEach(sizeObj=> { %>
-                          <li>
-                            <%= sizeObj.size %>: <%= sizeObj.quantity %>
-                          </li>
-                          <% }); %>
-                      </ul>
-                      <% } else { %>
-                        No Sizes Available
-                        <% } %>
-                  </td>
-                  <td>
-                    <% if (product.isListed) { %>
-                      <button class="btn btn-danger" onclick="confirmUnlist('<%= product._id %>')">Unlist</button>
-                      <% } else { %>
-                        <button class="btn btn-success" onclick="confirmList('<%= product._id %>')">List</button>
-                        <% } %>
-                  </td>
-                
-                  <td>
-                    <% if (product.isBlocked) { %>
-                      <button class="btn btn-success" onclick="confirmUnblock('<%= product._id %>')">Unblock</button>
-                      <% } else { %>
-                        <button class="btn btn-danger" onclick="confirmBlock('<%= product._id %>')">Block</button>
-                        <% } %>
-                  </td>
-                  <td>
-                    <a href="/admin/editProduct?id=<%= product._id %>" class="btn btn-info">Edit</a>
-                  </td>
-                </tr>
-                <% }); %>
-                  <% } else { %>
-                    <tr>
-                      <td colspan="9" class="text-center">No products found.</td>
-                    </tr>
-                    <% } %>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-
-  <nav aria-label="Page navigation">
-    <ul class="pagination">
-      <% if (currentPage> 1) { %>
-        <li class="page-item">
-          <a class="page-link" href="/admin/products?page=<%= currentPage - 1 %>&search=<%= search %>"
-            aria-label="Previous">
-            <span aria-hidden="true">&laquo;</span>
-          </a>
-        </li>
-        <% } %>
-
-          <% for (let i=1; i <=totalPages; i++) { %>
-            <li class="page-item <%= currentPage === i ? 'active' : '' %>">
-              <a class="page-link" href="/admin/products?page=<%= i %>&search=<%= search %>">
-                <%= i %>
-              </a>
-            </li>
+        <div class="input-group">
+            <input type="text" class="form-control" placeholder="Search products or brands" name="search" value="<%= search || '' %>">
+            <button class="btn btn-primary" type="submit">Search</button>
+            <% if (search) { %>
+                <button type="button" class="btn btn-danger" onclick="resetSearch()">Cancel</button>
             <% } %>
+        </div>
+    </form>
+</header>
 
-              <% if (currentPage < totalPages) { %>
-                <li class="page-item">
-                  <a class="page-link" href="/admin/products?page=<%= currentPage + 1 %>&search=<%= search %>"
-                    aria-label="Next">
-                    <span aria-hidden="true">&raquo;</span>
-                  </a>
-                </li>
-                <% } %>
+<div class="card">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Product Name</th>
+                        <th>Brand</th>
+                        <th>Category</th>
+                        <th>Sale Price</th>
+                        <th>Offer Price</th>
+                        <th>Offer</th>
+                        <th>Quantity by Size</th>
+                        <th>Listing Status</th>
+                        <th>Block Status</th>
+                        <th>Edit</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if (products.length > 0) { %>
+                        <% products.forEach(product => { %>
+                            <tr>
+                                <td><%= product.productName %></td>
+                                <td><%= product.brand %></td>
+                                <td>
+                                    <% if (product.category) { %>
+                                        <%= product.category.name || 'Unnamed Category' %>
+                                    <% } else { %>
+                                        No Category
+                                    <% } %>
+                                </td>
+                                <td><%= product.salePrice %></td>
+                                <td><%= product.offerPrice || 'N/A' %></td>
+                                <td>
+                                    <% if (product.offerPrice) { %>
+                                        <button class="btn btn-info" onclick="removeOffer('<%= product._id %>')">Remove Offer</button>
+                                    <% } else { %>
+                                        <button class="btn btn-info" onclick="addOffer('<%= product._id %>')">Add Offer</button>
+                                    <% } %>
+                                </td>
+                                <td>
+                                    <% if (product.size && product.size.length > 0) { %>
+                                        <ul class="size-list">
+                                            <% product.size.forEach(sizeObj => { %>
+                                                <li><%= sizeObj.size %>: <%= sizeObj.quantity %></li>
+                                            <% }); %>
+                                        </ul>
+                                    <% } else { %>
+                                        No Sizes Available
+                                    <% } %>
+                                </td>
+                                <td>
+                                    <% if (product.isListed) { %>
+                                        <button class="btn btn-danger" onclick="confirmUnlist('<%= product._id %>')">Unlist</button>
+                                    <% } else { %>
+                                        <button class="btn btn-success" onclick="confirmList('<%= product._id %>')">List</button>
+                                    <% } %>
+                                </td>
+                                <td>
+                                    <% if (product.isBlocked) { %>
+                                        <button class="btn btn-success" onclick="confirmUnblock('<%= product._id %>')">Unblock</button>
+                                    <% } else { %>
+                                        <button class="btn btn-danger" onclick="confirmBlock('<%= product._id %>')">Block</button>
+                                    <% } %>
+                                </td>
+                                <td>
+                                    <a href="/admin/editProduct?id=<%= product._id %>" class="btn btn-info">Edit</a>
+                                </td>
+                            </tr>
+                        <% }); %>
+                    <% } else { %>
+                        <tr>
+                            <td colspan="10" class="text-center">No products found.</td>
+                        </tr>
+                    <% } %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<nav aria-label="Page navigation">
+    <ul class="pagination">
+        <% if (currentPage > 1) { %>
+            <li class="page-item">
+                <a class="page-link" href="/admin/products?page=<%= currentPage - 1 %>&search=<%= search %>" aria-label="Previous">
+                    <span aria-hidden="true">«</span>
+                </a>
+            </li>
+        <% } %>
+        <% for (let i = 1; i <= totalPages; i++) { %>
+            <li class="page-item <%= currentPage === i ? 'active' : '' %>">
+                <a class="page-link" href="/admin/products?page=<%= i %>&search=<%= search %>">
+                    <%= i %>
+                </a>
+            </li>
+        <% } %>
+        <% if (currentPage < totalPages) { %>
+            <li class="page-item">
+                <a class="page-link" href="/admin/products?page=<%= currentPage + 1 %>&search=<%= search %>" aria-label="Next">
+                    <span aria-hidden="true">»</span>
+                </a>
+            </li>
+        <% } %>
     </ul>
-  </nav>
+</nav>
 
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  <script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
     function resetSearch() {
-      document.querySelector('input[name="search"]').value = '';
-      document.getElementById('searchForm').submit();
+        document.querySelector('input[name="search"]').value = '';
+        document.getElementById('searchForm').submit();
     }
 
     async function addOffer(productId) {
-      const { value: amount } = await Swal.fire({
-        title: 'Offer in percentage',
-        input: 'number',
-        inputLabel: 'Percentage',
-        inputPlaceholder: '%',
-        inputAttributes: {
-          min: 0,
-          max: 100,
-          step: 1,
-        },
-      });
-
-      if (amount) {
-        try {
-          const response = await fetch('/admin/addProductOffer', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
+        const { value: amount } = await Swal.fire({
+            title: 'Offer in percentage',
+            input: 'number',
+            inputLabel: 'Percentage',
+            inputPlaceholder: '%',
+            inputAttributes: {
+                min: 0,
+                max: 100,
+                step: 1,
             },
-            body: JSON.stringify({
-              percentage: amount,
-              productId: productId,
-            }),
-          });
+        });
 
-          const data = await response.json();
+        if (amount) {
+            try {
+                const response = await fetch('/admin/addProductOffer', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        percentage: amount,
+                        productId: productId,
+                    }),
+                });
 
-          if (response.ok && data.success) {
-            Swal.fire('Offer added', 'The offer has been added', 'success').then(() => {
-              location.reload();
-            });
-          } else {
-            Swal.fire('Failed', data.message || 'Adding offer failed', 'error');
-          }
-        } catch (error) {
-          Swal.fire('Error', 'An error occurred while adding the offer', 'error');
-          console.error('Error adding offer:', error);
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    Swal.fire('Offer added', 'The offer has been added', 'success').then(() => {
+                        location.reload();
+                    });
+                } else {
+                    Swal.fire('Failed', data.message || 'Adding offer failed', 'error');
+                }
+            } catch (error) {
+                Swal.fire('Error', 'An error occurred while adding the offer', 'error');
+                console.error('Error adding offer:', error);
+            }
         }
-      }
     }
 
     async function removeOffer(productId) {
-      try {
-        const response = await fetch('/admin/removeProductOffer', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            productId: productId,
-          }),
-        });
+        try {
+            const response = await fetch('/admin/removeProductOffer', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    productId: productId,
+                }),
+            });
 
-        const data = await response.json();
+            const data = await response.json();
 
-        if (response.ok && data.status) {
-          Swal.fire('Offer removed', 'The offer has been removed', 'success').then(() => {
-            location.reload();
-          });
-        } else {
-          Swal.fire('Failed', data.message || 'Removing offer failed', 'error');
+            if (response.ok && data.status) {
+                Swal.fire('Offer removed', 'The offer has been removed', 'success').then(() => {
+                    location.reload();
+                });
+            } else {
+                Swal.fire('Failed', data.message || 'Removing offer failed', 'error');
+            }
+        } catch (error) {
+            Swal.fire('Error', 'An error occurred while removing the offer', 'error');
+            console.error('Error removing offer:', error);
         }
-      } catch (error) {
-        Swal.fire('Error', 'An error occurred while removing the offer', 'error');
-        console.error('Error removing offer:', error);
-      }
     }
 
-
     async function confirmList(productId) {
-      const result = await Swal.fire({
-        title: 'List this product?',
-        text: 'This product will be visible to customers',
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonColor: '#2ecc71',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Yes, list it!'
-      });
+        const result = await Swal.fire({
+            title: 'List this product?',
+            text: 'This product will be visible to customers',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#2ecc71',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, list it!'
+        });
 
-      if (result.isConfirmed) {
-        try {
-          const response = await fetch(`/admin/listProduct?id=${productId}`, {
-            method: 'GET',
-            headers: {
-              'Content-Type': 'application/json',
+        if (result.isConfirmed) {
+            try {
+                const response = await fetch(`/admin/listProduct?id=${productId}`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+
+                if (response.ok) {
+                    Swal.fire(
+                        'Listed!',
+                        'The product has been successfully listed.',
+                        'success'
+                    ).then(() => {
+                        location.reload();
+                    });
+                } else {
+                    const data = await response.json();
+                    Swal.fire(
+                        'Failed',
+                        data.message || 'Listing product failed',
+                        'error'
+                    );
+                }
+            } catch (error) {
+                Swal.fire(
+                    'Error',
+                    'An error occurred while listing the product',
+                    'error'
+                );
+                console.error('Error listing product:', error);
             }
-          });
-
-          if (response.ok) {
-            Swal.fire(
-              'Listed!',
-              'The product has been successfully listed.',
-              'success'
-            ).then(() => {
-              location.reload();
-            });
-          } else {
-            const data = await response.json();
-            Swal.fire(
-              'Failed',
-              data.message || 'Listing product failed',
-              'error'
-            );
-          }
-        } catch (error) {
-          Swal.fire(
-            'Error',
-            'An error occurred while listing the product',
-            'error'
-          );
-          console.error('Error listing product:', error);
         }
-      }
     }
 
     async function confirmUnlist(productId) {
-      const result = await Swal.fire({
-        title: 'Unlist this product?',
-        text: 'This product will no longer be visible to customers',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#3085d6',
-        cancelButtonColor: '#d33',
-        confirmButtonText: 'Yes, unlist it!'
-      });
+        const result = await Swal.fire({
+            title: 'Unlist this product?',
+            text: 'This product will no longer be visible to customers',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, unlist it!'
+        });
 
-      if (result.isConfirmed) {
-        try {
-          const response = await fetch(`/admin/unlistProduct?id=${productId}`, {
-            method: 'GET',
-            headers: {
-              'Content-Type': 'application/json',
+        if (result.isConfirmed) {
+            try {
+                const response = await fetch(`/admin/unlistProduct?id=${productId}`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+
+                if (response.ok) {
+                    Swal.fire(
+                        'Unlisted!',
+                        'The product has been successfully unlisted.',
+                        'success'
+                    ).then(() => {
+                        location.reload();
+                    });
+                } else {
+                    const data = await response.json();
+                    Swal.fire(
+                        'Failed',
+                        data.message || 'Unlisting product failed',
+                        'error'
+                    );
+                }
+            } catch (error) {
+                Swal.fire(
+                    'Error',
+                    'An error occurred while unlisting the product',
+                    'error'
+                );
+                console.error('Error unlisting product:', error);
             }
-          });
-
-          if (response.ok) {
-            Swal.fire(
-              'Unlisted!',
-              'The product has been successfully unlisted.',
-              'success'
-            ).then(() => {
-              location.reload();
-            });
-          } else {
-            const data = await response.json();
-            Swal.fire(
-              'Failed',
-              data.message || 'Unlisting product failed',
-              'error'
-            );
-          }
-        } catch (error) {
-          Swal.fire(
-            'Error',
-            'An error occurred while unlisting the product',
-            'error'
-          );
-          console.error('Error unlisting product:', error);
         }
-      }
     }
-
-
 
     async function confirmBlock(productId) {
-    const result = await Swal.fire({
-      title: 'Block this product?',
-      text: 'This product will no longer be available to customers.',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#d33',
-      cancelButtonColor: '#3085d6',
-      confirmButtonText: 'Yes, block it!'
-    });
-
-    if (result.isConfirmed) {
-      try {
-        const response = await fetch(`/admin/blockProduct?id=${productId}`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          }
+        const result = await Swal.fire({
+            title: 'Block this product?',
+            text: 'This product will no longer be available to customers.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Yes, block it!'
         });
 
-        if (response.ok) {
-          Swal.fire(
-            'Blocked!',
-            'The product has been successfully blocked.',
-            'success'
-          ).then(() => {
-            location.reload();
-          });
-        } else {
-          const data = await response.json();
-          Swal.fire(
-            'Failed',
-            data.message || 'Blocking product failed',
-            'error'
-          );
+        if (result.isConfirmed) {
+            try {
+                const response = await fetch(`/admin/blockProduct?id=${productId}`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+
+                if (response.ok) {
+                    Swal.fire(
+                        'Blocked!',
+                        'The product has been successfully blocked.',
+                        'success'
+                    ).then(() => {
+                        location.reload();
+                    });
+                } else {
+                    const data = await response.json();
+                    Swal.fire(
+                        'Failed',
+                        data.message || 'Blocking product failed',
+                        'error'
+                    );
+                }
+            } catch (error) {
+                Swal.fire(
+                    'Error',
+                    'An error occurred while blocking the product',
+                    'error'
+                );
+                console.error('Error blocking product:', error);
+            }
         }
-      } catch (error) {
-        Swal.fire(
-          'Error',
-          'An error occurred while blocking the product',
-          'error'
-        );
-        console.error('Error blocking product:', error);
-      }
     }
-  }
 
-  async function confirmUnblock(productId) {
-    const result = await Swal.fire({
-      title: 'Unblock this product?',
-      text: 'This product will be available to customers again.',
-      icon: 'question',
-      showCancelButton: true,
-      confirmButtonColor: '#2ecc71',
-      cancelButtonColor: '#d33',
-      confirmButtonText: 'Yes, unblock it!'
-    });
-
-    if (result.isConfirmed) {
-      try {
-        const response = await fetch(`/admin/unblockProduct?id=${productId}`, {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          }
+    async function confirmUnblock(productId) {
+        const result = await Swal.fire({
+            title: 'Unblock this product?',
+            text: 'This product will be available to customers again.',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#2ecc71',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, unblock it!'
         });
 
-        if (response.ok) {
-          Swal.fire(
-            'Unblocked!',
-            'The product has been successfully unblocked.',
-            'success'
-          ).then(() => {
-            location.reload();
-          });
-        } else {
-          const data = await response.json();
-          Swal.fire(
-            'Failed',
-            data.message || 'Unblocking product failed',
-            'error'
-          );
+        if (result.isConfirmed) {
+            try {
+                const response = await fetch(`/admin/unblockProduct?id=${productId}`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                });
+
+                if (response.ok) {
+                    Swal.fire(
+                        'Unblocked!',
+                        'The product has been successfully unblocked.',
+                        'success'
+                    ).then(() => {
+                        location.reload();
+                    });
+                } else {
+                    const data = await response.json();
+                    Swal.fire(
+                        'Failed',
+                        data.message || 'Unblocking product failed',
+                        'error'
+                    );
+                }
+            } catch (error) {
+                Swal.fire(
+                    'Error',
+                    'An error occurred while unblocking the product',
+                    'error'
+                );
+                console.error('Error unblocking product:', error);
+            }
         }
-      } catch (error) {
-        Swal.fire(
-          'Error',
-          'An error occurred while unblocking the product',
-          'error'
-        );
-        console.error('Error unblocking product:', error);
-      }
     }
-  }
-  </script>
+</script>

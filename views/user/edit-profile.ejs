@@ -1,0 +1,202 @@
+<%- include("../partials/user/dasboard") %>
+
+    <div class="content-area">
+        <style>
+            .content-area {
+                padding: 20px;
+            }
+
+            .page-title {
+                font-size: 1.8rem;
+                margin-bottom: 20px;
+                color: #2c3e50;
+                display: flex;
+                align-items: center;
+            }
+
+            .page-title i {
+                margin-right: 10px;
+            }
+
+            .card {
+                background-color: white;
+                border-radius: 8px;
+                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+                padding: 20px;
+                margin-bottom: 20px;
+            }
+
+            .profile-section {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+                margin-bottom: 30px;
+            }
+
+            .profile-img {
+                width: 120px;
+                height: 120px;
+                border-radius: 50%;
+                object-fit: cover;
+                border: 5px solid white;
+                box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+                margin-bottom: 15px;
+            }
+
+            .form-group {
+                margin-bottom: 25px;
+            }
+
+            .form-group label {
+                display: block;
+                margin-bottom: 5px;
+                font-weight: 500;
+            }
+
+            .form-control {
+                width: 100%;
+                padding: 10px;
+                border: 1px solid #ddd;
+                border-radius: 4px;
+                font-size: 1rem;
+                margin-bottom: 10px;
+            }
+
+            .form-control:disabled {
+                background-color: #e9ecef;
+                cursor: not-allowed;
+            }
+
+            .form-control:focus {
+                outline: none;
+                border-color: #3498db;
+            }
+
+            .row {
+                display: flex;
+                flex-wrap: wrap;
+                margin: 0 -10px;
+            }
+
+            .col-md-6 {
+                flex: 0 0 50%;
+                max-width: 50%;
+                padding: 0 10px;
+            }
+
+            .btn {
+                padding: 8px 15px;
+                border-radius: 4px;
+                border: none;
+                cursor: pointer;
+                font-weight: 500;
+                transition: all 0.3s ease;
+            }
+
+            .btn-primary {
+                background-color: #3498db;
+                color: white;
+            }
+
+            .btn-primary:hover {
+                background-color: #2980b9;
+            }
+
+            .change-btn {
+                padding: 5px 8px;
+                font-size: 13px;
+
+                text-decoration: none;
+                background-color: #3498db;
+                border: none;
+                border-radius: 4px;
+                color: white;
+                margin-bottom: 10px;
+            }
+
+            .change-btn:hover {
+                background-color: #2980b9;
+            }
+
+            .alert-info {
+                color: red;
+                font-size: 14px;
+            }
+        </style>
+
+        <h1 class="page-title">
+            <i class="fas fa-user-edit"></i>
+            Edit Profile
+        </h1>
+
+        <div class="card">
+            <form action="" method="">
+                <div class="profile-section">
+                    <!-- <img src="<%= user.profileImage || 'https://randomuser.me/api/portraits/men/32.jpg' %>"
+                        alt="Profile" class="profile-img" id="profileImagePreview"> -->
+                    <img src="/admin-img/IMG_5684.jpg" alt="" class="profile-img">
+                    <input type="file" id="profileImage" name="profileImage" accept="image/*" style="display: none;">
+                    <button type="button" class="btn btn-primary"
+                        onclick="document.getElementById('profileImage').click()">
+                        Change Photo
+                    </button>
+                </div>
+
+
+
+                <div class="form-group">
+                    <label>Name</label>
+                    <input type="text" class="form-control" name="lastName" value="<%= user.name %>" readonly>
+                    <% if (!isGoogleUser) { %>
+                        <a href="/change-name" class="change-btn">Change Name</a>
+                        <% } else { %>
+                            <div class="alert alert-info">
+                                Profile editing is restricted for Google-authenticated accounts
+                            </div>
+                            <% } %>
+                </div>
+
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" class="form-control" name="email" value="<%= user.email %>" readonly>
+                    <% if (!isGoogleUser) { %>
+                        <a href="/change-email" class="change-btn">Change Email</a>
+                        <% } else { %>
+                            <div class="alert alert-info">
+                                Profile editing is restricted for Google-authenticated accounts
+                            </div>
+                            <% } %>
+                </div>
+
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" name="password" class="form-control" value="mypassword" disabled>
+                    <% if (!isGoogleUser) { %>
+                        <a href="/change-pass" class="change-btn">Change Password</a>
+                        <% } else { %>
+                            <div class="alert alert-info">
+                                Profile editing is restricted for Google-authenticated accounts
+                            </div>
+                            <% } %>
+                </div>
+
+
+
+            </form>
+        </div>
+
+        <script>
+            // Preview profile image before upload
+            document.getElementById('profileImage').addEventListener('change', function (e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function (event) {
+                        document.getElementById('profileImagePreview').src = event.target.result;
+                    }
+                    reader.readAsDataURL(file);
+                }
+            });
+        </script>
+    </div>

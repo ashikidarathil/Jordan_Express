@@ -28,7 +28,7 @@ const categoryInfo = async (req, res) => {
       currentPage: page,
       totalPages: totalPages,
       totalCategories: totalCategories,
-      search: searchQuery // Pass the search term back to the EJS template
+      search: searchQuery 
     });
 
   } catch (error) {

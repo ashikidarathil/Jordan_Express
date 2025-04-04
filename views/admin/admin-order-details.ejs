@@ -1,0 +1,405 @@
+<!-- views/partials/admin/header.ejs (add this before </head>) -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<!-- views/admin/order-details.ejs -->
+<%- include("../partials/admin/header") %>
+
+  <style>
+    .order-details-container {
+      background-color: white;
+      border-radius: 12px;
+      padding: 25px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      
+    }
+
+    .order-header {
+      margin-bottom: 20px;
+    }
+
+    .order-info,
+    .items-table {
+      margin-bottom: 50px;
+      margin-top: 40px;
+    }
+
+    .order-info p {
+      font-size: 14px;
+      margin-bottom: 2px;
+    }
+
+    .status-select {
+      padding: 5px;
+      border-radius: 4px;
+      margin-right: 10px;
+    }
+
+    .update-status-btn {
+      padding: 5px 15px;
+      background-color: #895D39;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th,
+    td {
+      padding: 12px 15px;
+      text-align: left;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .order-status p {
+      font-size: 14px;
+      margin-bottom: 3px;
+    }
+
+    .status {
+      padding: 5px 12px;
+      border-radius: 50px;
+      font-size: 12px;
+      font-weight: 500;
+      display: inline-block;
+    }
+
+    .status.pending {
+      background-color: rgba(241, 196, 15, 0.1);
+      /* Light yellow */
+      color: #f1c40f;
+      /* Yellow */
+    }
+
+    .status.processing {
+      background-color: rgba(14, 138, 200, 0.1);
+      /* Light blue */
+      color: #0e8ac8;
+      /* Blue */
+    }
+
+    .status.shipped {
+      background-color: rgba(46, 204, 113, 0.1);
+      /* Light green */
+      color: #2ecc71;
+      /* Green */
+    }
+
+    .status.delivered {
+      background-color: rgba(52, 152, 219, 0.1);
+      /* Light sky blue */
+      color: #3498db;
+      /* Sky blue */
+    }
+
+    .status.cancelled {
+      background-color: rgba(231, 76, 60, 0.1);
+      /* Light red */
+      color: #e74c3c;
+      /* Red */
+    }
+
+    .status.partially-cancelled {
+      background-color: rgba(243, 156, 18, 0.1);
+      /* Light orange */
+      color: #f39c12;
+      /* Orange */
+    }
+
+    .status.returned {
+      background-color: rgba(155, 89, 182, 0.1);
+      /* Light purple */
+      color: #9b59b6;
+      /* Purple */
+    }
+
+    .status.return-rejected {
+      background-color: rgba(149, 165, 166, 0.1);
+      /* Light gray */
+      color: black;
+      /* Gray */
+    }
+
+    /* ... other status colors ... */
+
+    .product-image {
+      width: 120px;
+      height: 50px;
+      object-fit: cover;
+      border-radius: 4px;
+    }
+
+    .action-btn {
+      padding: 5px 10px;
+      margin: 0 5px;
+      border-radius: 4px;
+      border: none;
+      cursor: pointer;
+      color: white;
+    }
+
+    .btn-accept {
+      background-color: #2ecc71;
+    }
+
+    .btn-reject {
+      background-color: #e74c3c;
+    }
+
+    select:disabled,
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  </style>
+
+  <div class="main-content">
+    <h1 class="dashboard-title" style="margin-left: 20px; margin-bottom: 10px;">Order Details</h1>
+
+    <div class="order-details-container">
+      <div class="order-header">
+        <h4>Order #<%= order.orderID %>
+        </h4>
+        <p style="margin-top: 5px; font-size: 14px;">Date: <%= order.createdOn.toLocaleDateString() %>
+        </p>
+      </div>
+
+      <div class="order-info">
+        <h4 style="margin-bottom: 5px;">Customer Information</h4>
+        <p>Name: <%= order.userID.name %>
+        </p>
+        <p>Email: <%= order.userID.email %>
+        </p>
+        <!-- <p>Wallet Balance: $<%= (order.userID.wallet || 0).toFixed(2) %></p> -->
+        <p>Address: <%= order.address.street %>, <%= order.address.city %>, <%= order.address.state %>
+                <%= order.address.zipCode %>, <%= order.address.country %>
+        </p>
+        <p>Phone: <%= order.address.phone %>
+        </p>
+      </div>
+
+      <div class="items-table">
+        <h3>Order Items</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Image</th>
+              <th>Product</th>
+              <th>Size</th>
+              <th>Quantity</th>
+              <th>Price</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% order.orderItems.forEach((item, index)=> { %>
+              <tr>
+                <td><img src="/uploads/product-image/<%= item.product.productImage[0] %>"
+                    alt="<%= item.product.productName %>" class="product-image"></td>
+                <td>
+                  <%= item.product.productName %>
+                </td>
+                <td>
+                  <%= item.size %>
+                </td>
+                <td>
+                  <%= item.quantity %>
+                </td>
+                <td>$<%= item.price.toFixed(2) %>
+                </td>
+                <td>
+                  <span class="status <%= item.status.toLowerCase().replace(' ', '-') %>">
+                    <%= item.status %>
+                  </span>
+                  <% if (item.status==='Return Request' && item.returnReason) { %>
+                    <p style="font-size: 12px; color: #777;">Reason: <%= item.returnReason %>
+                    </p>
+                    <% } %>
+                </td>
+                <td>
+                  <div style="margin-top: 8px;">
+                    <% if (['Delivered', 'Cancelled' , 'Returned' , 'Return Rejected' ].includes(item.status)) { %>
+                      <!-- Disabled select and button for specific statuses -->
+                      <select class="status-select item-status-select" id="itemStatus<%= index %>" disabled>
+                        <% ['Pending', 'Processing' , 'Shipped' , 'Delivered' , 'Cancelled' , 'Returned'
+                          , 'Return Rejected' ].forEach(status=> { %>
+                          <option value="<%= status %>" <%=item.status===status ? 'selected' : '' %>><%= status %>
+                          </option>
+                          <% }) %>
+                      </select>
+                      <button class="update-status-btn" style="font-size: 12px; padding: 3px 8px;"
+                        disabled>Update</button>
+                      <% if (item.status==='Return Request' ) { %>
+                        <!-- These buttons won't appear since status isn't 'Return Request' -->
+                        <button class="action-btn btn-accept" disabled>Accept</button>
+                        <button class="action-btn btn-reject" disabled>Reject</button>
+                        <% } %>
+                          <% } else { %>
+                            <!-- Enabled select and buttons for other statuses -->
+                            <select class="status-select item-status-select" id="itemStatus<%= index %>">
+                              <% ['Pending', 'Processing' , 'Shipped' , 'Delivered' , 'Cancelled' , 'Returned'
+                                , 'Return Rejected' ].forEach(status=> { %>
+                                <option value="<%= status %>" <%=item.status===status ? 'selected' : '' %>><%= status %>
+                                </option>
+                                <% }) %>
+                            </select>
+                            <button class="update-status-btn" style="font-size: 12px; padding: 3px 8px;"
+                              onclick="updateItemStatus('<%= order.orderID %>', '<%= item.product._id %>', '<%= item.size %>', '<%= index %>')">
+                              Update
+                            </button>
+                            <% if (item.status==='Return Request' ) { %>
+                              <button class="action-btn btn-accept"
+                                onclick="verifyReturn('<%= order.orderID %>', '<%= item.product._id %>', '<%= item.size %>', 'accept')">Accept</button>
+                              <button class="action-btn btn-reject"
+                                onclick="verifyReturn('<%= order.orderID %>', '<%= item.product._id %>', '<%= item.size %>', 'reject')">Reject</button>
+                              <% } %>
+                                <% } %>
+                  </div>
+                </td>
+              </tr>
+              <% }) %>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="order-status">
+        <h3 style="margin-bottom: 10px;">Order Status</h3>
+        <!-- <select class="status-select" id="statusSelect">
+          <% ['Pending', 'Processing' , 'Shipped' , 'Delivered' , 'Cancelled' , 'Partially Cancelled' , 'Returned'
+            , 'Partially Returned' ].forEach(status=> { %>
+            <option value="<%= status %>" <%=order.status===status ? 'selected' : '' %>><%= status %>
+            </option>
+            <% }) %>
+        </select>
+        <button class="update-status-btn" onclick="updateOrderStatus('<%= order.orderID %>')">Update Status</button> -->
+        <p style="margin-top: 15px;">Total: $<%= order.finalAmount.toFixed(2) %>
+        </p>
+        <p>Payment Method: <%= order.paymentMethod %>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function updateOrderStatus(orderId) {
+      const newStatus = document.getElementById('statusSelect').value;
+      Swal.fire({
+        title: 'Confirm Order Status Change',
+        text: `Are you sure you want to change the order status to ${newStatus}?`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#895D39',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, update it!'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          fetch(`/admin/orders/${orderId}/status`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status: newStatus })
+          })
+            .then(response => response.json())
+            .then(data => {
+              if (data.success) {
+                Swal.fire('Success!', 'Order status updated successfully', 'success').then(() => location.reload());
+              } else {
+                Swal.fire('Error!', data.message, 'error');
+              }
+            })
+            .catch(error => Swal.fire('Error!', 'Failed to update status', 'error'));
+        }
+      });
+    }
+
+    function updateItemStatus(orderId, productId, size, index) {
+      const newStatus = document.getElementById(`itemStatus${index}`).value;
+
+
+      const statusColors = {
+        'Pending': '#f1c40f',
+        'Processing': '#0e8ac8',
+        'Shipped': '#2ecc71',
+        'Delivered': '#3498db',
+        'Cancelled': '#e74c3c',
+        'Partially Cancelled': '#f39c12',
+        'Returned': '#9b59b6',
+        'Return Rejected': '#95a5a6'
+    };
+
+
+      Swal.fire({
+        title: 'Confirm Item Status Change',
+        text: `Are you sure you want to change this item's status to ${newStatus}?`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#895D39',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, update it!'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          fetch(`/admin/orders/${orderId}/item-status`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ productId, size, status: newStatus })
+          })
+            .then(response => {
+              console.log('Response status:', response.status);
+              return response.json();  // Add the return here
+            })
+            .then(data => {
+              if (data.success) {
+                Swal.fire('Success!', 'Item status updated successfully', 'success').then(() => location.reload());
+              } else {
+                Swal.fire('Error!', data.message || 'Failed to update status', 'error');
+              }
+            })
+            .catch(error => {
+              console.error('Error:', error);
+              Swal.fire('Error!', 'Failed to update status', 'error');
+            });
+        }
+      });
+    }
+
+    function verifyReturn(orderId, productId, size, action) {
+
+      const actionColors = {
+        'accept': '#2ecc71',  // Green for accept
+        'reject': '#e74c3c'   // Red for reject
+    };
+
+      Swal.fire({
+        title: `Confirm Return ${action.charAt(0).toUpperCase() + action.slice(1)}`,
+        text: `Are you sure you want to ${action} this return request?`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#895D39',
+        cancelButtonColor: '#d33',
+        confirmButtonText: `Yes, ${action} it!`
+      }).then((result) => {
+        if (result.isConfirmed) {
+          fetch(`/admin/orders/${orderId}/verify-return`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ productId, size, action })
+          })
+            .then(response => response.json())
+            .then(data => {
+              if (data.success) {
+                Swal.fire('Success!', `Return request ${action}ed`, 'success').then(() => location.reload());
+              } else {
+                Swal.fire('Error!', data.message, 'error');
+              }
+            })
+            .catch(error => Swal.fire('Error!', 'Failed to process return', 'error'));
+        }
+      });
+    }
+
+
+  </script>

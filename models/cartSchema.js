@@ -13,10 +13,20 @@ const cartSchema = new Schema({
       ref: 'Product',
       required: true
     },
-    quantity: {
-      type: Number,
-      default: 1
-    },
+    size: [
+      {
+        size: {
+          type: String,
+          required: true,
+          enum: ['UK 6', 'UK 7', 'UK 8', 'UK 9', 'UK 10'] // Allowed sizes
+        },
+        quantity: {
+          type: Number,
+          required: true,
+          min: 0 // Ensure quantity is non-negative
+        }
+      }
+    ],
     price: {
       type: Number,
       required: true

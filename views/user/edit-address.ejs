@@ -1,0 +1,331 @@
+<%- include("../partials/user/dasboard") %>
+    <div class="content-area">
+        <style>
+            .content-area {
+                padding: 20px;
+            }
+
+            .page-title {
+                font-size: 1.8rem;
+                margin-bottom: 20px;
+                color: #2c3e50;
+                display: flex;
+                align-items: center;
+            }
+
+            .page-title i {
+                margin-right: 10px;
+            }
+
+            .card {
+                background-color: white;
+                border-radius: 8px;
+                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+                padding: 20px;
+                margin-bottom: 20px;
+            }
+
+            .card-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 15px;
+                padding-bottom: 10px;
+                border-bottom: 1px solid #eee;
+            }
+
+            .card-title {
+                font-size: 1.2rem;
+                font-weight: 600;
+                color: #2c3e50;
+            }
+
+            .btn {
+                padding: 8px 15px;
+                border-radius: 4px;
+                border: none;
+                cursor: pointer;
+                font-weight: 500;
+                transition: all 0.3s ease;
+            }
+
+            .btn-primary {
+                background-color: #3498db;
+                color: white;
+                font-size: 14px;
+            }
+
+            .btn-primary:hover {
+                background-color: #2980b9;
+            }
+
+            .btn-danger {
+                background-color: #dc3545;
+                color: #eee;
+                text-decoration: none;
+                font-size: 14px;
+            }
+
+            .form-group {
+                margin-bottom: 15px;
+            }
+
+            .form-control {
+                width: 100%;
+                padding: 8px 12px;
+                border: 1px solid #ddd;
+                border-radius: 4px;
+                font-size: 1rem;
+            }
+
+            .row {
+                display: flex;
+                flex-wrap: wrap;
+                margin: 0 -10px;
+            }
+
+            .col-md-6 {
+                flex: 0 0 50%;
+                max-width: 50%;
+                padding: 0 10px;
+            }
+
+            .is-invalid {
+                border-color: #dc3545 !important;
+            }
+
+            .invalid-feedback {
+                width: 100%;
+                margin-top: 0.25rem;
+                font-size: 0.875em;
+                color: #dc3545;
+            }
+        </style>
+
+        <!-- Include SweetAlert CSS -->
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+
+        <h1 class="page-title">
+            <i class="fas fa-map-marker-alt"></i>
+            Edit Address
+        </h1>
+
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Edit Address Details</h3>
+            </div>
+
+            <form id="addressForm" action="/edit-address" method="POST">
+                <input type="hidden" name="addressId" value="<%= address._id %>">
+                <div class="form-group">
+                    <label>Address Label (e.g., Home, Work)</label>
+                    <input type="text" class="form-control" name="label" value="<%= address.label %>">
+                </div>
+                <div class="form-group">
+                    <label>Street Address</label>
+                    <input type="text" class="form-control" name="street" value="<%= address.street %>">
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>City</label>
+                            <input type="text" class="form-control" name="city" value="<%= address.city %>">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>State/Province</label>
+                            <input type="text" class="form-control" name="state" value="<%= address.state %>">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>ZIP/Postal Code</label>
+                            <input type="text" class="form-control" name="zipCode" value="<%= address.zipCode %>">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label>Country</label>
+                            <input type="text" class="form-control" name="country" value="<%= address.country %>">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Phone Number</label>
+                    <input type="text" class="form-control" name="phone" value="<%= address.phone %>">
+                </div>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" name="isDefault" <%=address.isDefault ? 'checked' : '' %>> Set as default
+                        address
+                    </label>
+                </div>
+                <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+                    <a href="/address" class="btn btn-danger">Cancel</a>
+                    <button type="submit" id="submitButton" class="btn btn-primary">Update Address</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Include SweetAlert JS -->
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+        <script>
+            document.getElementById('addressForm').addEventListener('submit', async function (e) {
+                e.preventDefault();
+
+                // Get form elements
+                const form = e.target;
+                const label = form.label.value.trim();
+                const street = form.street.value.trim();
+                const city = form.city.value.trim();
+                const state = form.state.value.trim();
+                const zipCode = form.zipCode.value.trim();
+                const country = form.country.value.trim();
+                const phone = form.phone.value.trim();
+                const addressId = form.addressId.value;
+                const isDefault = form.isDefault.checked;
+
+                // Reset previous error states
+                resetErrors();
+
+                // Validate fields
+                let isValid = true;
+
+                // Label validation
+                if (!label) {
+                    showError('label', 'Address label is required');
+                    isValid = false;
+                } else if (label.length > 30) {
+                    showError('label', 'Label must be less than 30 characters');
+                    isValid = false;
+                }
+
+                // Street validation
+                if (!street) {
+                    showError('street', 'Street address is required');
+                    isValid = false;
+                } else if (street.length > 100) {
+                    showError('street', 'Street address must be less than 100 characters');
+                    isValid = false;
+                }
+
+                // City validation
+                if (!city) {
+                    showError('city', 'City is required');
+                    isValid = false;
+                } else if (city.length > 50) {
+                    showError('city', 'City must be less than 50 characters');
+                    isValid = false;
+                }
+
+                // State validation
+                if (!state) {
+                    showError('state', 'State/Province is required');
+                    isValid = false;
+                } else if (state.length > 50) {
+                    showError('state', 'State must be less than 50 characters');
+                    isValid = false;
+                }
+
+                // ZIP/Postal Code validation
+                if (!zipCode) {
+                    showError('zipCode', 'ZIP/Postal Code is required');
+                    isValid = false;
+                } else if (!/^[a-zA-Z0-9\- ]+$/.test(zipCode)) {
+                    showError('zipCode', 'Invalid ZIP/Postal Code format');
+                    isValid = false;
+                }
+
+                // Country validation
+                if (!country) {
+                    showError('country', 'Country is required');
+                    isValid = false;
+                } else if (country.length > 50) {
+                    showError('country', 'Country must be less than 50 characters');
+                    isValid = false;
+                }
+
+                // Phone validation
+                if (!phone) {
+                    showError('phone', 'Phone number is required');
+                    isValid = false;
+                } else if (!/^[\d\s\+\-\(\)]{6,20}$/.test(phone)) {
+                    showError('phone', 'Invalid phone number format');
+                    isValid = false;
+                }
+
+                // If form is valid, submit via fetch
+                if (isValid) {
+                    try {
+                        const response = await fetch(`/edit-address?id=${addressId}`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/x-www-form-urlencoded',
+                            },
+                            body: new URLSearchParams({
+                                label, street, city, state,
+                                zipCode, country, phone,
+                                isDefault
+                            })
+                        });
+
+                        const data = await response.json();
+                        if (data.success) {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Success!',
+                                text: data.message,
+                                timer: 2000,
+                                showConfirmButton: false
+                            }).then(() => {
+                                window.location.href = '/address';
+                            });
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: data.message
+                            });
+                        }
+                    } catch (error) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Failed to update address'
+                        });
+                    }
+                }
+            });
+
+            function showError(fieldName, message) {
+                const field = document.querySelector(`[name="${fieldName}"]`);
+                const formGroup = field.closest('.form-group');
+
+                // Add error class to input
+                field.classList.add('is-invalid');
+
+                // Create or update error message
+                let errorElement = formGroup.querySelector('.invalid-feedback');
+                if (!errorElement) {
+                    errorElement = document.createElement('div');
+                    errorElement.className = 'invalid-feedback';
+                    formGroup.appendChild(errorElement);
+                }
+                errorElement.textContent = message;
+            }
+
+            function resetErrors() {
+                // Remove all error states and messages
+                document.querySelectorAll('.is-invalid').forEach(el => {
+                    el.classList.remove('is-invalid');
+                });
+                document.querySelectorAll('.invalid-feedback').forEach(el => {
+                    el.remove();
+                });
+            }
+        </script>
+    </div>

@@ -1,5 +1,6 @@
 const { session } = require('passport')
 const userModel = require('../models/userSchema')
+const cartModel = require('../models/cartSchema')
 
 const userAuth = (req, res, next) => {
   if (req.session.user) {
@@ -41,7 +42,19 @@ const adminAuth = (req, res, next) => {
     })
 }
 
+const getCartCount = async (req, res, next) => {
+  if (req.session.user) {
+    const cart = await cartModel.findOne({ userID: req.session.user });
+    res.locals.cartCount = cart ? cart.item.length : 0;
+  } else {
+    res.locals.cartCount = 0;
+  }
+  next();
+};
+
+
 module.exports = {
   userAuth,
-  adminAuth
+  adminAuth,
+  getCartCount
 }

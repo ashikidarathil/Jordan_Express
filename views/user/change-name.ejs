@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Change Name</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: #f8f9fa;
+      padding: 20px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 400px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 16px rgba(0, 0, 0, 0.08);
+      padding: 32px;
+      overflow: hidden;
+    }
+
+    h2 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #111827;
+      margin-bottom: 24px;
+      text-align: center;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: #374151;
+      margin-bottom: 8px;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 12px 16px;
+      font-size: 0.9375rem;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      background-color: #f9fafb;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    .btn {
+      width: 100%;
+      padding: 12px;
+      font-size: 0.9375rem;
+      font-weight: 500;
+      background-color: #3b82f6;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .btn:hover {
+      background-color: #2563eb;
+    }
+
+    .error-message {
+      color: #ef4444;
+      font-size: 0.8125rem;
+      margin-bottom: 16px;
+      text-align: center;
+    }
+
+    @media (max-width: 480px) {
+      .container {
+        padding: 24px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h2>Change Name</h2>
+    <form id="changeNameForm">
+      <div class="form-group">
+        <label for="newName">New Name</label>
+        <input type="text" id="newName" name="newName" class="form-control" value="<%= user.name %>" 
+          minlength="2" maxlength="50">
+      </div>
+      <div id="errorMessage" class="error-message"></div>
+      <button type="submit" class="btn">Update Name</button>
+    </form>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script>
+    document.getElementById('changeNameForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const errorMessageEl = document.getElementById('errorMessage');
+      errorMessageEl.textContent = '';
+
+      const newName = document.getElementById('newName').value.trim();
+
+      try {
+        const response = await fetch('/update-name', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ newName })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          // Show success alert before redirecting
+          await Swal.fire({
+            title: 'Success!',
+            text: result.message,
+            icon: 'success',
+            confirmButtonText: 'OK'
+          });
+          window.location.href = result.redirectURL;
+        } else {
+          // Show error alert
+          await Swal.fire({
+            title: 'Error!',
+            text: result.message,
+            icon: 'error',
+            confirmButtonText: 'OK'
+          });
+        }
+      } catch (error) {
+        await Swal.fire({
+          title: 'Error!',
+          text: 'An error occurred. Please try again.',
+          icon: 'error',
+          confirmButtonText: 'OK'
+        });
+      }
+    });
+  </script>
+</body>
+
+</html>   

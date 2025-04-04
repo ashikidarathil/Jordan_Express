@@ -6,6 +6,7 @@ const categoryController = require('../controllers/admin/categoryController')
 const productController = require('../controllers/admin/productController')
 const uploads = require('../config/multerConfig')
 const {userAuth,adminAuth} = require('../middlewares/auth')
+const orderController = require('../controllers/admin/orderController');
 
 
 router.get('/pageError',adminController.pageError)
@@ -27,8 +28,9 @@ router.post('/removeCategoryOffer',adminAuth,categoryController.removeCategoryOf
 router.get('/listCategory',adminAuth,categoryController.getListCategory)
 router.get('/unListCategory',adminAuth,categoryController.getUnListCategory)
 router.get('/editCategory',adminAuth,categoryController.getEditCategory)
+
 router.post('/editCategory/:id',adminAuth,categoryController.editCategory)
-router.post('/category/soft-delete/:id', categoryController.softDeleteCategory);
+router.post('/category/soft-delete/:id',adminAuth,categoryController.softDeleteCategory);
 
 
 
@@ -49,5 +51,12 @@ router.post('/removeImage/:id', adminAuth, productController.removeImage); // Ro
 router.get('/listProduct', adminAuth, productController.listProduct);
 router.get('/unlistProduct', adminAuth, productController.unlistProduct);
 
+
+// order Managment
+router.get('/orders',adminAuth, orderController.getAdminOrders);
+router.get('/orders/:orderId', adminAuth, orderController.getOrderDetails);
+router.post('/orders/:orderId/status', adminAuth, orderController.updateOrderStatus);
+router.post('/orders/:orderId/item-status', adminAuth, orderController.updateOrderItemStatus);
+router.post('/orders/:orderId/verify-return', adminAuth, orderController.verifyReturnRequest);
 
 module.exports = router

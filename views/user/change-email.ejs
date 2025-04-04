@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Email Verification</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    /* Custom Styles */
+    .content-main {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background-color: #f8f9fa;
+    }
+
+    .card-login {
+      max-width: 400px;
+      width: 100%;
+      border: none;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .card-body {
+      padding: 2rem;
+    }
+
+    .card-title {
+      font-size: 1.5rem;
+      font-weight: bold;
+      margin-bottom: 1.5rem;
+      text-align: center;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      font-size: 1rem;
+    }
+
+    .form-control.is-invalid {
+      border-color: #dc3545;
+    }
+
+    .error-message {
+      color: #dc3545;
+      font-size: 0.875rem;
+      margin-top: 0.25rem;
+    }
+
+    .btn-primary {
+      width: 100%;
+      padding: 0.75rem;
+      background-color: #007bff;
+      border: none;
+      border-radius: 5px;
+      font-size: 1rem;
+      color: white;
+      cursor: pointer;
+    }
+
+    .btn-primary:hover {
+      background-color: #0056b3;
+    }
+
+    .text-center {
+      text-align: center;
+    }
+
+    .text-center a {
+      color: #007bff;
+      text-decoration: none;
+    }
+
+    .text-center a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <section class="content-main">
+    <div class="card card-login">
+      <div class="card-body">
+        <h4 class="card-title mb-4">Email</h4>
+        <form method="post" action="/change-email" onsubmit="return validateLoginForm()">
+          <div class="mb-3">
+            <input class="form-control" name="email" placeholder="Email" type="text" id="email">
+            <div class="error-message" id="email-error"></div>
+          </div>
+          <div class="mb-4">
+            <button type="submit" class="btn btn-primary w-100">Verify</button>
+          </div>
+        </form>
+      
+      </div>
+    </div>
+  </section>
+
+  <script>
+    function validateLoginForm() {
+      const emailInput = document.getElementById('email');
+      const emailError = document.getElementById('email-error');
+      const emailValue = emailInput.value.trim();
+      const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+
+      if (emailValue === '') {
+        emailError.textContent = 'Please enter your email.';
+        emailInput.classList.add('is-invalid');
+        return false;
+      } else if (!emailValue.match(emailPattern)) {
+        emailError.textContent = 'Please enter a valid email address.';
+        emailInput.classList.add('is-invalid');
+        return false;
+      } else {
+        emailError.textContent = '';
+        emailInput.classList.remove('is-invalid');
+        return true;
+      }
+    }
+    
+  </script>
+</body>
+</html>

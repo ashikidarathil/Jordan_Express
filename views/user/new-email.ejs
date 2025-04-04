@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Update Email</title>
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+  <style>
+    /* Custom Styles */
+    .content-main {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background-color: #f8f9fa;
+    }
+
+    .card-login {
+      max-width: 400px;
+      width: 100%;
+      border: none;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .card-body {
+      padding: 2rem;
+    }
+
+    .card-title {
+      font-size: 1.5rem;
+      font-weight: bold;
+      margin-bottom: 1.5rem;
+      text-align: center;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      font-size: 1rem;
+    }
+
+    .form-control.is-invalid {
+      border-color: #dc3545;
+    }
+
+    .error-message {
+      color: #dc3545;
+      font-size: 0.875rem;
+      margin-top: 0.25rem;
+    }
+
+    .btn-primary {
+      width: 100%;
+      padding: 0.75rem;
+      background-color: #007bff;
+      border: none;
+      border-radius: 5px;
+      font-size: 1rem;
+      color: white;
+      cursor: pointer;
+    }
+
+    .btn-primary:hover {
+      background-color: #0056b3;
+    }
+
+    .text-center {
+      text-align: center;
+    }
+
+    .text-center a {
+      color: #007bff;
+      text-decoration: none;
+    }
+
+    .text-center a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <section class="content-main">
+    <div class="card card-login">
+      <div class="card-body">
+        <h4 class="card-title mb-4">Update Email</h4>
+        <form id="updateEmailForm">
+          <div class="mb-3">
+            <input class="form-control" name="newEmail" placeholder="New Email" type="email" id="email">
+            <div class="error-message" id="email-error"></div>
+          </div>
+          <div class="mb-4">
+            <button type="submit" class="btn btn-primary w-100" id="submitBtn">
+              Update Email
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script>
+    $(document).ready(function() {
+      // Form validation
+      function validateForm() {
+        const emailInput = $('#email');
+        const emailError = $('#email-error');
+        const emailValue = emailInput.val().trim();
+        const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+
+        if (emailValue === '') {
+          emailError.text('Please enter your email.');
+          emailInput.addClass('is-invalid');
+          return false;
+        } else if (!emailPattern.test(emailValue)) {
+          emailError.text('Please enter a valid email address.');
+          emailInput.addClass('is-invalid');
+          return false;
+        } else {
+          emailError.text('');
+          emailInput.removeClass('is-invalid');
+          return true;
+        }
+      }
+
+      // Handle form submission with AJAX
+      $('#updateEmailForm').on('submit', function(e) {
+        e.preventDefault();
+        
+        if (!validateForm()) return;
+        
+        const formData = {
+          newEmail: $('#email').val().trim()
+        };
+
+        // Disable submit button during processing
+        $('#submitBtn').prop('disabled', true).html(
+          '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Updating...'
+        );
+
+        Swal.fire({
+          title: 'Updating Email',
+          text: 'Please wait while we update your email address',
+          allowOutsideClick: false,
+          showConfirmButton: false,
+          didOpen: () => {
+            Swal.showLoading();
+          }
+        });
+
+        $.ajax({
+          type: 'POST',
+          url: '/update-email',
+          data: formData,
+          success: function(response) {
+            Swal.close();
+            if (response.success) {
+              Swal.fire({
+                icon: 'success',
+                title: 'Success!',
+                text: response.message,
+                confirmButtonColor: '#007bff',
+                timer: 2000,
+                showConfirmButton: false
+              }).then(() => {
+                window.location.href = response.redirectURL;
+              });
+            } else {
+              Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: response.message || 'Failed to update email',
+                confirmButtonColor: '#007bff'
+              });
+              $('#submitBtn').prop('disabled', false).text('Update Email');
+            }
+          },
+          error: function(xhr) {
+            Swal.close();
+            let errorMsg = 'An error occurred while updating email';
+            if (xhr.responseJSON && xhr.responseJSON.message) {
+              errorMsg = xhr.responseJSON.message;
+            }
+            Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: errorMsg,
+              confirmButtonColor: '#007bff'
+            });
+            $('#submitBtn').prop('disabled', false).text('Update Email');
+          }
+        });
+      });
+
+      // Real-time validation
+      $('#email').on('input', function() {
+        validateForm();
+      });
+    });
+  </script>
+</body>
+</html>

@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Happy Code</title>
+  <title>Jordan-Express</title>
 
   <!-- Link File CSS -->
   <link rel="stylesheet" href="css/style.css">
@@ -16,6 +16,53 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
   <style>
+    .cart-link {
+      position: relative;
+      display: inline-block;
+    }
+
+    .cart-tooltip {
+      display: none;
+      position: absolute;
+      top: -40px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: #33cc33;
+      color: white;
+      padding: 5px 10px;
+      border-radius: 4px;
+      font-size: 12px;
+      white-space: nowrap;
+      z-index: 1000;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .cart-tooltip::after {
+      content: '';
+      position: absolute;
+      bottom: -5px;
+      left: 50%;
+      transform: translateX(-50%);
+      border-width: 5px 5px 0;
+      border-style: solid;
+      border-color: #33cc33 transparent transparent transparent;
+    }
+
+    .cart-count {
+      position: absolute;
+      top: -10px;
+      right: 10px;
+      background-color: #895D39;
+      color: white;
+      border-radius: 50%;
+      width: 18px;
+      height: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+    }
+
     .drop-down {
       position: relative;
       display: inline-block;
@@ -97,11 +144,11 @@
         /* Add some spacing between icons */
       }
 
-      .search-box  {
+      .search-box {
         right: 200px;
         /* Adjust search box position */
         max-width: 250px;
-       
+
       }
 
       .search-box input {
@@ -132,8 +179,8 @@
         width: 100%;
         justify-content: space-between;
         flex-wrap: wrap;
-       
-        
+
+
       }
 
       .navigation a {
@@ -156,7 +203,7 @@
         width: 100%;
       }
 
-      .search-box form{
+      .search-box form {
         position: relative;
         /* Change to relative to stack properly */
         right: auto;
@@ -219,7 +266,7 @@
         gap: 0.5rem;
       }
 
-      .search-box form{
+      .search-box form {
         max-width: 150px;
         height: 35px;
       }
@@ -280,15 +327,22 @@
     <div class="nav-right">
       <div class="nav-icon">
         <div class="search-box">
-          <form action="/search" method="post">
-            <i class='fa-solid fa-search' id="search" style="margin-left: 40px; color:#895D39; margin-bottom: 2px;" ></i>
-            <i class='fa-solid fa-xmark clear-icon' id="clear" style="color:#895D39; margin-left: 320px; margin-bottom: 2px;"></i>
+          <form action="/search" method="post" style="padding-right: 15px;">
+            <i class='fa-solid fa-search' id="search" style="margin-left: 40px; color:#895D39; margin-bottom: 2px;"></i>
+            <i class='fa-solid fa-xmark clear-icon' id="clear"
+              style="color:#895D39; margin-left: 320px; margin-bottom: 2px;"></i>
             <input type="text" name="query" placeholder="Search here...">
             <button type="submit" style="display: none;"></button>
           </form>
         </div>
         <a href=""><i class='fa-regular fa-heart'></i></a>
-        <a href=""><i class='fa-solid fa-cart-shopping'></i></a>
+        <a href="/cart" class="cart-link">
+          <i class='fa-solid fa-cart-shopping'></i>
+          <span class="cart-tooltip" id="cartTooltip">Added to cart!</span>
+          <span class="cart-count" id="cartCount">
+            <%= typeof cartCount !=='undefined' ? cartCount : 0 %>
+          </span>
+        </a>
         <% if (typeof user !=='undefined' && user) { %>
           <div class="drop-down">
             <a href="#" class="drop-down-trigger">
@@ -313,7 +367,7 @@
 <script>
 
 
- 
+
   const searchInput = document.querySelector('.search-box input');
   const searchIcon = document.querySelector('#search');
   const clearIcon = document.querySelector('#clear');
@@ -347,7 +401,7 @@
   // When clicking outside the search input
   document.addEventListener('click', function (event) {
     if (event.target !== searchInput && event.target !== clearIcon) {
- 
+
       clearIcon.style.display = 'none';
     }
   });

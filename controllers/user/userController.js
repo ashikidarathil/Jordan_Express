@@ -49,7 +49,6 @@ const loadShop = async (req, res) => {
 
     const categoriesWithId = categories.map(category => ({ _id: category._id, name: category.name }))
 
-
     res.render('shop', {
       user: userData,
       products: products,
@@ -68,6 +67,9 @@ const loadShop = async (req, res) => {
 
 }
 
+
+
+// Load Home
 const loadHome = async (req, res) => {
   try {
     const categories = await categoryModel.find({ isListed: true });
@@ -101,20 +103,24 @@ const loadHome = async (req, res) => {
 };
 
 
+// Load login
 const loadLogin = async (req, res) => {
   try {
-
     if (!req.session.user) {
-      return res.render('login')
-    }
-    else {
-      res.redirect('/')
+      const error = req.query.error || null; // Get error from query parameter
+      let message = null;
+      if (error === 'user-exists') {
+        message = 'User already exists with this email'; // Set message for display
+      }
+      return res.render('login', { message }); // Pass message to login.ejs
+    } else {
+      res.redirect('/');
     }
   } catch (error) {
-    res.redirect('/pageNotFound')
-
+    console.error('Error in loadLogin:', error);
+    res.redirect('/pageNotFound');
   }
-}
+};
 
 const loadSignup = async (req, res) => {
   try {
@@ -131,6 +137,8 @@ const loadSignup = async (req, res) => {
   }
 }
 
+
+// Generate OTP
 function generateOtp() {
   return Math.floor(100000 + Math.random() * 900000).toString()
 }
@@ -165,6 +173,8 @@ async function sendVerificationEmail(email, otp) {
 
 }
 
+
+// Load signup
 const signup = async (req, res) => {
   try {
     const { name, email, phone, password, confirm_pass } = req.body
@@ -197,6 +207,8 @@ const signup = async (req, res) => {
   }
 }
 
+
+// Password
 const securePassword = async (password) => {
   try {
     const passwordHash = await bcrypt.hash(password, 10)
@@ -246,7 +258,7 @@ const verifyOtp = async (req, res) => {
   }
 }
 
-
+// Resend OTP
 const resendOtp = async (req, res) => {
   try {
     const { email } = req.session.userData;
@@ -287,6 +299,7 @@ const resendOtp = async (req, res) => {
 }
 
 
+// PageNotFound
 const pageNotFound = async (req, res) => {
   try {
     res.render('page-404')
@@ -328,6 +341,8 @@ const login = async (req, res) => {
   }
 }
 
+
+// Logout
 const logout = async (req, res) => {
   try {
 
@@ -347,6 +362,7 @@ const logout = async (req, res) => {
 }
 
 
+// Filter products
 const filterProduct = async (req, res) => {
 
   try {
@@ -362,6 +378,7 @@ const filterProduct = async (req, res) => {
 
 
     const query = {
+      isListed:true,
       isBlocked: false,
       "size.quantity": { $gt: 0 },
     }
@@ -422,8 +439,6 @@ const filterProduct = async (req, res) => {
 
     })
 
-
-
   } catch (error) {
 
     res.redirect('/pageNotFound')
@@ -434,6 +449,7 @@ const filterProduct = async (req, res) => {
 
 
 
+// filter By price
 const filterByPrice = async(req,res)=>{
 
   try {
@@ -448,6 +464,7 @@ const filterByPrice = async(req,res)=>{
     const findProduct = await productModel.find({
       salePrice:{$gt:req.query.gt,$lt:req.query.lt},
       isBlocked:false,
+      isListed:true,
       "size.quantity": { $gt: 0 },
     }).lean()
 
@@ -484,6 +501,7 @@ const filterByPrice = async(req,res)=>{
 }
 
 
+// Search product
 const searchProducts = async (req, res) => {
   try {
     const user = req.session.user;
@@ -512,7 +530,7 @@ const searchProducts = async (req, res) => {
     let totalPages = Math.ceil(searchResult.length / itemsPerPage);
     const currentProducts = searchResult.slice(startIndex, endIndex);
     
-    // Store in session if needed for other functionality
+   
     req.session.filteredProducts = searchResult;
     
     res.render('shop', {

@@ -69,11 +69,9 @@ const orderSchema = new Schema({
     type: String,
 
   },
-  status: {
+  couponCode: { // New field to store the applied coupon code
     type: String,
-    required: true,
-    enum: ['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled', 'Partially Cancelled', 'Returned', 'Partially Returned'],
-    default: 'Pending'
+    default: null
   },
   createdOn: {
     type: Date,

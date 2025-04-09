@@ -7,6 +7,7 @@ const productController = require('../controllers/admin/productController')
 const uploads = require('../config/multerConfig')
 const {userAuth,adminAuth} = require('../middlewares/auth')
 const orderController = require('../controllers/admin/orderController');
+const couponController = require('../controllers/admin/couponController')
 
 
 router.get('/pageError',adminController.pageError)
@@ -51,12 +52,20 @@ router.post('/removeImage/:id', adminAuth, productController.removeImage); // Ro
 router.get('/listProduct', adminAuth, productController.listProduct);
 router.get('/unlistProduct', adminAuth, productController.unlistProduct);
 
+// coupon managament
+router.get('/coupons',adminAuth, couponController.getCoupons);         
+router.post('/coupons/add', adminAuth, couponController.addCoupon);      
+router.post('/coupons/edit/:id', adminAuth, couponController.editCoupon); 
+router.post('/coupons/delete/:id', adminAuth, couponController.deleteCoupon); 
+router.post('/coupons/toggle/:id', adminAuth, couponController.toggleCouponStatus); 
+
 
 // order Managment
 router.get('/orders',adminAuth, orderController.getAdminOrders);
 router.get('/orders/:orderId', adminAuth, orderController.getOrderDetails);
-router.post('/orders/:orderId/status', adminAuth, orderController.updateOrderStatus);
+// router.post('/orders/:orderId/status', adminAuth, orderController.updateOrderStatus);
 router.post('/orders/:orderId/item-status', adminAuth, orderController.updateOrderItemStatus);
 router.post('/orders/:orderId/verify-return', adminAuth, orderController.verifyReturnRequest);
+
 
 module.exports = router

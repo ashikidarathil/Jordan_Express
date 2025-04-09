@@ -338,7 +338,18 @@
         margin-left: -15px;
       }
 
-      .item-status-cancelled {
+      .status-partially-returned {
+        background-color: lightblue;
+        color: black;
+
+      }
+
+      .status-partially-cancelled {
+        background-color: rgba(243, 156, 18, 0.1);
+        color: #f39c12;
+      }
+
+      /* .item-status-cancelled {
         color: #721C24;
       }
 
@@ -348,7 +359,120 @@
 
       .item-status-default {
         color: #155724;
+      } */
+
+
+      .item-status-pending {
+        color: #ff9800;
+
       }
+
+      .item-status-processing {
+        color: #2196f3;
+
+      }
+
+      .item-status-shipped {
+        color: #673ab7;
+
+      }
+
+      .item-status-delivered {
+        color: #4caf50;
+
+      }
+
+      .item-status-cancelled {
+        color: #f44336;
+
+      }
+
+
+
+      .item-status-returned {
+        color: #9b59b6;
+
+      }
+
+      .item-status-return-request {
+        color: #ff5722;
+
+      }
+
+      .item-status-return-rejected {
+        color: #9c27b0;
+
+      }
+
+      .char-counter {
+        display: block;
+        text-align: right;
+        color: #666;
+        font-size: 12px;
+        margin-top: 5px;
+      }
+
+      .form-group textarea:invalid {
+        border-color: #dc3545;
+      }
+
+      .order-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+      }
+
+      .order-title {
+        font-size: 24px;
+        color: #333;
+      }
+
+      .item-status {
+        font-weight: bold;
+        padding: 8px 15px;
+        font-size: 14px;
+        border-radius: 4px;
+        text-align: left;
+        margin-left: -15px;
+      }
+
+      .status-pending {
+        background-color: #fff3cd;
+        color: #856404;
+      }
+
+      .status-shipped {
+        background-color: #d4edda;
+        color: #155724;
+      }
+
+      .status-delivered {
+        background-color: #d4edda;
+        color: #155724;
+      }
+
+      .status-cancelled {
+        background-color: #f8d7da;
+        color: #721c24;
+      }
+
+      .status-returned {
+        background-color: #138496;
+        color: white;
+      }
+
+      .status-return-request {
+        background-color: #ffccbc;
+        color: #d84315;
+      }
+
+      .status-return-rejected {
+        background-color: #e0e0e0;
+        color: red;
+      }
+
+      /* Rest of your styles remain unchanged */
     </style>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   </head>
@@ -358,9 +482,6 @@
       <div class="order-header">
         <h1 class="order-title">Order #<%= orders.orderID %>
         </h1>
-        <span class="order-status status-<%= orders.status.toLowerCase().replace(' ', '-') %>">
-          <%= orders.status %>
-        </span>
       </div>
 
       <div class="invoice-actions" style="margin-top: 20px; text-align: right; margin-bottom: 20px;">
@@ -397,11 +518,6 @@
             <p><strong>
                 <%= orders.paymentMethod==='COD' ? 'Cash on Delivery' : orders.paymentMethod %>
               </strong></p>
-            <!-- <% if (orders.paymentMethod !=='COD' ) { %>
-              <p>Status: Paid</p>
-              <% } else { %>
-                <p>Status: To be paid on delivery</p>
-                <% } %> -->
           </div>
         </div>
       </div>
@@ -409,30 +525,25 @@
       <div class="order-summary">
         <h2 class="section-title">Order Summary</h2>
         <div class="order-summary-row">
-          <span class="order-summary-label">Order Date:</span>
+          <span class="order-summary-label">Subtotal:</span>
           <span class="order-summary-value">
-            <%= new Date(orders.createdOn).toLocaleDateString('en-US', { year: 'numeric' , month: 'long' ,
-              day: 'numeric' , hour: '2-digit' , minute: '2-digit' }) %>
+            <%= new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(orders.totalPrice.toFixed(2)) %>
           </span>
         </div>
-        <div class="order-summary-row">
-          <span class="order-summary-label">Subtotal:</span>
-          <span class="order-summary-value">$<%= orders.totalPrice.toFixed(2) %></span>
-        </div>
-        <div class="order-summary-row">
-          <span class="order-summary-label">Shipping:</span>
-          <span class="order-summary-value">$0.00</span>
-        </div>
-        <% if (orders.discount> 0) { %>
+        <% if (orders.discount > 0) { %>
           <div class="order-summary-row">
-            <span class="order-summary-label">Discount:</span>
-            <span class="order-summary-value">-$<%= orders.discount.toFixed(2) %></span>
+            <span class="order-summary-label">Discount (<%= orders.couponCode %>):</span>
+            <span class="order-summary-value">
+              -<%= new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(orders.discount.toFixed(2)) %>
+            </span>
           </div>
-          <% } %>
-            <div class="order-summary-row order-summary-total">
-              <span class="order-summary-label">Total:</span>
-              <span class="order-summary-value">$<%= orders.finalAmount.toFixed(2) %></span>
-            </div>
+        <% } %>
+        <div class="order-summary-row order-summary-total">
+          <span class="order-summary-label">Total:</span>
+          <span class="order-summary-value">
+            <%= new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(orders.finalAmount.toFixed(2)) %>
+          </span>
+        </div>
       </div>
 
       <div class="order-items">
@@ -441,18 +552,22 @@
           <div class="order-item">
             <img src="/uploads/product-image/<%= item.product.productImage[0] %>" alt="<%= item.product.productName %>"
               class="item-image" style="width: 140px;">
-            <div class="item-details">
-              <h3 class="item-name">
-                <%= item.product.productName %>
-              </h3>
-              <p class="item-price">$<%= item.price.toFixed(2) %>
-              </p>
-              <p class="item-quantity">Quantity: <%= item.quantity %>
-              </p>
-              <p class="item-status item-status-<%= item.status.toLowerCase() %>">
-                Status: <%= item.status %>
-              </p>
-            </div>
+              <div class="item-details">
+                <h3 class="item-name"><%= item.product.productName %></h3>
+                <p class="item-price">
+                  <%= new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(item.price.toFixed(2)) %>
+                </p>
+                <p class="item-quantity">Quantity: <%= item.quantity %></p>
+                <p class="item-quantity" style="margin-top: 3px; margin-bottom: -3px;">Size: <%= item.size %></p>
+                <p class="item-status status-<%= item.status.toLowerCase().replace(' ', '-') %>" style="width: 15%; margin-top:15px; margin-left: -5px; text-align: center; border-radius: 20px;">
+                  <%= item.status %>
+                  <!-- <% if (item.status === 'Returned' && orders.discount > 0) { %>
+                    <br><small style="font-size: 12px; color: white;font-weight: 600;">Refund: <%= new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format((item.price * item.quantity - (orders.discount / orders.orderItems.length)).toFixed(2)) %></small>
+                  <% } %> -->
+
+                </p>
+
+              </div>
             <div class="item-actions">
               <% if (['Pending', 'Processing' ].includes(item.status)) { %>
                 <button class="btn btn-cancel cancel-item-btn" data-product-id="<%= item.product._id %>">Cancel
@@ -478,7 +593,6 @@
                   <button class="btn btn-return" id="returnOrderBtn">Return Entire Order</button>
                   <% } %>
       </div>
-
     </div>
 
     <!-- Cancel Order Modal -->
@@ -492,9 +606,10 @@
           <input type="hidden" id="cancelType" name="cancelType" value="order">
           <input type="hidden" id="productId" name="productId" value="">
           <div class="form-group">
-            <label for="cancelReason">Reason for cancellation (optional):</label>
-            <textarea id="cancelReason" name="reason"
-              placeholder="Please let us know why you're cancelling..."></textarea>
+            <label for="cancelReason">Reason for cancellation (required):</label>
+            <textarea id="cancelReason" name="reason" placeholder="Please let us know why you're cancelling..."
+              minlength="5"></textarea>
+            <small class="char-counter" id="cancelReasonCounter">0 characters (minimum 5)</small>
             <p class="error-message" id="cancelError" style="display: none;"></p>
           </div>
           <div class="modal-footer">
@@ -516,9 +631,10 @@
           <input type="hidden" id="returnType" name="returnType" value="order">
           <input type="hidden" id="returnProductId" name="productId" value="">
           <div class="form-group">
-            <label For="returnReason">Reason for return (required):</label>
-            <textarea id="returnReason" name="reason" required
-              placeholder="Please tell us why you're returning this item..."></textarea>
+            <label for="returnReason">Reason for return (required):</label>
+            <textarea id="returnReason" name="reason" placeholder="Please tell us why you're returning this item..."
+              minlength="10"></textarea>
+            <small class="char-counter" id="returnReasonCounter">0 characters (minimum 10)</small>
             <p class="error-message" id="returnError" style="display: none;"></p>
           </div>
           <div class="modal-footer">
@@ -544,6 +660,79 @@
         const closeReturnModal = document.querySelector('.close-return-modal');
         const returnForm = document.getElementById('returnForm');
         const returnError = document.getElementById('returnError');
+
+
+        function validateCancelForm() {
+          const reason = document.getElementById('cancelReason').value.trim();
+          const cancelError = document.getElementById('cancelError');
+
+
+          if (!reason) {
+            cancelError.textContent = 'Please provide a reason for cancellation';
+            cancelError.style.display = 'block';
+            return false;
+          }
+
+
+          if (reason.length < 5) {
+            cancelError.textContent = 'Please provide a more detailed reason (minimum 5 characters)';
+            cancelError.style.display = 'block';
+            return false;
+          }
+
+          cancelError.style.display = 'none';
+          return true;
+        }
+
+        function validateReturnForm() {
+          const reason = document.getElementById('returnReason').value.trim();
+          const returnError = document.getElementById('returnError');
+
+
+          if (!reason) {
+            returnError.textContent = 'Please provide a reason for return';
+            returnError.style.display = 'block';
+            return false;
+          }
+
+
+          if (reason.length < 10) {
+            returnError.textContent = 'Please provide a more detailed reason (minimum 10 characters)';
+            returnError.style.display = 'block';
+            return false;
+          }
+
+          returnError.style.display = 'none';
+          return true;
+        }
+
+
+        document.getElementById('cancelReason').addEventListener('input', function () {
+          const count = this.value.trim().length;
+          document.getElementById('cancelReasonCounter').textContent =
+            `${count} characters (minimum 5)`;
+        });
+
+        document.getElementById('returnReason').addEventListener('input', function () {
+          const count = this.value.trim().length;
+          document.getElementById('returnReasonCounter').textContent =
+            `${count} characters (minimum 10)`;
+        });
+
+
+        document.getElementById('cancelReason').addEventListener('input', function () {
+
+          if (this.value.trim().length > 0) {
+            validateCancelForm();
+          }
+        });
+
+        document.getElementById('returnReason').addEventListener('input', function () {
+
+          if (this.value.trim().length > 0) {
+            validateReturnForm();
+          }
+        });
 
         if (cancelOrderBtn) {
           cancelOrderBtn.addEventListener('click', function () {
@@ -607,6 +796,12 @@
 
         cancelForm.addEventListener('submit', function (e) {
           e.preventDefault();
+
+
+          if (!validateCancelForm()) {
+            return;
+          }
+
           const formData = new FormData(cancelForm);
           const data = Object.fromEntries(formData.entries());
           submitCancellation(data);
@@ -614,17 +809,18 @@
 
         returnForm.addEventListener('submit', function (e) {
           e.preventDefault();
-          const reason = document.getElementById('returnReason').value.trim();
-          if (!reason) {
-            returnError.textContent = 'Please provide a reason for return';
-            returnError.style.display = 'block';
+
+
+          if (!validateReturnForm()) {
             return;
           }
-          returnError.style.display = 'none';
+
           const formData = new FormData(returnForm);
           const data = Object.fromEntries(formData.entries());
           submitReturn(data);
         });
+
+
 
         async function submitCancellation(data) {
           try {
@@ -725,7 +921,13 @@
             returnModal.style.display = 'none';
           }
         }
+
+
+
       });
+
+
+
     </script>
   </body>
 

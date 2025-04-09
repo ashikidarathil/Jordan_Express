@@ -6,7 +6,6 @@ const userModel = require('../../models/userSchema')
 
 const productDetails = async (req, res) => {
   try {
-    // Check if user is logged in
     if (!req.session.user) {
       return res.redirect('/login'); 
     }
@@ -50,6 +49,8 @@ const productDetails = async (req, res) => {
     res.redirect('/pageNotFound');
   }
 };
+
+
 
 module.exports = {
   productDetails

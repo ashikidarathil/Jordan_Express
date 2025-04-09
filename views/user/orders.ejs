@@ -1,465 +1,413 @@
 <%- include('../partials/user/dasboard') %>
 
-  <!DOCTYPE html>
-  <html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Orders | Jordan Express</title>
-    <style>
-      body {
-        background-color: #f5f5f5;
-        font-family: Arial, sans-serif;
-        margin: 0;
-        padding: 0;
-      }
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Orders | Jordan Express</title>
+  <style>
+    body {
+      background-color: #f5f5f5;
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
 
-      .container {
-        max-width: 1200px;
-        margin: 20px auto;
-        padding: 20px;
-      }
+    .container {
+      max-width: 1200px;
+      margin: 20px auto;
+      padding: 20px;
+    }
 
-      h1 {
-        font-size: 24px;
-        margin-bottom: 20px;
-        color: #333;
-      }
+    h1 {
+      font-size: 24px;
+      margin-bottom: 20px;
+      color: #333;
+    }
 
-      .search {
-        margin-bottom: 20px;
-        display: flex;
-        gap: 10px;
-      }
+    .search {
+      margin-bottom: 20px;
+      display: flex;
+      gap: 10px;
+    }
 
-      .search input {
-        padding: 10px 15px;
-        width: 300px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        font-size: 14px;
-      }
+    .search input {
+      padding: 10px 15px;
+      width: 300px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 14px;
+    }
 
-      .search-btn {
-        padding: 10px 13px;
-        background-color: #3498db;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-      }
+    .search-btn {
+      padding: 10px 13px;
+      background-color: #3498db;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
 
-      .search-btn:hover {
-        background-color: #2980b9;
-      }
+    .search-btn:hover {
+      background-color: #2980b9;
+    }
 
-      table {
-        width: 100%;
-        border-collapse: collapse;
-        background-color: #fff;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-      }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: #fff;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    }
 
-      th,
-      td {
-        padding: 15px;
-        text-align: left;
-        border-bottom: 1px solid #eee;
-      }
+    th,
+    td {
+      padding: 15px;
+      text-align: left;
+      border-bottom: 1px solid #eee;
+    }
 
-      th {
-        background-color: #f9f9f9;
-        font-weight: 600;
-        color: #555;
-      }
+    th {
+      background-color: #f9f9f9;
+      font-weight: 600;
+      color: #555;
+    }
 
-      .order-item {
-        display: flex;
-        align-items: center;
-        gap: 15px;
-      }
+    .order-item {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
 
-      .order-item img {
-        width: 60px;
-        height: 60px;
-        object-fit: cover;
-        border-radius: 4px;
-        border: 1px solid #eee;
-      }
+    .order-item img {
+      width: 60px;
+      height: 60px;
+      object-fit: cover;
+      border-radius: 4px;
+      border: 1px solid #eee;
+    }
 
-      .order-item-info {
-        display: flex;
-        flex-direction: column;
-      }
+    .order-item-info {
+      display: flex;
+      flex-direction: column;
+    }
 
-      .order-item-name {
-        font-weight: 600;
-        margin-bottom: 5px;
-      }
+    .order-item-name {
+      font-weight: 600;
+      margin-bottom: 5px;
+    }
 
-      .order-item-id {
-        font-size: 12px;
-        color: #777;
-      }
+    .order-item-id {
+      font-size: 12px;
+      color: #777;
+    }
 
-      .btn {
-        padding: 8px 16px;
-        background-color: #8b5a2b;
-        color: #fff;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 13px;
-        transition: all 0.3s ease;
-      }
+    .btn {
+      padding: 8px 16px;
+      background-color: #8b5a2b;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 13px;
+      transition: all 0.3s ease;
+    }
 
-      .btn:hover {
-        background-color: #724a22;
-        transform: translateY(-1px);
-      }
+    .btn:hover {
+      background-color: #724a22;
+      transform: translateY(-1px);
+    }
 
-      .btn-outline {
-        background: transparent;
-        border: 1px solid #3498db;
-        color: #3498db;
-      }
+    .btn-outline {
+      background: transparent;
+      border: 1px solid #3498db;
+      color: #3498db;
+    }
 
-      .btn-outline:hover {
-        background-color: #3498db;
-        color: white;
-      }
+    .btn-outline:hover {
+      background-color: #3498db;
+      color: white;
+    }
 
-      .cancel-btn {
-        background-color: #dc3545;
-        margin-left: 10px;
-      }
+    .status {
+      padding: 5px 10px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: capitalize;
+    }
 
-      .cancel-btn:hover {
-        background-color: #c82333;
-      }
+    .status-pending {
+      background-color: #fff3cd;
+      color: #856404;
+    }
 
-      .return-btn {
-        background-color: #17a2b8;
-        margin-left: 10px;
-      }
+    .status-shipped {
+      background-color: #d4edda;
+      color: #155724;
+    }
 
-      .return-btn:hover {
-        background-color: #138496;
-      }
+    .status-delivered {
+      background-color: #d4edda;
+      color: #155724;
+    }
 
-      .status {
-        padding: 5px 10px;
-        border-radius: 4px;
-        font-size: 12px;
-        font-weight: 600;
-        text-transform: capitalize;
-      }
+    .status-cancelled {
+      background-color: #f8d7da;
+      color: #721c24;
+    }
 
-      .status-pending {
-        background-color: #fff3cd;
-        color: #856404;
-      }
+    .status-returned {
+      background-color: #138496;
+      color: white;
+    }
 
-      .status-processing {
-        background-color: #cce5ff;
-        color: #004085;
-      }
+    .status-return-request {
+      background-color: #ffccbc;
+      color: #d84315;
+    }
 
-      .status-shipped {
-        background-color: #d4edda;
-        color: #155724;
-      }
+    .status-return-rejected {
+      background-color: #e0e0e0;
+      color: red;
+    }
 
-      .status-delivered {
-        background-color: #d4edda;
-        color: #155724;
-      }
+    .no-orders {
+      text-align: center;
+      padding: 40px;
+      color: #777;
+    }
 
-      .status-cancelled {
-        background-color: #f8d7da;
-        color: #721c24;
-      }
+    .no-orders img {
+      width: 100px;
+      opacity: 0.5;
+      margin-bottom: 20px;
+    }
 
-      .status-returned {
-        background-color: #138496;
-        color: white;
-      }
+    .pagination {
+      display: flex;
+      justify-content: center;
+      margin-top: 30px;
+      gap: 5px;
+    }
 
-      .no-orders {
-        text-align: center;
-        padding: 40px;
-        color: #777;
-      }
+    .pagination a,
+    .pagination span {
+      padding: 8px 16px;
+      border: 1px solid #ddd;
+      text-decoration: none;
+      color: #333;
+      border-radius: 4px;
+      transition: all 0.3s;
+    }
 
-      .no-orders img {
-        width: 100px;
-        opacity: 0.5;
-        margin-bottom: 20px;
-      }
+    .pagination a:hover {
+      background-color: #f5f5f5;
+    }
 
-      .action-btns {
-        display: flex;
-        gap: 8px;
-      }
+    .pagination .current {
+      background-color: #3498db;
+      color: white;
+    }
 
-      .pagination {
-        display: flex;
-        justify-content: center;
-        margin-top: 30px;
-        gap: 5px;
-      }
+    .pagination .disabled {
+      color: #aaa;
+      pointer-events: none;
+      border-color: #eee;
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
 
-      .pagination a,
-      .pagination span {
-        display: inline-block;
-        padding: 8px 16px;
-        border: 1px solid #ddd;
-        text-decoration: none;
-        color: #333;
-        border-radius: 4px;
-        transition: all 0.3s;
-      }
-
-      .pagination a:hover {
-        background-color: #f5f5f5;
-      }
-
-      .pagination .current {
-        background-color: #3498db;
-        color: white;
-        
-      }
-
-      .pagination .current:hover{
-
-        background-color: #2c7eb5;
-        color: white;
-      }
-
-      .pagination .disabled {
-        color: #aaa;
-        pointer-events: none;
-        border-color: #eee;
-      }
-    </style>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  </head>
-
-  <body>
-    <div class="container">
-      <h1>My Orders</h1>
-      <div class="search">
-        <input type="text" id="searchInput" placeholder="Search by Order ID or Product Name">
-        <button class="search-btn" onclick="searchOrders()">Search</button>
-      </div>
-      <table id="orderTable">
-        <thead>
+<body>
+  <div class="container">
+    <h1>My Orders</h1>
+    <div class="search">
+      <input type="text" id="searchInput" placeholder="Search by Order ID or Product Name" value="<%= searchQuery || '' %>">
+      <button class="search-btn" onclick="searchOrders()">Search</button>
+    </div>
+    <table id="orderTable">
+      <thead>
+        <tr>
+          <th>Item</th>
+          <th>Date</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (orders.length === 0) { %>
           <tr>
-            <th>Order</th>
-            <th>Date</th>
-            <th>Status</th>
-            <th>Total</th>
-            <th>Actions</th>
+            <td colspan="4" class="no-orders">
+              <img src="/images/empty-order.png" alt="No orders">
+              <p>You haven't placed any orders yet.</p>
+            </td>
           </tr>
-        </thead>
-        <tbody>
-          <% if (orders.length===0) { %>
-            <tr>
-              <td colspan="5" class="no-orders">
-                <img src="/images/empty-order.png" alt="No orders">
-                <p>You haven't placed any orders yet.</p>
-              </td>
-            </tr>
-            <% } else { %>
-              <% orders.forEach(order=> { %>
-                <tr>
-                  <td>
-                    <div class="order-item">
-                      <% if (order.orderItems[0]?.product?.productImage) { %>
-                        <img src="/uploads/product-image/<%= order.orderItems[0].product.productImage[0] %>"
-                          alt="<%= order.orderItems[0].product.productName %>" style="width: 110px;">
-                        <% } else { %>
-                          <img src="/images/default-product.jpg" alt="Product image">
-                          <% } %>
-                            <div class="order-item-info">
-                              <span class="order-item-name">
-                                <%= order.orderItems[0]?.product?.productName || 'Product' %>
-                              </span>
-                              <span class="order-item-id">Order #<%= order.orderID %></span>
-                              <% if (order.orderItems.length> 1) { %>
-                                <span style="font-size: 12px; color: #777;">+<%= order.orderItems.length - 1 %> more
-                                    item(s)</span>
-                                <% } %>
-                            </div>
-                    </div>
-                  </td>
-                  <td>
-                    <%= order.createdOn.toLocaleDateString('en-US', { year: 'numeric' , month: 'short' , day: 'numeric'
-                      }) %>
-                  </td>
-                  <td>
-                    <span class="status status-<%= order.status.toLowerCase().replace(' ', '-') %>">
-                      <%= order.status %>
-                    </span>
-                  </td>
-                  <td>$<%= order.finalAmount.toFixed(2) %>
-                  </td>
-                  <td>
-                    <div class="action-btns">
-                      <button class="btn btn-outline"
-                        onclick="window.location.href='/order-details/<%= order.orderID %>'">
-                        Details
-                      </button>
-
-                    </div>
-                  </td>
-                </tr>
-                <% }) %>
-
-        </tbody>
-      </table>
-      <div class="pagination">
-        <% if (currentPage> 1) { %>
-          <a href="?page=<%= currentPage - 1 %>">&laquo;</a>
-          <% } else { %>
-            <span class="disabled">&laquo;</span>
-            <% } %>
-
-              <% for (let i=1; i <=totalPages; i++) { %>
-                <% if (i===currentPage) { %>
-                  <span class="current">
-                    <%= i %>
-                  </span>
-                  <% } else { %>
-                    <a href="?page=<%= i %>">
-                      <%= i %>
-                    </a>
+        <% } else { %>
+          <% orders.forEach(order => { %>
+            <% order.orderItems.forEach(item => { %>
+              <tr>
+                <td>
+                  <div class="order-item">
+                    <% if (item.product?.productImage) { %>
+                      <img src="/uploads/product-image/<%= item.product.productImage[0] %>"
+                        alt="<%= item.product.productName %>" style="width: 130px;">
+                    <% } else { %>
+                      <img src="/images/default-product.jpg" alt="Product image">
                     <% } %>
-                      <% } %>
-
-                        <% if (currentPage < totalPages) { %>
-                          <a href="?page=<%= currentPage + 1 %>">&raquo;</a>
-                          <% } else { %>
-                            <span class="disabled">&raquo;</span>
-                            <% } %>
-      </div>
+                    <div class="order-item-info">
+                      <span class="order-item-name">
+                        <%= item.product?.productName || 'Product' %>
+                      </span>
+                      <span class="order-item-id">Order #<%= order.orderID %></span>
+                      <span style="font-size: 12px; color: #777;">Size: <%= item.size %></span>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <%= order.createdOn.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) %>
+                </td>
+                <td>
+                  <span class="status status-<%= item.status.toLowerCase().replace(' ', '-') %>">
+                    <%= item.status %>
+                  </span>
+                </td>
+                <td>
+                  <button class="btn btn-outline"
+                    onclick="window.location.href='/order-details/<%= order.orderID %>'">
+                    Details
+                  </button>
+                </td>
+              </tr>
+            <% }) %>
+          <% }) %>
+        <% } %>
+      </tbody>
+    </table>
+    <div class="pagination">
+      <% if (currentPage > 1) { %>
+        <a href="?page=<%= currentPage - 1 %>&search=<%= searchQuery || '' %>">«</a>
+      <% } else { %>
+        <span class="disabled">«</span>
+      <% } %>
+      <% for (let i = 1; i <= totalPages; i++) { %>
+        <% if (i === currentPage) { %>
+          <span class="current"><%= i %></span>
+        <% } else { %>
+          <a href="?page=<%= i %>&search=<%= searchQuery || '' %>"><%= i %></a>
+        <% } %>
+      <% } %>
+      <% if (currentPage < totalPages) { %>
+        <a href="?page=<%= currentPage + 1 %>&search=<%= searchQuery || '' %>">»</a>
+      <% } else { %>
+        <span class="disabled">»</span>
       <% } %>
     </div>
+  </div>
+  <script>
+    function searchOrders() {
+      const searchInput = document.getElementById('searchInput').value.trim();
+      // Redirect to the same page with the search query
+      window.location.href = `/orders?page=1&search=${encodeURIComponent(searchInput)}`;
+    }
 
-    <script>
-      async function cancelOrder(orderId) {
-        const { value: reason } = await Swal.fire({
-          title: 'Cancel Order',
-          input: 'textarea',
-          inputLabel: 'Reason for cancellation (optional):',
-          inputPlaceholder: 'Let us know why you\'re cancelling...',
-          showCancelButton: true,
-          confirmButtonColor: '#3498db',
-          cancelButtonColor: '#6c757d',
+    // Make search work on Enter key
+    document.getElementById('searchInput').addEventListener('keyup', function (e) {
+      if (e.key === 'Enter') {
+        searchOrders();
+      }
+    });
+
+    async function cancelOrder(orderId) {
+      const { value: reason } = await Swal.fire({
+        title: 'Cancel Order',
+        input: 'textarea',
+        inputLabel: 'Reason for cancellation (optional):',
+        inputPlaceholder: 'Let us know why you\'re cancelling...',
+        showCancelButton: true,
+        confirmButtonColor: '#3498db',
+        cancelButtonColor: '#6c757d',
+      });
+
+      if (reason === undefined) return; // User clicked cancel
+
+      try {
+        const response = await fetch(`/cancel-order/${orderId}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ reason })
         });
+        const data = await response.json();
 
-        if (reason === undefined) return; // User clicked cancel
-
-        try {
-          const response = await fetch(`/cancel-order/${orderId}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ reason })
-          });
-          const data = await response.json();
-
-          if (data.success) {
-            await Swal.fire({
-              title: 'Success!',
-              text: 'Your order has been cancelled.',
-              icon: 'success',
-              confirmButtonColor: '#3498db'
-            });
-            window.location.reload();
-          } else {
-            throw new Error(data.message || 'Failed to cancel order');
-          }
-        } catch (error) {
-          Swal.fire({
-            title: 'Error',
-            text: error.message,
-            icon: 'error',
+        if (data.success) {
+          await Swal.fire({
+            title: 'Success!',
+            text: 'Your order has been cancelled.',
+            icon: 'success',
             confirmButtonColor: '#3498db'
           });
+          window.location.reload();
+        } else {
+          throw new Error(data.message || 'Failed to cancel order');
         }
-      }
-
-      async function returnOrder(orderId) {
-        const { value: reason } = await Swal.fire({
-          title: 'Return Order',
-          input: 'textarea',
-          inputLabel: 'Reason for return (required):',
-          inputPlaceholder: 'Please tell us why you\'re returning this order...',
-          inputValidator: (value) => {
-            if (!value) {
-              return 'You need to provide a reason for return!';
-            }
-          },
-          showCancelButton: true,
-          confirmButtonColor: '#3498db',
-
+      } catch (error) {
+        Swal.fire({
+          title: 'Error',
+          text: error.message,
+          icon: 'error',
+          confirmButtonColor: '#3498db'
         });
+      }
+    }
 
-        if (!reason) return; // User clicked cancel or didn't provide reason
-
-        try {
-          const response = await fetch(`/return-order/${orderId}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ reason })
-          });
-          const data = await response.json();
-
-          if (data.success) {
-            await Swal.fire({
-              title: 'Success!',
-              text: 'Your return request has been submitted.',
-              icon: 'success',
-              confirmButtonColor: '#3498db'
-            });
-            window.location.reload();
-          } else {
-            throw new Error(data.message || 'Failed to process return');
+    async function returnOrder(orderId) {
+      const { value: reason } = await Swal.fire({
+        title: 'Return Order',
+        input: 'textarea',
+        inputLabel: 'Reason for return (required):',
+        inputPlaceholder: 'Please tell us why you\'re returning this order...',
+        inputValidator: (value) => {
+          if (!value) {
+            return 'You need to provide a reason for return!';
           }
-        } catch (error) {
-          Swal.fire({
-            title: 'Error',
-            text: error.message,
-            icon: 'error',
-            confirmButtonColor: '#8b5a2b'
+        },
+        showCancelButton: true,
+        confirmButtonColor: '#3498db',
+      });
+
+      if (!reason) return; // User clicked cancel or didn't provide reason
+
+      try {
+        const response = await fetch(`/return-order/${orderId}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ reason })
+        });
+        const data = await response.json();
+
+        if (data.success) {
+          await Swal.fire({
+            title: 'Success!',
+            text: 'Your return request has been submitted.',
+            icon: 'success',
+            confirmButtonColor: '#3498db'
           });
+          window.location.reload();
+        } else {
+          throw new Error(data.message || 'Failed to process return');
         }
-      }
-
-      function searchOrders() {
-        const input = document.getElementById('searchInput').value.toLowerCase();
-        const rows = document.querySelectorAll('#orderTable tbody tr');
-
-        rows.forEach(row => {
-          if (row.classList.contains('no-orders')) return;
-
-          const orderId = row.querySelector('.order-item-id').textContent.toLowerCase();
-          const productName = row.querySelector('.order-item-name').textContent.toLowerCase();
-
-          row.style.display = (orderId.includes(input) || productName.includes(input))
-            ? ''
-            : 'none';
+      } catch (error) {
+        Swal.fire({
+          title: 'Error',
+          text: error.message,
+          icon: 'error',
+          confirmButtonColor: '#8b5a2b'
         });
       }
+    }
+  </script>
+</body>
 
-      // Make search work on Enter key
-      document.getElementById('searchInput').addEventListener('keyup', function (e) {
-        if (e.key === 'Enter') {
-          searchOrders();
-        }
-      });
-    </script>
-  </body>
+</html>
 
-  </html>

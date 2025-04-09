@@ -31,9 +31,10 @@
       }
 
       /* Breadcrumbs Styles */
-   
+
       .breadcrumbs {
-        margin: 1rem 0;
+        margin-top: -20px;
+        margin-bottom: 10px;
         font-size: 14px;
         color: #606060;
         padding: 0.5rem 0;
@@ -184,7 +185,7 @@
       }
 
       .detail-info {
-        margin-top: 30px;
+        margin-top: 25px;
         flex: 0 0 50%;
         max-width: 600px;
         padding: 1.5rem;
@@ -218,7 +219,7 @@
       }
 
       .wishlist-icon.active {
-        color: #895D39;
+        color: red;
       }
 
       .title-detail {
@@ -238,7 +239,7 @@
         flex-direction: row;
         gap: 10px;
         margin-bottom: 20px;
-        margin-top: 20px;
+        margin-top: 15px;
       }
 
       .product-price span {
@@ -269,7 +270,7 @@
       }
 
       .size-selection label {
-        margin-top: 30px;
+        margin-top: 20px;
         display: block;
         font-size: 14px;
         color: #000;
@@ -775,11 +776,11 @@
         <ul class="breadcrumb">
           <li><a href="/"><i class="fas fa-home"></i> Home</a></li>
           <li><a href="/shop">Shop</a></li>
-        
-        <li><span>
-            <%= product.productName %>
-          </span></li>
-      </ul>
+
+          <li><span>
+              <%= product.productName %>
+            </span></li>
+        </ul>
     </div>
 
     <main class="main">
@@ -814,10 +815,24 @@
               <%= product.productName %>
             </h4>
 
+            <div class="stars" style="color: #ffdc19">
+              <i class="fa-solid fa-star"></i>
+              <i class="fa-solid fa-star"></i>
+              <i class="fa-solid fa-star"></i>
+              <i class="fa-solid fa-star"></i>
+              <i class="fa-solid fa-star-half-stroke"></i>
+            </div>
+
             <!-- Product Price -->
             <div class="product-price">
-              <span>$<%= product.salePrice %></span>
-              <del>$<%= product.regularPrice %></del>
+              <span>
+                <%= new Intl.NumberFormat('en-IN', { style: 'currency' , currency: 'INR' , minimumFractionDigits: 0,
+                  maximumFractionDigits: 0 }).format( product.salePrice) %>
+              </span>
+              <del>
+                <%= new Intl.NumberFormat('en-IN', { style: 'currency' , currency: 'INR' , minimumFractionDigits: 0,
+                  maximumFractionDigits: 0 }).format(product.regularPrice) %>
+              </del>
             </div>
 
             <!-- Stock Message -->
@@ -967,8 +982,15 @@
                           <i class="fa-solid fa-star-half-stroke"></i>
                         </div>
                         <div class="price">
-                          <span>$<%= similarProduct.salePrice %></span>
-                          <del>$<%= similarProduct.regularPrice %></del>
+                          <span>
+                            <%= new Intl.NumberFormat('en-IN', { style: 'currency' , currency: 'INR' ,
+                              minimumFractionDigits: 0, maximumFractionDigits: 0 }).format( similarProduct.salePrice) %>
+                          </span>
+                          <del>
+                            <%= new Intl.NumberFormat('en-IN', { style: 'currency' , currency: 'INR' ,
+                              minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(similarProduct.regularPrice)
+                              %>
+                          </del>
                         </div>
                       </a>
                     </div>
@@ -1120,7 +1142,7 @@
       });
 
 
-      // Add to cart functionality
+
       // In productDetails.ejs script section
       document.querySelector('.button-add-to-cart').addEventListener('click', async function (e) {
         e.preventDefault();
@@ -1210,17 +1232,37 @@
         }
       });
 
-      // Wishlist functionality
-      document.querySelector('.wishlist-icon').addEventListener('click', function (e) {
+
+      document.querySelector('.wishlist-icon').addEventListener('click', async function (e) {
         e.preventDefault();
-        this.classList.toggle('active');
-        const icon = this.querySelector('i');
-        icon.classList.toggle('fa-regular');
-        icon.classList.toggle('fa-solid');
-        showModal(
-          this.classList.contains('active') ? 'Added to wishlist!' : 'Removed from wishlist!',
-          'success'
-        );
+        const productId = '<%= product._id %>';
+        const isActive = this.classList.contains('active');
+
+        try {
+          const url = isActive ? '/remove-from-wishlist' : '/add-to-wishlist';
+          const response = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ productId })
+          });
+          const data = await response.json();
+
+          if (data.success) {
+            this.classList.toggle('active');
+            const icon = this.querySelector('i');
+            icon.classList.toggle('fa-regular');
+            icon.classList.toggle('fa-solid');
+            showModal(
+              isActive ? 'Removed from wishlist!' : 'Added to wishlist!',
+              'success'
+            );
+          } else {
+            showModal(data.message, 'error');
+          }
+        } catch (error) {
+          console.error('Error:', error);
+          showModal('Failed to update wishlist', 'error');
+        }
       });
 
       // Toggle section functionality
@@ -1293,8 +1335,29 @@
         result.style.backgroundPosition = `${bgX}% ${bgY}%`;
       }
 
-      // Initialize buttons state on page load
+
       updateQuantityButtons();
+
+      // Add this at the end of the script section in productDetails.ejs
+      async function checkWishlistStatus() {
+        try {
+          const response = await fetch('/wishlist');
+          const wishlistPage = await response.text();
+          const parser = new DOMParser();
+          const doc = parser.parseFromString(wishlistPage, 'text/html');
+          const productId = '<%= product._id %>';
+          if (doc.querySelector(`[data-product-id="${productId}"]`)) {
+            const wishlistIcon = document.querySelector('.wishlist-icon');
+            wishlistIcon.classList.add('active');
+            wishlistIcon.querySelector('i').classList.remove('fa-regular');
+            wishlistIcon.querySelector('i').classList.add('fa-solid');
+          }
+        } catch (error) {
+          console.error('Error checking wishlist status:', error);
+        }
+      }
+      checkWishlistStatus();
+
     </script>
   </body>
 

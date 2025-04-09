@@ -8,6 +8,7 @@ const profileController = require('../controllers/user/profileController')
 const cartController = require('../controllers/user/cartController')
 const orderController = require('../controllers/user/orderController')
 const checkoutAddressController = require('../controllers/user/checkoutAddressController');
+const wishlistController = require('../controllers/user/wishlistController')
 
 router.get('/pageNotFound',userController.pageNotFound)
 router.get('/login',userController.loadLogin)
@@ -26,6 +27,7 @@ router.get('/shop',userAuth,userController.loadShop)
 router.get('/filter',userAuth,userController.filterProduct);
 router.get('/filterprice',userAuth,userController.filterByPrice)
 router.post('/search',userAuth,userController.searchProducts)
+router.get('/sort', userAuth, userController.sortProducts); 
 
 
 // Product Managment
@@ -71,6 +73,8 @@ router.post('/remove-from-cart', userAuth, cartController.removeFromCart);
 
 // Checkout and Order Management
 router.get('/checkout', userAuth, orderController.getCheckoutPage);
+router.post('/apply-coupon', orderController.applyCoupon);
+router.post('/remove-coupon', userAuth, orderController.removeCoupon);
 router.post('/place-order', userAuth, orderController.placeOrder);
 router.get('/order-success/:orderId', userAuth, orderController.getOrderSuccessPage); 
 router.get('/orders', userAuth, orderController.getOrdersPage);
@@ -78,6 +82,14 @@ router.get('/order-details/:orderId', userAuth, orderController.getOrderDetailsP
 router.post('/cancel-order/:orderId', userAuth, orderController.cancelOrder);
 router.post('/return-order/:orderId', userAuth, orderController.returnOrder);
 router.get('/orders/:orderId/invoice', userAuth, orderController.downloadInvoice);
+router.get('/wallet', userAuth, orderController.getWalletPage);
+
+
+// Wishlist Managamnet
+router.get('/wishlist', userAuth, wishlistController.getWishlistPage);
+router.post('/add-to-wishlist', userAuth, wishlistController.addToWishlist);
+router.post('/remove-from-wishlist', userAuth, wishlistController.removeFromWishlist);
+router.post('/move-to-cart', userAuth, wishlistController.moveToCart);
 
 
 

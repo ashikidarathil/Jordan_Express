@@ -1,263 +1,267 @@
 <%- include("../partials/admin/header") %>
 
-  <style>
-    /* Content-specific styles */
+<style>
+  .dashboard-title {
+    margin-top: -20px;
+    font-size: 28px;
+    color: #333;
+    margin-bottom: 30px;
+    font-weight: 600;
+  }
+  .recent-section {
+    background-color: white;
+    border-radius: 12px;
+    padding: 25px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+  }
+  th, td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  th {
+    font-weight: 500;
+    color: #777;
+    font-size: 14px;
+  }
+  .order-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+  }
+  .order-item img {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 4px;
+    border: 1px solid #eee;
+  }
+  .order-item-info {
+    display: flex;
+    flex-direction: column;
+  }
+  .order-item-name {
+    font-weight: 600;
+    margin-bottom: 5px;
+  }
+  .order-item-id {
+    font-size: 12px;
+    color: #777;
+  }
+  .status {
+    padding: 5px 12px;
+    border-radius: 50px;
+    font-size: 12px;
+    font-weight: 500;
+    display: inline-block;
+    
+    
+  }
+  .status.pending {
+    background-color: rgba(241, 196, 15, 0.1);
+    color: #f1c40f;
+  }
+  .status.processing {
+    background-color: rgba(14, 138, 200, 0.1);
+    color: #0e8ac8;
+  }
+  .status.shipped {
+    background-color: rgba(46, 204, 113, 0.1);
+    color: #2ecc71;
+  }
+  .status.delivered {
+    background-color: rgba(52, 152, 219, 0.1);
+    color: #3498db;
+  }
+  .status.cancelled {
+    background-color: rgba(231, 76, 60, 0.1);
+    color: #e74c3c;
+  }
+  .status.returned {
+    background-color: rgba(155, 89, 182, 0.1);
+    color: #9b59b6;
+  }
+  .status.return-request {
+    background-color: rgba(243, 156, 18, 0.1);
+    color: #f39c12;
+  }
+  .status.return-rejected {
+    background-color: rgba(149, 165, 166, 0.1);
+    color: #616161;
+  }
+  .action-link {
+    background-color: #895D39;
+    text-decoration: none;
+    font-weight: 500;
+    margin-right: 10px;
+    color: white;
+    font-size: 12px;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 5px;
+  }
+  .action-link:hover {
+    background-color: #724a22;
+  }
+  .pagination-container {
+    text-align: center;
+    margin-top: 20px;
+  }
+  .pagination-container a, .pagination-container .current-page {
+    display: inline-block;
+    padding: 5px 10px;
+    margin: 0 2px;
+    border: 1px solid #ddd;
+    text-decoration: none;
+    color: #333;
+    border-radius: 4px;
+  }
+  .pagination-container a:hover {
+    background-color: #f5f5f5;
+  }
+  .pagination-container .current-page {
+    background-color: #895D39;
+    color: white;
+    border-color: #895D39;
+  }
+  .filters {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  .filters select, .filters input {
+    padding: 8px;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+  }
+  .filters button {
+    padding: 8px 15px;
+    background-color: #895D39;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  .filters button:hover {
+    background-color: #724a22;
+  }
+</style>
 
+<div class="main-content">
+  <h1 class="dashboard-title">Orders</h1>
 
-    .dashboard-title {
-      margin-top: -20px;
-      font-size: 28px;
-      color: #333;
-      margin-bottom: 30px;
-      font-weight: 600;
-    }
+  <div class="recent-section">
+    <div class="section-header">
+      <div class="section-title" style="margin-bottom: 10px;">Order Items List</div>
+    </div>
 
-    .recent-section {
-      background-color: white;
-      border-radius: 12px;
-      padding: 25px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-    }
+    <div class="filters">
+      <input type="text" id="searchInput" placeholder="Search by Order ID or Customer" value="<%= search %>" style="width: 280px;">
+      <select id="statusFilter">
+        <option value="">All Statuses</option>
+        <% ['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled', 'Returned', 'Return Request', 'Return Rejected'].forEach(status => { %>
+          <option value="<%= status %>" <%= statusFilter === status ? 'selected' : '' %>><%= status %></option>
+        <% }) %>
+      </select>
+      <select id="sortSelect">
+        <option value="createdOn" <%= sort === 'createdOn' || sort === '-createdOn' ? 'selected' : '' %>>Date</option>
+        <option value="finalAmount" <%= sort === 'finalAmount' || sort === '-finalAmount' ? 'selected' : '' %>>Total</option>
+      </select>
+      <select id="sortOrder">
+        <option value="desc" <%= sort.startsWith('-') ? 'selected' : '' %>>Descending</option>
+        <option value="asc" <%= !sort.startsWith('-') ? 'selected' : '' %>>Ascending</option>
+      </select>
+      <button onclick="applyFilters()">Apply</button>
+      <button onclick="clearFilters()">Clear</button>
+    </div>
 
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-bottom: 20px;
-    }
-
-    th,
-    td {
-      padding: 12px 15px;
-      text-align: left;
-      border-bottom: 1px solid #f0f0f0;
-    }
-
-    th {
-      font-weight: 500;
-      color: #777;
-      font-size: 14px;
-    }
-
-    .status {
-      padding: 5px 12px;
-      border-radius: 50px;
-      font-size: 12px;
-      font-weight: 500;
-      display: inline-block;
-    }
-
-    .status.processing {
-      background-color: rgba(14, 138, 200, 0.1);
-      color: black;
-    }
-
-    .status.pending {
-      background-color: rgba(241, 196, 15, 0.1);
-      color: #f1c40f;
-    }
-
-    .status.shipped {
-      background-color: rgba(46, 204, 113, 0.1);
-      color: #2ecc71;
-    }
-
-    .status.delivered {
-      background-color: rgba(52, 152, 219, 0.1);
-      color: #3498db;
-    }
-
-    .status.cancelled {
-      background-color: rgba(231, 76, 60, 0.1);
-      color: #e74c3c;
-    }
-
-    .action-link {
-      background-color: #895D39;
-      text-decoration: none;
-      font-weight: 500;
-      margin-right: 10px;
-      color: white;
-      font-size: 12px;
-      padding: 5px 10px;
-      border: none;
-      border-radius: 5px;
-    }
-
-    .action-link:hover {
-      text-decoration: underline;
-    }
-
-    .btn-action {
-      padding: 5px 10px;
-      border-radius: 4px;
-      border: none;
-      cursor: pointer;
-      font-size: 13px;
-    }
-
-    .btn-process {
-      background-color: #3498db;
-      color: white;
-    }
-
-    .pagination-container {
-      text-align: center;
-      margin-top: 20px;
-    }
-
-    .pagination-container a,
-    .pagination-container .current-page {
-      display: inline-block;
-      padding: 5px 10px;
-      margin: 0 2px;
-      border: 1px solid #ddd;
-      text-decoration: none;
-      color: #333;
-      border-radius: 4px;
-    }
-
-    .pagination-container a:hover {
-      background-color: #f5f5f5;
-    }
-
-    .pagination-container .current-page {
-      background-color: #895D39;
-      color: white;
-      border-color: #895D39;
-
-
-    }
-
-    .filters {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 20px;
-    }
-
-    .filters select,
-    .filters input {
-      padding: 8px;
-      border-radius: 4px;
-      border: 1px solid #ddd;
-    }
-
-    .filters button {
-      padding: 8px 15px;
-      background-color: #895D39;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-  </style>
-
-  <div class="main-content">
-    <h1 class="dashboard-title">Orders</h1>
-
-    <div class="recent-section">
-      <div class="section-header">
-        <div class="section-title">Order List</div>
-      </div>
-
-      <div class="filters">
-        <input type="text" id="searchInput" placeholder="Search by Order ID or Customer" value="<%= search %>" style="width: 280px;">
-        <select id="statusFilter">
-          <option value="">All Statuses</option>
-          <% ['Pending', 'Processing' , 'Shipped' , 'Delivered' , 'Cancelled' , 'Partially Cancelled' , 'Returned'
-            , 'Partially Returned' ].forEach(status=> { %>
-            <option value="<%= status %>" <%=statusFilter===status ? 'selected' : '' %>><%= status %>
-            </option>
-            <% }) %>
-        </select>
-        <select id="sortSelect">
-          <option value="createdOn" <%=sort==='createdOn' || sort==='-createdOn' ? 'selected' : '' %>>Date</option>
-          <option value="finalAmount" <%=sort==='finalAmount' || sort==='-finalAmount' ? 'selected' : '' %>>Total
-          </option>
-        </select>
-        <select id="sortOrder">
-          <option value="desc" <%=sort.startsWith('-') ? 'selected' : '' %>>Descending</option>
-          <option value="asc" <%=!sort.startsWith('-') ? 'selected' : '' %>>Ascending</option>
-        </select>
-        <button onclick="applyFilters()">Apply</button>
-        <button onclick="clearFilters()">Clear</button>
-      </div>
-
-      <table>
-        <thead>
+    <table>
+      <thead>
+        <tr>
+          <th>Item</th>
+          <th>Order ID</th>
+          <th>Date</th>
+          <th>Customer</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (orderItems.length === 0) { %>
           <tr>
-            <th>Order ID</th>
-            <th>Date</th>
-            <th>Customer</th>
-            <th>Status</th>
-            <th>Actions</th>
+            <td colspan="6">No order items found.</td>
           </tr>
-        </thead>
-        <tbody>
-          <% orders.forEach(order=> { %>
+        <% } else { %>
+          <% orderItems.forEach(orderItem => { %>
             <tr>
-              <td>#<%= order.orderID %>
-              </td>
               <td>
-                <%= order.createdOn.toLocaleDateString() %>
+                <div class="order-item">
+                  <% if (orderItem.item.product?.productImage) { %>
+                    <img src="/uploads/product-image/<%= orderItem.item.product.productImage[0] %>" alt="<%= orderItem.item.product.productName %>">
+                  <% } else { %>
+                    <img src="/images/default-product.jpg" alt="Product image">
+                  <% } %>
+                  <div class="order-item-info">
+                    <span class="order-item-name"><%= orderItem.item.product?.productName || 'Product' %></span>
+                    <span style="font-size: 12px; color: #777;">Size: <%= orderItem.item.size %></span>
+                  </div>
+                </div>
               </td>
+              <td>#<%= orderItem.orderID %></td>
+              <td><%= orderItem.createdOn.toLocaleDateString() %></td>
+              <td><%= orderItem.user.name %> (<%= orderItem.user.email %>)</td>
               <td>
-                <%= order.userID.name %> (<%= order.userID.email %>)
-              </td>
-              <td>
-                <span class="status <%= order.status.toLowerCase().replace(' ', '-') %>">
-                  <%= order.status %>
+                <span class="status <%= orderItem.item.status.toLowerCase().replace(' ', '-') %>">
+                  <%= orderItem.item.status %>
                 </span>
               </td>
               <td>
-                <a href="/admin/orders/<%= order.orderID %>" class="action-link">View Details</a>
+                <a href="/admin/orders/<%= orderItem.orderID %>" class="action-link">Details</a>
               </td>
             </tr>
-            <% }) %>
-        </tbody>
-      </table>
+          <% }) %>
+        <% } %>
+      </tbody>
+    </table>
 
-      <div class="pagination-container">
-        <% if (currentPage> 1) { %>
-          <a
-            href="?page=<%= currentPage - 1 %>&limit=<%= limit %>&sort=<%= sort %>&search=<%= search %>&status=<%= statusFilter %>">«
-            Previous</a>
-          <% } %>
-            <% for (let i=1; i <=totalPages; i++) { %>
-              <% if (i===currentPage) { %>
-                <span class="current-page">
-                  <%= i %>
-                </span>
-                <% } else { %>
-                  <a
-                    href="?page=<%= i %>&limit=<%= limit %>&sort=<%= sort %>&search=<%= search %>&status=<%= statusFilter %>">
-                    <%= i %>
-                  </a>
-                  <% } %>
-                    <% } %>
-                      <% if (currentPage < totalPages) { %>
-                        <a
-                          href="?page=<%= currentPage + 1 %>&limit=<%= limit %>&sort=<%= sort %>&search=<%= search %>&status=<%= statusFilter %>">Next
-                          »</a>
-                        <% } %>
-      </div>
+    <div class="pagination-container">
+      <% if (currentPage > 1) { %>
+        <a href="?page=<%= currentPage - 1 %>&limit=<%= limit %>&sort=<%= sort %>&search=<%= search %>&status=<%= statusFilter %>">« Previous</a>
+      <% } %>
+      <% for (let i = 1; i <= totalPages; i++) { %>
+        <% if (i === currentPage) { %>
+          <span class="current-page"><%= i %></span>
+        <% } else { %>
+          <a href="?page=<%= i %>&limit=<%= limit %>&sort=<%= sort %>&search=<%= search %>&status=<%= statusFilter %>"><%= i %></a>
+        <% } %>
+      <% } %>
+      <% if (currentPage < totalPages) { %>
+        <a href="?page=<%= currentPage + 1 %>&limit=<%= limit %>&sort=<%= sort %>&search=<%= search %>&status=<%= statusFilter %>">Next »</a>
+      <% } %>
     </div>
   </div>
+</div>
 
-  <script>
-    function applyFilters() {
-      const search = document.getElementById('searchInput').value;
-      const status = document.getElementById('statusFilter').value;
-      const sortField = document.getElementById('sortSelect').value;
-      const sortOrder = document.getElementById('sortOrder').value;
-      const sort = sortOrder === 'desc' ? `-${sortField}` : sortField;
-      window.location.href = `/admin/orders?page=1&limit=10&sort=${sort}&search=${search}&status=${status}`;
-    }
+<script>
+  function applyFilters() {
+    const search = document.getElementById('searchInput').value;
+    const status = document.getElementById('statusFilter').value;
+    const sortField = document.getElementById('sortSelect').value;
+    const sortOrder = document.getElementById('sortOrder').value;
+    const sort = sortOrder === 'desc' ? `-${sortField}` : sortField;
+    window.location.href = `/admin/orders?page=1&limit=10&sort=${sort}&search=${search}&status=${status}`;
+  }
 
-    function clearFilters() {
-      window.location.href = '/admin/orders?page=1&limit=10';
-    }
+  function clearFilters() {
+    window.location.href = '/admin/orders?page=1&limit=10';
+  }
 
-    document.getElementById('searchInput').addEventListener('keypress', function (e) {
-      if (e.key === 'Enter') applyFilters();
-    });
-  </script>
+  document.getElementById('searchInput').addEventListener('keypress', function (e) {
+    if (e.key === 'Enter') applyFilters();
+  });
+</script>

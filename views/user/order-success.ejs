@@ -299,35 +299,27 @@
     <p>Thank you for your purchase. Your order <span class="order-id">#<%= orderId %></span> has been received and is
       being processed.</p>
 
-    <div class="order-section">
-      <h2>Order Summary</h2>
-      <div class="summary-item">
-        <span>Order Number:</span>
-        <span>
-          <%= orderId %>
-        </span>
+      <div class="order-section">
+        <h2>Order Summary</h2>
+        <div class="summary-item">
+          <span>Order Number:</span>
+          <span><%= orderId %></span>
+        </div>
+        <div class="summary-item">
+          <span>Subtotal:</span>
+          <span><%= new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format((orderTotal + discount).toFixed(2)) %></span>
+        </div>
+        <% if (discount > 0) { %>
+          <div class="summary-item">
+            <span>Discount:</span>
+            <span>-<%= new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(discount.toFixed(2)) %></span>
+          </div>
+        <% } %>
+        <div class="summary-item total-item">
+          <span>Total Amount:</span>
+          <span><%= new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(orderTotal.toFixed(2)) %></span>
+        </div>
       </div>
-      <div class="summary-item">
-        <span>Date:</span>
-        <span>
-          <%= orderDate %>
-        </span>
-      </div>
-      <div class="summary-item">
-        <span>Status:</span>
-        <span>Processing</span>
-      </div>
-      <div class="summary-item">
-        <span>Payment Method:</span>
-        <span>
-          <%= paymentMethod %>
-        </span>
-      </div>
-      <div class="summary-item total-item">
-        <span>Total Amount:</span>
-        <span>$<%= orderTotal.toFixed(2) %></span>
-      </div>
-    </div>
 
     <% if (items && items.length) { %>
       <div class="order-section">
@@ -353,14 +345,14 @@
                       </div>
                     </div>
               </div>
-              <div class="item-price">$<%= (item.price * item.quantity).toFixed(2) %>
+              <div class="item-price"><%= new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format( (item.price * item.quantity).toFixed(2)) %>
               </div>
             </div>
             <% }); %>
         </div>
         <div class="summary-item total-item" style="margin-top: 20px;">
           <span>Total:</span>
-          <span>$<%= orderTotal.toFixed(2) %></span>
+          <span><%= new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(orderTotal.toFixed(2)) %></span>
         </div>
       </div>
       <% } %>

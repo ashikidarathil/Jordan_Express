@@ -10,7 +10,7 @@ const categoryInfo = async (req, res) => {
 
     let query = {};
     if (searchQuery) {
-      query = { name: { $regex: new RegExp('^' + searchQuery, 'i') } }; // Case-insensitive search by category name
+      query = { name: { $regex: new RegExp('^' + searchQuery, 'i') } }; 
     }
 
     const categoryData = await categoryModel.find(query)
@@ -18,7 +18,7 @@ const categoryInfo = async (req, res) => {
       .skip(skip)
       .limit(limit);
 
-    console.log(categoryData.map(cat => ({ name: cat.name, createdAt: cat.createdAt })));
+    // console.log(categoryData.map(cat => ({ name: cat.name, createdAt: cat.createdAt })));
 
     const totalCategories = await categoryModel.countDocuments(query);
     const totalPages = Math.ceil(totalCategories / limit);
@@ -132,7 +132,7 @@ const removeCategoryOffer = async (req, res) => {
 
     if (products.length > 0) {
       for (const product of products) {
-        product.salePrice = product.regularPrice; // Reset to regular price
+        product.salePrice = product.regularPrice; 
         product.productOffer = 0;
         await product.save();
       }

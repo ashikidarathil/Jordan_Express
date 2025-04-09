@@ -157,7 +157,8 @@
             .discounted-price {
                 font-size: 16px;
                 font-weight: bold;
-                color: red;
+                color: #724a22;
+                margin-right: 8px;
             }
 
             .quantity {
@@ -187,6 +188,10 @@
                 color: #888;
                 font-size: 14px;
                 cursor: pointer;
+            }
+
+            .review-stars i {
+                color: #ffdc19;
             }
 
             .remove-size {
@@ -383,6 +388,8 @@
                 color: #333;
             }
 
+
+
             @keyframes slideIn {
                 from {
                     transform: translateX(100%);
@@ -469,11 +476,10 @@
                         <div class="cart-item <%= item.productID.status === 'Out of Stock' ? 'out-of-stock' : '' %>"
                             data-item-id="<%= item._id %>">
                             <a href="/productDetails?id=<%= item.productID._id %>">
-                                <img src="/uploads/product-image/<%= item.productID.productImage[0] %>" 
-                                     alt="<%= item.productID.productName %>" 
-                                     style="width: 160px;">
+                                <img src="/uploads/product-image/<%= item.productID.productImage[0] %>"
+                                    alt="<%= item.productID.productName %>" style="width: 160px;">
                             </a>
-                            
+
                             <div class="item-details">
                                 <h3>
                                     <%= item.productID.productName %>
@@ -481,9 +487,24 @@
                                             <span class="out-of-stock-label">Out of Stock</span>
                                             <% } %>
                                 </h3>
+                                <div class="review-stars"
+                                    style="color: #ffdc19;font-size: 12px;margin-left: -1px;margin-bottom: -8px;">
+                                    <i class="fa-solid fa-star"></i>
+                                    <i class="fa-solid fa-star"></i>
+                                    <i class="fa-solid fa-star"></i>
+                                    <i class="fa-solid fa-star"></i>
+                                    <i class="fa-solid fa-star"></i>
+                                </div>
                                 <p>
-                                    <span class="price">$<%= item.productID.regularPrice %></span>
-                                    <span class="discounted-price">$<%= item.price %></span>
+                                    <span class="discounted-price">
+                                        <%= new Intl.NumberFormat('en-IN', { style: 'currency' , currency: 'INR' ,
+                                            minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(item.price) %>
+                                    </span>
+                                    <span class="price">
+                                        <%= new Intl.NumberFormat('en-IN', { style: 'currency' , currency: 'INR' ,
+                                            minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(
+                                            item.productID.regularPrice) %>
+                                    </span>
                                 </p>
 
                                 <% item.size.forEach(sizeItem=> { %>
@@ -525,9 +546,15 @@
                 <div class="order-summary" style="height: 250px;">
                     <h2>Order Summary</h2>
                     <div class="summary-details">
-                        <p><span>Subtotal</span> <span>$<%= subtotal.toFixed(2) %></span></p>
-                        <p><span>Shipping</span> <span>$0.00</span></p>
-                        <p class="total"><span>Total :</span> <span>$<%= total.toFixed(2) %></span></p>
+                        <p><span>Subtotal</span> <span>
+                                <%= new Intl.NumberFormat('en-IN', { style: 'currency' , currency: 'INR'
+                                    }).format(subtotal.toFixed(2)) %>
+                            </span></p>
+                        <p><span>Shipping</span> <span>&#8377;0.00</span></p>
+                        <p class="total"><span>Total :</span> <span>
+                                <%= new Intl.NumberFormat('en-IN', { style: 'currency' , currency: 'INR'
+                                    }).format(total.toFixed(2)) %>
+                            </span></p>
                     </div>
                     <button class="checkout-btn" id="proceedToCheckout">Proceed to Checkout</button>
                 </div>
@@ -563,7 +590,7 @@
                 setTimeout(() => {
                     modal.style.display = 'none';
                     modal.style.animation = 'slideIn 0.5s forwards';
-                }, 500);
+                }, 1000);
             }
 
             async function confirmAction(message) {
@@ -685,9 +712,16 @@
 
                         quantityInput.value = newQuantity;
 
-                        // Update summary
-                        document.querySelector('.summary-details p:nth-child(1) span:last-child').textContent = `$${data.subtotal.toFixed(2)}`;
-                        document.querySelector('.summary-details p.total span:last-child').textContent = `$${data.total.toFixed(2)}`;
+
+                        // Update summary with decimals
+                        document.querySelector('.summary-details p:nth-child(1) span:last-child').textContent = new Intl.NumberFormat('en-IN', {
+                            style: 'currency',
+                            currency: 'INR'
+                        }).format(data.subtotal);
+                        document.querySelector('.summary-details p.total span:last-child').textContent = new Intl.NumberFormat('en-IN', {
+                            style: 'currency',
+                            currency: 'INR'
+                        }).format(data.total);
 
                         // Update button states
                         const decrementBtn = sizeContainer.querySelector('.decrement-btn');
@@ -704,8 +738,7 @@
                             showModal('This item is now out of stock', 'error');
                         } else if (data.maxQuantityReached) {
                             incrementBtn.disabled = true;
-
-                            showModal('Maximum available quantity reached', 'info');
+                            showModal('Maximum available quantity reached', 'error');
 
                         } else {
                             showModal('Quantity updated', 'success');
@@ -741,7 +774,7 @@
                         // Wait for 1.5 seconds before reloading to show the message
                         setTimeout(() => {
                             window.location.reload();
-                        }, 500);
+                        }, 1000);
                     } else {
                         showModal(data.message || 'Failed to remove size', 'error');
                     }
@@ -772,7 +805,7 @@
                         // Wait for 1.5 seconds before reloading to show the message
                         setTimeout(() => {
                             window.location.reload();
-                        }, 500);
+                        }, 1000);
                     } else {
                         showModal(data.message || 'Failed to remove item', 'error');
                     }

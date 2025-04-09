@@ -91,8 +91,8 @@
                                 <i class="fa-solid fa-star-half-stroke"></i>
                             </div>
                             <div class="price">
-                                <span>$<%= products[i].salePrice %></span>
-                                <del>$<%= products[i].regularPrice %></del>
+                                <span><%= new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(products[i].salePrice) %></span>
+                                <del><%= new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(products[i].regularPrice) %></del>
                             </div>
                             <div class="icon-product">
                                 <a href="/addToWishlist?id=<%= products[i]._id %>"><i

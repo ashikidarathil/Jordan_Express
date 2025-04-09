@@ -91,9 +91,10 @@ header {
     justify-content: space-between;
     padding: 10px 13%;
     color: white;
-   
-
-
+ 
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03), 
+    0 2px 4px rgba(0, 0, 0, 0.005);
+    margin-bottom: 80px;
 
 }
 

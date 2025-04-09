@@ -1,7 +1,7 @@
-// controllers/admin/orderController.js
 const Order = require('../../models/orderSchema');
 const Product = require('../../models/productSchema');
 const User = require('../../models/userSchema');
+const Wallet = require('../../models/walletSchema');
 
 const getAdminOrders = async (req, res) => {
   try {
@@ -13,31 +13,47 @@ const getAdminOrders = async (req, res) => {
 
     // Build query
     let query = {};
-    
     if (search) {
       query.$or = [
         { orderID: { $regex: search, $options: 'i' } },
         { 'userID.email': { $regex: search, $options: 'i' } }
       ];
     }
-    
-    if (statusFilter) {
-      query.status = statusFilter;
-    }
 
-    const totalOrders = await Order.countDocuments(query);
     const orders = await Order.find(query)
       .populate('userID', 'name email')
       .populate('orderItems.product')
-      .sort(sort)
-      .skip((page - 1) * limit)
-      .limit(limit);
+      .sort(sort);
+
+    // Flatten orders into a list of items
+    const orderItems = [];
+    orders.forEach(order => {
+      order.orderItems.forEach(item => {
+        orderItems.push({
+          orderID: order.orderID,
+          createdOn: order.createdOn,
+          user: order.userID,
+          item: item,
+          paymentMethod: order.paymentMethod
+        });
+      });
+    });
+
+    // Apply status filter to items
+    let filteredItems = orderItems;
+    if (statusFilter) {
+      filteredItems = orderItems.filter(item => item.item.status === statusFilter);
+    }
+
+    // Pagination
+    const totalItems = filteredItems.length;
+    const paginatedItems = filteredItems.slice((page - 1) * limit, page * limit);
 
     res.render('admin-orders', {
-      orders,
+      orderItems: paginatedItems,
       currentPage: page,
-      totalPages: Math.ceil(totalOrders / limit),
-      totalOrders,
+      totalPages: Math.ceil(totalItems / limit),
+      totalItems,
       sort,
       search,
       statusFilter,
@@ -48,7 +64,6 @@ const getAdminOrders = async (req, res) => {
     res.status(500).render('admin/error', { message: 'Server Error' });
   }
 };
-
 
 const getOrderDetails = async (req, res) => {
   try {
@@ -61,14 +76,7 @@ const getOrderDetails = async (req, res) => {
       return res.status(404).render('admin/error', { message: 'Order not found' });
     }
 
-    // Set default status for items that don't have one
-    order.orderItems.forEach(item => {
-      if (!item.status) {
-        item.status = order.status;
-      }
-    });
-
-    res.render('admin-order-details', { 
+    res.render('admin-order-details', {
       order,
     });
   } catch (error) {
@@ -77,89 +85,35 @@ const getOrderDetails = async (req, res) => {
   }
 };
 
-
-
-const updateOrderStatus = async (req, res) => {
-  try {
-    const { orderId } = req.params.orderId;
-    const { status } = req.body;
-
-    const order = await Order.findOne({ orderID: orderId });
-    if (!order) {
-      return res.status(404).json({ success: false, message: 'Order not found' });
-    }
-
-    // Validate status
-    if (!ORDER_STATUSES.includes(status)) {
-      return res.status(400).json({ success: false, message: 'Invalid status' });
-    }
-
-    // Special handling for certain status changes
-    if (status === 'Cancelled') {
-      // Update all items to cancelled
-      order.orderItems.forEach(item => {
-        if (item.status !== 'Cancelled' && item.status !== 'Returned') {
-          item.status = 'Cancelled';
-        }
-      });
-    } else if (status === 'Processing') {
-      // Can't go back to Processing from more advanced states
-      if (['Shipped', 'Delivered'].includes(order.status)) {
-        return res.status(400).json({ success: false, message: 'Cannot revert to Processing' });
-      }
-    }
-
-    order.status = status;
-    await order.save();
-
-    res.json({ success: true, message: 'Order status updated successfully' });
-  } catch (error) {
-    console.error('Error updating order status:', error);
-    res.status(500).json({ success: false, message: 'Failed to update status' });
-  }
-};
-
-
 const updateOrderItemStatus = async (req, res) => {
   try {
     const { orderId } = req.params;
     const { productId, size, status } = req.body;
 
-    console.log("Request params:", orderId, productId, size, status);
-
-    // First, find the order - make sure case matches your schema
     const order = await Order.findOne({ orderID: orderId });
-    console.log("Found order:", order ? order._id : "not found");
-    
     if (!order) {
       return res.status(404).json({ success: false, message: 'Order not found' });
     }
 
-    // Check if status is valid from your enum (schema)
-    const validStatuses = ['Pending', 'Shipped', 'Delivered', 'Cancelled', 'Returned', 'Return Request'];
+    const validStatuses = ['Pending', 'Processing', 'Shipped', 'Delivered', 'Cancelled', 'Returned', 'Return Request', 'Return Rejected'];
     if (!validStatuses.includes(status)) {
       return res.status(400).json({ success: false, message: 'Invalid status' });
     }
 
-    // Find the specific item
-    const orderItem = order.orderItems.find(item => 
+    const orderItem = order.orderItems.find(item =>
       item.product.toString() === productId && item.size === size
     );
-    console.log("Found item:", orderItem ? "yes" : "no");
 
     if (!orderItem) {
       return res.status(404).json({ success: false, message: 'Order item not found' });
     }
 
-    // Status transition validation
     if (orderItem.status === 'Delivered' && status === 'Shipped') {
       return res.status(400).json({ success: false, message: 'Cannot revert to Shipped after Delivered' });
     }
 
-    // Update the status
     orderItem.status = status;
-    
-    // Update product stock if cancelled or returned
+
     if (status === 'Cancelled' || status === 'Returned') {
       const product = await Product.findById(productId);
       const sizeVariant = product.size.find(s => s.size === size);
@@ -169,8 +123,6 @@ const updateOrderItemStatus = async (req, res) => {
       }
     }
 
-    // Determine overall order status
-    await updateOverallOrderStatus(order);
     await order.save();
 
     return res.json({ success: true, message: 'Product status updated successfully' });
@@ -180,42 +132,17 @@ const updateOrderItemStatus = async (req, res) => {
   }
 };
 
-
-
-async function updateOverallOrderStatus(order) {
-  const itemStatuses = order.orderItems.map(i => i.status);
-  
-  if (itemStatuses.every(s => s === 'Cancelled')) {
-    order.status = 'Cancelled';
-  } else if (itemStatuses.some(s => s === 'Cancelled')) {
-    order.status = 'Partially Cancelled';
-  } else if (itemStatuses.every(s => s === 'Returned')) {
-    order.status = 'Returned';
-  } else if (itemStatuses.some(s => s === 'Returned' || s === 'Return Requested')) {
-    order.status = 'Partially Returned';
-  } else if (itemStatuses.every(s => s === 'Delivered')) {
-    order.status = 'Delivered';
-  } else if (itemStatuses.some(s => s === 'Shipped')) {
-    order.status = 'Shipped';
-  } else if (itemStatuses.some(s => s === 'Processing')) {
-    order.status = 'Processing';
-  } else {
-    order.status = 'Pending';
-  }
-} 
-
-
 const verifyReturnRequest = async (req, res) => {
   try {
     const { orderId } = req.params;
     const { productId, size, action } = req.body;
 
-    const order = await Order.findOne({ orderID: orderId });
+    const order = await Order.findOne({ orderID: orderId }).populate('userID');
     if (!order) {
       return res.status(404).json({ success: false, message: 'Order not found' });
     }
 
-    const item = order.orderItems.find(i => 
+    const item = order.orderItems.find(i =>
       i.product.toString() === productId && i.size === size
     );
 
@@ -225,7 +152,24 @@ const verifyReturnRequest = async (req, res) => {
 
     if (action === 'accept') {
       item.status = 'Returned';
-      // Restock the product
+      const itemCount = order.orderItems.length;
+      const perItemDiscount = order.discount > 0 && itemCount > 0 ? order.discount / itemCount : 0;
+      const refundAmount = (item.price * item.quantity) - perItemDiscount;
+
+      // Refund to user's wallet
+      let wallet = await Wallet.findOne({ userID: order.userID });
+      if (!wallet) {
+        wallet = new Wallet({ userID: order.userID });
+      }
+      wallet.balance += refundAmount;
+      wallet.transactions.push({
+        type: 'credit',
+        amount: refundAmount,
+        description: item.returnReason,
+        orderID: orderId
+      });
+      await wallet.save();
+
       const product = await Product.findById(productId);
       const sizeVariant = product.size.find(s => s.size === size);
       if (sizeVariant) {
@@ -236,7 +180,6 @@ const verifyReturnRequest = async (req, res) => {
       item.status = 'Return Rejected';
     }
 
-    await updateOverallOrderStatus(order);
     await order.save();
 
     res.json({ success: true, message: `Return request ${action}ed` });
@@ -247,13 +190,32 @@ const verifyReturnRequest = async (req, res) => {
 };
 
 
+// const getUserWallets = async (req, res) => {
+//   try {
+//     const page = parseInt(req.query.page) || 1;
+//     const limit = 10;
+//     const wallets = await Wallet.find()
+//       .populate('userID', 'name email')
+//       .skip((page - 1) * limit)
+//       .limit(limit);
+//     const totalWallets = await Wallet.countDocuments();
+//     const totalPages = Math.ceil(totalWallets / limit);
 
+//     res.render('admin-wallets', {
+//       wallets,
+//       currentPage: page,
+//       totalPages
+//     });
+//   } catch (error) {
+//     console.error('Error fetching wallets:', error);
+//     res.status(500).render('admin/error', { message: 'Server Error' });
+//   }
+// };
 
-module.exports = { 
-  getAdminOrders ,
+module.exports = {
+  getAdminOrders,
   getOrderDetails,
-  updateOrderStatus,
   updateOrderItemStatus,
-  verifyReturnRequest
-
+  verifyReturnRequest,
+  
 };

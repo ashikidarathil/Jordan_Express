@@ -12,7 +12,7 @@ const orderSchema = new Schema({
   },
   orderID: {
     type: String,
-    default: uuidv4, 
+    default:() => `ORD-${Date.now()}-${Math.floor(Math.random() * 1000)}`, 
     unique: true
   },
   orderItems: [{
@@ -23,7 +23,8 @@ const orderSchema = new Schema({
     },
     quantity: {
       type: Number,
-      required: true
+      required: true,
+      min:1
     },
     size: {  // Add this field
       type: String,
@@ -40,7 +41,8 @@ const orderSchema = new Schema({
       enum: ['Pending', 'Shipped', 'Delivered', 'Cancelled', 'Returned','Return Request', 'Return Rejected']
     },
     cancellationReason: String,
-    returnReason: String
+    returnReason: String,
+    
   }],
   cancellationReason: String,
   returnReason: String,
@@ -56,7 +58,7 @@ const orderSchema = new Schema({
     type: Number,
     required: true
   },
-  address: { // Embedding address instead of ObjectId to match your intent
+  address: { 
     label: { type: String, required: true },
     street: { type: String, required: true },
     city: { type: String, required: true },
@@ -69,23 +71,38 @@ const orderSchema = new Schema({
     type: String,
 
   },
-  couponCode: { // New field to store the applied coupon code
+  couponCode: {
     type: String,
     default: null
   },
   createdOn: {
     type: Date,
-    default: Date.now, // Corrected 'deafult' to 'default'
+    default: Date.now, 
     required: true
   },
   couponApplied: {
     type: Boolean,
     default: false
   },
-  paymentMethod: { // Added to store payment method from frontend
+
+  paymentMethod: {
     type: String,
-    required: true
-  }
+    required: true,
+    enum: ['COD', 'Razorpay', 'Wallet'] 
+  },
+  paymentStatus: {
+    type: String,
+    default: 'Pending',
+    enum: ['Pending', 'Paid', 'Failed']
+  },
+  walletAmount: { 
+    type: Number,
+    default: 0
+  },
+  deliveryCharge: { 
+    type: Number,
+    default: 0
+  },
 });
 
 const Order = mongoose.model('Order', orderSchema);

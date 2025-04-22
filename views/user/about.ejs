@@ -1,0 +1,122 @@
+<%- include('../partials/user/header') %>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>About Us - Jordan Express</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+
+    .container {
+      
+      margin: 0 auto;
+      margin-bottom: 100px;
+      margin-top: 100px;
+      
+    }
+    .logo {
+      max-width: 300px;
+      height: auto;
+      margin-bottom: 20px;
+    }
+    .title {
+      font-size: 28px;
+      color: #895D39  ;
+      margin-bottom: 20px;
+      font-weight: 600;
+      margin-top: 10px;
+    }
+    .description {
+      font-size: 16px;
+      color: #666;
+      line-height: 1.6;
+      margin-bottom: 30px;
+    }
+    .shop-btn {
+      padding: 10px 20px;
+      background-color: #895D39  ;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      text-decoration: none;
+    }
+    .shop-btn:hover {
+      background-color: #5A3A22;
+    }
+    .features {
+      display: flex;
+      justify-content: space-around;
+      margin-top: 40px;
+      flex-wrap: wrap;
+    }
+    .feature-item {
+      width: 350px;
+      text-align: center;
+
+      padding: 20px;
+      border-radius: 10px;
+     
+    }
+    .feature-item i{
+      margin-bottom: 10px;
+    }
+    .feature-icon {
+      font-size: 40px;
+      color: #895D39  ;
+      margin-bottom: 10px;
+    }
+    .feature-title {
+      font-size: 18px;
+      color: #895D39  ;
+      margin-bottom: 10px;
+      margin-bottom: 10px;
+    
+    }
+    .feature-text {
+      font-size: 14px;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+
+
+    <div class="features">
+      <div class="feature-item">
+        <i class="fas fa-shopping-bag" style="color: #895D39  ;font-size: 44px;"></i>
+        <h3 class="feature-title">Free Shipping</h3>
+        <p class="feature-text">Far far away, behind the word mountains, far from the countries Vokalia and Consonantia, there live the blind texts.</p>
+      </div>
+      <div class="feature-item">
+        <i class="fas fa-headset" style="color: #895D39  ;font-size: 44px;"></i>
+        <h3 class="feature-title">Support Customer</h3>
+        <p class="feature-text">Far far away, behind the word mountains, far from the countries Vokalia and Consonantia, there live the blind texts.</p>
+      </div>
+      <div class="feature-item">
+        <i class="fas fa-lock" style="color: #895D39  ;font-size: 44px;"></i>
+        <h3 class="feature-title">Secure Payments</h3>
+        <p class="feature-text">Far far away, behind the word mountains, far from the countries Vokalia and Consonantia, there live the blind texts.</p>
+      </div>
+    </div>
+
+    <div class="container" style="display: flex;background-color: rgb(243, 242, 242);padding: 50px;">
+     <div>
+      <img src="/image/logo.png" alt="Jordan Express Logo" class="logo" style="margin-right: 50px;width: 220px;margin-left: 200px;">
+     </div>
+    <div style="margin-left: 50px;max-width: 700px;">
+      <h1 class="title">Established Since 2022</h1>
+      <p class="description">
+        But nothing the copy said could convince her and so it didn't take long until a few insidious Copy Writers ambushed her, made her drunk with Longe and Parole and dragged her into their agency, where they abused her for their. But nothing the copy said could convince her.
+      </p>
+      <a href="/shop" class="shop-btn">Shop now</a>
+    </div>
+  </div>
+</body>
+</html>
+
+<%- include('../partials/user/footer') %>

@@ -9,6 +9,7 @@
     <title>Shop | Your Brand</title>
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
       @import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
 
@@ -35,7 +36,7 @@
       }
 
       .filters {
-      
+
         margin-left: 20px;
         flex: 0 0 250px;
         background: white;
@@ -144,6 +145,7 @@
         transition: all 0.2s ease;
       }
 
+
       .price-button:hover {
         background: #f5f5f5;
       }
@@ -153,6 +155,8 @@
         color: white;
         border-color: #895D39;
       }
+
+
 
       .products .items {
         display: grid;
@@ -321,10 +325,12 @@
       .pagination .page-link {
         padding: 8px 16px;
         border: 1px solid #ddd;
-        border-radius: 3px;
+        border-radius: 10px;
         color: #555;
         text-decoration: none;
         transition: all 0.3s ease;
+        margin-right: 5px;
+        margin-left: 5px;
       }
 
       .pagination .page-link:hover {
@@ -360,7 +366,7 @@
       ul.size-list li:last-child {
         border-bottom: none;
       }
-      
+
 
       @media (max-width: 768px) {
         main {
@@ -411,6 +417,18 @@
         color: white;
       }
 
+      .discount-badge {
+        position: absolute;
+        top: 1.5rem;
+        left: 1.2rem;
+        background-color: #FFD700;
+        color: #895D39;
+        font-size: 4px;
+        font-weight: 600;
+        padding: 5px 10px;
+        border-radius: 5px;
+      }
+
 
       @keyframes slideIn {
         from {
@@ -430,6 +448,39 @@
         to {
           transform: translateX(100%);
         }
+      }
+
+      /* Existing pagination styles */
+      .pagination .page-link {
+        padding: 8px 16px;
+        border: 1px solid #ddd;
+        border-radius: 3px;
+        color: #555;
+        text-decoration: none;
+        transition: all 0.3s ease;
+      }
+
+      .pagination .page-link:hover {
+        background-color: #895D39;
+        color: white;
+        border-color: #895D39;
+      }
+
+      /* Style for disabled buttons */
+      .page-item.disabled .page-link {
+        color: #ccc;
+        pointer-events: none;
+        background-color: #f8f9fa;
+        border-color: #ddd;
+      }
+
+
+      .page-item.active .page-link {
+        background-color: #895D39;
+        color: white;
+        border-color: #895D39;
+        cursor: default;
+        
       }
     </style>
 
@@ -468,9 +519,12 @@
           </div>
           <div class="price-buttons">
             <a href="/filterPrice?gt=0&lt=5000"><button class="price-button">&#8377;0 - &#8377;5,000</button></a>
-            <a href="/filterPrice?gt=5000&lt=10000"><button class="price-button">&#8377;5000 - &#8377;10,000</button></a>
-            <a href="/filterPrice?gt=10000&lt=15000"><button class="price-button">&#8377;10,000 - &#8377;15,000</button></a>
-            <a href="/filterPrice?gt=15000&lt=20000"><button class="price-button">&#8377;15,000 - &#8377;20,000</button></a>
+            <a href="/filterPrice?gt=5000&lt=10000"><button class="price-button">&#8377;5000 -
+                &#8377;10,000</button></a>
+            <a href="/filterPrice?gt=10000&lt=15000"><button class="price-button">&#8377;10,000 -
+                &#8377;15,000</button></a>
+            <a href="/filterPrice?gt=15000&lt=20000"><button class="price-button">&#8377;15,000 -
+                &#8377;20,000</button></a>
             <!-- <a href="/filterPrice?gte=200"><button class="price-button">Above $200</button></a> -->
           </div>
         </div>
@@ -519,69 +573,92 @@
           <h3>Featured Products</h3>
         </div> -->
         <div class="contnaier">
-          <div class="items">
-            <% for(let i=0; i < products.length; i++) { %>
-              <div class="item">
-                <a href="/productDetails?id=<%=products[i]._id %>">
-                  <img src="uploads/product-image/<%= products[i].productImage[0] %>"
-                    alt="<%= products[i].productName %>">
-                </a>
-                <div class="product-desc">
-                  <a href="#" class="title-prod">
-                    <%= products[i].productName %>
-                  </a>
-                  <div class="stars">
-                    <i class="fa-solid fa-star"></i>
-                    <i class="fa-solid fa-star"></i>
-                    <i class="fa-solid fa-star"></i>
-                    <i class="fa-solid fa-star"></i>
-                    <i class="fa-solid fa-star-half-stroke"></i>
-                  </div>
-                  <div class="price">
-                    <span><%= new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(products[i].salePrice) %></span>
-                    <del><%= new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(products[i].regularPrice) %></del>
-                  </div>
-
-                  <div class="icon-product">
-                    <a href="#" class="wishlist-icon" data-product-id="<%= products[i]._id %>" title="Add to Wishlist">
-                      <i class="fa-regular fa-heart" ></i>
+          <% if (products.length===0) { %>
+            <div class="no-products" style="text-align: center; padding: 50px; margin-left: 100px;">
+              <h3 style="margin-left: 100px;text-wrap: nowrap;">No products found matching your filters</h3>
+              <a href="/shop" class="btn"
+                style="background-color: #895D39; color: white; padding: 10px 20px; border-radius: 5px; margin-top: 20px; display: inline-block;margin-left: 200px;">
+                Reset Filters
+              </a>
+            </div>
+            <% } else { %>
+              <div class="items">
+                <% for(let i=0; i < products.length; i++) { %>
+                  <div class="item">
+                    <a href="/productDetails?id=<%=products[i]._id %>">
+                      <img src="uploads/product-image/<%= products[i].productImage[0] %>"
+                        alt="<%= products[i].productName %>">
                     </a>
-                    <a href="#"><i class="fa-solid fa-cart-shopping"></i></a>
-                    <a href="#"><i class="fa-solid fa-right-left"></i></a>
+                    <div class="product-desc">
+                      <a href="#" class="title-prod">
+                        <%= products[i].productName %>
+                      </a>
+                      <div class="stars">
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star-half-stroke"></i>
+                      </div>
+                      <div class="price">
+                        <span>
+                          <%= new Intl.NumberFormat('en-IN', { style: 'currency' , currency: 'INR' ,
+                            minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(products[i].salePrice) %>
+                        </span>
+                        <% if (products[i].discountPercentage> 0) { %>
+                          <del>
+                            <%= new Intl.NumberFormat('en-IN', { style: 'currency' , currency: 'INR' ,
+                              minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(products[i].regularPrice) %>
+                          </del>
+                          <span class="discount-badge" style="font-size: 12px;">
+                            <%= products[i].discountPercentage %>% OFF
+                          </span>
+                          <% } %>
+                      </div>
+                      <div class="icon-product">
+                        <a href="#" class="wishlist-icon" data-product-id="<%= products[i]._id %>"
+                          title="Add to Wishlist">
+                          <i class="fa-regular fa-heart"></i>
+                        </a>
+                        <a href="#"><i class="fa-solid fa-cart-shopping"></i></a>
+                        <a href="#"><i class="fa-solid fa-right-left"></i></a>
+                      </div>
+                    </div>
                   </div>
-                </div>
+                  <% } %>
               </div>
-              <%}%>
-          </div>
+
+              <% } %>
         </div>
 
         <nav aria-label="Page navigation">
-          <ul class="pagination" style="margin-left: 130px;padding: 20px 0px;">
-            <% if (currentPages> 1) { %>
-              <li class="page-item">
-                <a class="page-link" href="/shop?page=<%= currentPages - 1 %>&search=<%= search %>"
-                  aria-label="Previous">
-                  <span aria-hidden="true">&laquo;</span>
+          <ul class="pagination" style="margin-left: 130px; padding: 20px 0px;">
+            <!-- Previous Button -->
+            <li class="page-item <%= currentPages === 1 ? 'disabled' : '' %>">
+              <a class="page-link"
+                href="<%= currentPages > 1 ? `/shop?page=${currentPages - 1}&search=${search}&sort=${sort}` : '#' %>"
+                aria-label="Previous">
+                <span aria-hidden="true">Previous</span>
+              </a>
+            </li>
+
+            <!-- Page Numbers -->
+            <% for (let i=1; i <=totalPages; i++) { %>
+              <li class="page-item <%= currentPages === i ? 'active' : '' %>">
+                <a class="page-link" href="/shop?page=<%= i %>&search=<%= search %>&sort=<%= sort %>">
+                  <%= i %>
                 </a>
               </li>
               <% } %>
 
-                <% for (let i=1; i <=totalPages; i++) { %>
-                  <li class="page-item <%= currentPages === i ? 'active' : '' %>">
-                    <a class="page-link" href="/shop?page=<%= i %>&search=<%= search %>">
-                      <%= i %>
-                    </a>
-                  </li>
-                  <% } %>
-
-                    <% if (currentPages < totalPages) { %>
-                      <li class="page-item">
-                        <a class="page-link" href="/shop?page=<%= currentPages + 1 %>&search=<%= search %>"
-                          aria-label="Next">
-                          <span aria-hidden="true">&raquo;</span>
-                        </a>
-                      </li>
-                      <% } %>
+                <!-- Next Button -->
+                <li class="page-item <%= currentPages === totalPages ? 'disabled' : '' %>">
+                  <a class="page-link"
+                    href="<%= currentPages < totalPages ? `/shop?page=${currentPages + 1}&search=${search}&sort=${sort}` : '#' %>"
+                    aria-label="Next">
+                    <span aria-hidden="true">Next</span>
+                  </a>
+                </li>
           </ul>
         </nav>
       </div>
@@ -591,8 +668,12 @@
 
 
   <script>
+
+
+
+
     document.addEventListener('DOMContentLoaded', function () {
-      // Existing filter and sorting logic remains unchanged
+
       const categoryCheckboxes = document.querySelectorAll('.category-filter');
       const urlParams = new URLSearchParams(window.location.search);
       const categoryParam = urlParams.get('category');

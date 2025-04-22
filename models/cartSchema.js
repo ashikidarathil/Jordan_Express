@@ -23,7 +23,7 @@ const cartSchema = new Schema({
         quantity: {
           type: Number,
           required: true,
-          min: 0 // Ensure quantity is non-negative
+          min: 1,
         }
       }
     ],

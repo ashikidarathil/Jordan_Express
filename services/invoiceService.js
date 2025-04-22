@@ -1,11 +1,11 @@
+// services/invoiceService.js
 const PDFDocument = require('pdfkit');
-const fs = require('fs');
 
 const generateInvoice = async (order) => {
   return new Promise((resolve, reject) => {
     const doc = new PDFDocument({ size: 'A4', margin: 50 });
     const chunks = [];
-    
+
     // Collect data chunks
     doc.on('data', (chunk) => chunks.push(chunk));
     doc.on('end', () => resolve(Buffer.concat(chunks)));
@@ -19,8 +19,11 @@ const generateInvoice = async (order) => {
     const CENTER_X = LEFT_MARGIN + (CONTENT_WIDTH / 2);
     const LINE_GAP = 15;
 
+    // Set a font that supports the Rupee symbol
+    doc.font('Times-Roman');
+
     // Header with logo and invoice info
-    doc.image('public/image/JD-new.png', LEFT_MARGIN - 20 ,-5, { width: 100 })
+    doc.image('public/image/JD-new.png', LEFT_MARGIN - 20, -5, { width: 100 })
        .fontSize(20)
        .fillColor('#444444')
        .text('INVOICE', 0, 40, { align: 'center' })
@@ -31,12 +34,12 @@ const generateInvoice = async (order) => {
     // Company and Customer Info
     const infoTop = 140;
     const infoWidth = CONTENT_WIDTH / 2 - 20;
-    
+
     // Company Info (left)
     doc.fontSize(10)
-       .font('Helvetica-Bold')
+       .font('Times-Bold')
        .text('FROM:', LEFT_MARGIN, infoTop, { width: infoWidth, align: 'left' })
-       .font('Helvetica')
+       .font('Times-Roman')
        .text('Jordan Express', LEFT_MARGIN, infoTop + LINE_GAP, { width: infoWidth, align: 'left' })
        .text('123 Sneaker Street', LEFT_MARGIN, infoTop + LINE_GAP * 2, { width: infoWidth, align: 'left' })
        .text('New York, NY 10001', LEFT_MARGIN, infoTop + LINE_GAP * 3, { width: infoWidth, align: 'left' })
@@ -44,9 +47,9 @@ const generateInvoice = async (order) => {
        .text('Email: info@jordanexpress.com', LEFT_MARGIN, infoTop + LINE_GAP * 5, { width: infoWidth, align: 'left' });
 
     // Customer Info (right)
-    doc.font('Helvetica-Bold')
+    doc.font('Times-Bold')
        .text('BILL TO:', CENTER_X + 10, infoTop, { width: infoWidth, align: 'right' })
-       .font('Helvetica')
+       .font('Times-Roman')
        .text(order.address.label || 'N/A', CENTER_X + 10, infoTop + LINE_GAP, { width: infoWidth, align: 'right' })
        .text(order.address.street || 'N/A', CENTER_X + 10, infoTop + LINE_GAP * 2, { width: infoWidth, align: 'right' })
        .text(`${order.address.city || 'N/A'}, ${order.address.state || 'N/A'} ${order.address.zipCode || 'N/A'}`, CENTER_X + 10, infoTop + LINE_GAP * 3, { width: infoWidth, align: 'right' })
@@ -71,7 +74,7 @@ const generateInvoice = async (order) => {
     const tableLeft = CENTER_X - (tableWidth / 2);
 
     // Table Header
-    doc.font('Helvetica-Bold')
+    doc.font('Times-Bold')
        .fontSize(10)
        .text('Item', tableLeft, tableTop, { width: columnWidths.item, align: 'left' })
        .text('Size', tableLeft + columnWidths.item, tableTop, { width: columnWidths.size, align: 'center' })
@@ -82,27 +85,18 @@ const generateInvoice = async (order) => {
        .lineTo(tableLeft + tableWidth, tableTop + LINE_GAP)
        .stroke();
 
-    // Table Rows with enhanced debugging
+    // Table Rows
     let currentY = tableTop + LINE_GAP + 10;
     order.orderItems.forEach(item => {
       const amount = item.price * item.quantity;
-      const size = item.size || 'N/A'; // Use the selected size from order.orderItems
-      console.log('Order Item Data:', {
-        productId: item.product._id,
-        productName: item.product.productName,
-        size: item.size, // Log the size value
-        sizeFromProduct: item.product.size, // Log the size array from product
-        quantity: item.quantity,
-        price: item.price,
-        amount: amount
-      });
-      doc.font('Helvetica')
+      const size = item.size || 'N/A';
+      doc.font('Times-Roman')
          .fontSize(9)
          .text(item.product.productName || 'Unknown Item', tableLeft, currentY, { width: columnWidths.item, align: 'left' })
          .text(size, tableLeft + columnWidths.item, currentY, { width: columnWidths.size, align: 'center' })
          .text(item.quantity.toString(), tableLeft + columnWidths.item + columnWidths.size, currentY, { width: columnWidths.qty, align: 'right' })
-         .text(`$${item.price.toFixed(2)}`, tableLeft + columnWidths.item + columnWidths.size + columnWidths.qty, currentY, { width: columnWidths.price, align: 'right' })
-         .text(`$${amount.toFixed(2)}`, tableLeft + columnWidths.item + columnWidths.size + columnWidths.qty + columnWidths.price, currentY, { width: columnWidths.amount, align: 'right' });
+         .text(`${item.price.toFixed(2)}`, tableLeft + columnWidths.item + columnWidths.size + columnWidths.qty, currentY, { width: columnWidths.price, align: 'right' })
+         .text(`${amount.toFixed(2)}`, tableLeft + columnWidths.item + columnWidths.size + columnWidths.qty + columnWidths.price, currentY, { width: columnWidths.amount, align: 'right' });
       currentY += LINE_GAP;
     });
 
@@ -113,41 +107,41 @@ const generateInvoice = async (order) => {
     
     let summaryY = summaryTop;
     
-    // Define shipping cost and calculate subtotal
+    // Define subtotal and delivery charge
     const subtotal = order.totalPrice;
-    const shipping = 10.00;
+    const deliveryCharge = order.deliveryCharge || 0;
     
     const summaryItems = [
       ['Subtotal:', subtotal],
-      ['Shipping:', shipping]
+      ['Delivery Charge:', deliveryCharge]
     ];
     
     if (order.discount > 0) {
       summaryItems.push(['Discount:', -order.discount]);
     }
 
-    doc.font('Helvetica')
+    doc.font('Times-Roman')
        .fontSize(10);
     
     summaryItems.forEach(([label, value]) => {
       doc.text(label, summaryLeft, summaryY, { width: 100, align: 'right' })
-         .text(`$${value.toFixed(2)}`, summaryLeft + 100, summaryY, { width: 100, align: 'right' });
+         .text(`${value.toFixed(2)}`, summaryLeft + 100, summaryY, { width: 100, align: 'right' });
       summaryY += LINE_GAP;
     });
 
-    // Calculate the total by adding subtotal + shipping and subtracting discount
-    const totalAmount = subtotal + shipping - (order.discount || 0);
+    // Calculate the total
+    const totalAmount = subtotal + deliveryCharge - (order.discount || 0);
 
     doc.moveTo(summaryLeft, summaryY + 5)
        .lineTo(summaryLeft + summaryWidth, summaryY + 5)
        .stroke()
-       .font('Helvetica-Bold')
+       .font('Times-Bold')
        .text('Total:', summaryLeft, summaryY + 15, { width: 100, align: 'right' })
-       .text(`$${totalAmount.toFixed(2)}`, summaryLeft + 100, summaryY + 15, { width: 100, align: 'right' });
+       .text(`${totalAmount.toFixed(2)}`, summaryLeft + 100, summaryY + 15, { width: 100, align: 'right' });
 
     // Footer
-    const footerTop = summaryY + 230;
-    doc.font('Helvetica-Oblique')
+    const footerTop = summaryY + 200;
+    doc.font('Times-Italic')
        .fontSize(8)
        .text('Thank you for your purchase!', 0, footerTop, { width: PAGE_WIDTH, align: 'center' })
        .text('Please contact us at support@jordanexpress.com for any questions', 0, footerTop + LINE_GAP, { width: PAGE_WIDTH, align: 'center' });

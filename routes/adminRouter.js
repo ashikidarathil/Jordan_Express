@@ -8,12 +8,13 @@ const uploads = require('../config/multerConfig')
 const {userAuth,adminAuth} = require('../middlewares/auth')
 const orderController = require('../controllers/admin/orderController');
 const couponController = require('../controllers/admin/couponController')
+const walletController = require('../controllers/admin/walletController')
 
 
 router.get('/pageError',adminController.pageError)
 router.get('/login',adminController.loadLogin)
 router.post('/login',adminController.login)
-router.get('/',adminAuth,adminController.loadDashboard)
+router.get('/adminDashboard',adminAuth,adminController.loadDashboard)
 router.get('/logout',adminController.logout)
 
 // Customer Managment
@@ -31,7 +32,7 @@ router.get('/unListCategory',adminAuth,categoryController.getUnListCategory)
 router.get('/editCategory',adminAuth,categoryController.getEditCategory)
 
 router.post('/editCategory/:id',adminAuth,categoryController.editCategory)
-router.post('/category/soft-delete/:id',adminAuth,categoryController.softDeleteCategory);
+router.post('/category/delete/:id', adminAuth, categoryController.deleteCategory);
 
 
 
@@ -44,6 +45,8 @@ router.get('/products',adminAuth,productController.getAllProducts)
 router.get('/blockProduct',adminAuth,productController.blockProduct)
 router.get('/unblockProduct',adminAuth,productController.unblockProduct)
 router.get('/editProduct',adminAuth,productController.getEditProduct)
+router.post('/addProductOffer', adminAuth, productController.addProductOffer);
+router.post('/removeProductOffer', adminAuth, productController.removeProductOffer);
 
 
 
@@ -63,9 +66,16 @@ router.post('/coupons/toggle/:id', adminAuth, couponController.toggleCouponStatu
 // order Managment
 router.get('/orders',adminAuth, orderController.getAdminOrders);
 router.get('/orders/:orderId', adminAuth, orderController.getOrderDetails);
-// router.post('/orders/:orderId/status', adminAuth, orderController.updateOrderStatus);
 router.post('/orders/:orderId/item-status', adminAuth, orderController.updateOrderItemStatus);
 router.post('/orders/:orderId/verify-return', adminAuth, orderController.verifyReturnRequest);
+router.get('/sales-report', adminAuth, orderController.getSalesReport);
+router.get('/sales-report/download', adminAuth, orderController.downloadSalesReport);
+router.get('/chart-data', adminAuth, orderController.getChartData);
+
+
+router.get('/wallets', adminAuth, walletController.getAdminWallets);
+router.get('/wallets/:walletId/transactions',adminAuth , walletController.getWalletTransactions);
+router.get('/wallets/:walletId/transactions/:transactionId', adminAuth,walletController.getTransactionDetails);
 
 
 module.exports = router

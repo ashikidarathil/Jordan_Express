@@ -1,0 +1,206 @@
+<%- include('../partials/user/header') %>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contact Us - Jordan Express</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+  <style>
+
+    .container {
+      max-width: 500px;
+      margin: 0 auto;
+      background-color: #FFF;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      margin-bottom: 100px;
+    }
+    .title {
+      font-size: 24px;
+      color: #704A2D;
+      margin-bottom: 20px;
+      font-weight: 600;
+    }
+    .form-group {
+      margin-bottom: 20px;
+      text-align: left;
+    }
+    .form-group label {
+      display: block;
+      font-size: 14px;
+      color: #704A2D;
+      margin-bottom: 5px;
+    }
+    .form-group input,
+    .form-group textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #DDD;
+      border-radius: 5px;
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+    .form-group textarea {
+      height: 100px;
+      resize: vertical;
+    }
+    .send-btn {
+      padding: 10px 20px;
+      background-color: #704A2D;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+    }
+    .send-btn:hover {
+      background-color: #5A3A22;
+    }
+    .send-btn:disabled {
+      background-color: #B0B0B0;
+      cursor: not-allowed;
+    }
+    .required {
+      color: #A52A2A;
+    }
+    .error {
+      color: #A52A2A;
+      font-size: 12px;
+      margin-top: 5px;
+      display: none;
+    }
+    .input-error {
+      border-color: #A52A2A !important;
+    }
+    .success {
+      color: #2ECC71;
+      font-size: 14px;
+      margin-top: 10px;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1 class="title">Contact us</h1>
+    <form id="contactForm" action="/contact" method="POST" novalidate>
+      <div class="form-group">
+        <label for="fullName">Full name <span class="required">*</span></label>
+        <input type="text" id="fullName" name="fullName" required>
+        <div class="error" id="fullNameError">Please enter your full name.</div>
+      </div>
+      <div class="form-group">
+        <label for="email">Email <span class="required">*</span></label>
+        <input type="email" id="email" name="email" required>
+        <div class="error" id="emailError">Please enter a valid email address.</div>
+      </div>
+      <div class="form-group">
+        <label for="message">Message</label>
+        <textarea id="message" name="message" placeholder="Type your message..."></textarea>
+      </div>
+      <button type="submit" class="send-btn" id="submitBtn">Send</button>
+    </form>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const form = document.getElementById('contactForm');
+      const submitBtn = document.getElementById('submitBtn');
+      const fullName = document.getElementById('fullName');
+      const email = document.getElementById('email');
+      const fullNameError = document.getElementById('fullNameError');
+      const emailError = document.getElementById('emailError');
+
+      const validateForm = () => {
+        let isValid = true;
+
+        // Reset error styles
+        fullName.classList.remove('input-error');
+        email.classList.remove('input-error');
+        fullNameError.style.display = 'none';
+        emailError.style.display = 'none';
+
+        // Validate Full Name
+        if (!fullName.value.trim()) {
+          fullName.classList.add('input-error');
+          fullNameError.style.display = 'block';
+          isValid = false;
+        }
+
+        // Validate Email
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!email.value.trim() || !emailPattern.test(email.value)) {
+          email.classList.add('input-error');
+          emailError.style.display = 'block';
+          isValid = false;
+        }
+
+        submitBtn.disabled = !isValid;
+        return isValid;
+      };
+
+      // Real-time validation
+      [fullName, email].forEach(input => {
+        input.addEventListener('input', () => {
+          validateForm();
+        });
+      });
+
+      // Form submission
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if (validateForm()) {
+          try {
+            const response = await fetch('/contact', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({
+                fullName: fullName.value,
+                email: email.value,
+                message: document.getElementById('message').value,
+              }),
+            });
+
+            const result = await response.json();
+            if (response.ok) {
+              Swal.fire({
+                icon: 'success',
+                title: 'Success!',
+                text: 'Contact form submitted successfully!',
+                confirmButtonColor: '#704A2D',
+              });
+              form.reset();
+              submitBtn.disabled = false;
+            } else {
+              Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: result.error || 'Submission failed. Please try again.',
+                confirmButtonColor: '#704A2D',
+              });
+            }
+          } catch (error) {
+            console.error('Error:', error);
+            Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: 'An error occurred. Please try again.',
+              confirmButtonColor: '#704A2D',
+            });
+          }
+        }
+      });
+    });
+  </script>
+</body>
+</html>
+
+<%- include('../partials/user/footer') %>

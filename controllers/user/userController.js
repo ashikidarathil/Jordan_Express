@@ -5,8 +5,19 @@ const bcrypt = require('bcrypt')
 const categoryModel = require('../../models/categorySchema')
 const productModel = require('../../models/productSchema')
 const brandModel = require('../../models/brandSchema')
-const Brand = require('../../models/brandSchema')
+const { generateReferralCode } = require('../../services/referral');
+const Wallet = require('../../models/walletSchema');
+const Contact = require('../../models/contactSchema');
 
+
+const calculateDiscountPercentage = (products) => {
+  return products.map(product => {
+    const discountPercentage = product.regularPrice > product.salePrice
+      ? Math.round(((product.regularPrice - product.salePrice) / product.regularPrice) * 100)
+      : 0;
+    return { ...product, discountPercentage };
+  });
+};
 
 
 
@@ -16,9 +27,7 @@ const loadShop = async (req, res) => {
     const sortBy = req.query.sort || '';
     const user = req.session.user;
     const userData = await userModel.findOne({ _id: user });
-    const categories = await categoryModel.find({
-      isListed: true,
-    });
+    const categories = await categoryModel.find({ isListed: true });
 
     const categoryId = categories.map((category) => category._id.toString());
 
@@ -26,13 +35,15 @@ const loadShop = async (req, res) => {
     const limit = 9;
     const skip = (page - 1) * limit;
 
-    // Get products
     let products = await productModel.find({
       isBlocked: false,
       isListed: true,
       category: { $in: categoryId },
       "size.quantity": { $gt: 0 },
     }).lean();
+
+    // Calculate discount percentage
+    products = calculateDiscountPercentage(products);
 
     // Apply sorting
     switch (sortBy) {
@@ -49,11 +60,9 @@ const loadShop = async (req, res) => {
         products.sort((a, b) => b.productName.localeCompare(a.productName));
         break;
       default:
-        // Default sort by newest
         products.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
     }
 
-    // Apply pagination after sorting
     const paginatedProducts = products.slice(skip, skip + limit);
     const totalProducts = products.length;
     const totalPages = Math.ceil(totalProducts / limit);
@@ -64,20 +73,19 @@ const loadShop = async (req, res) => {
       user: userData,
       products: paginatedProducts,
       category: categoriesWithId,
+    
       currentPages: page,
       totalPages: totalPages,
       search: search,
       sort: sortBy
     });
-
   } catch (error) {
     console.error("Error loading shop page:", error);
     res.status(500).render('error', { message: 'Failed to load shop page' });
   }
-}
+};
 
 
-// Load Home
 const loadHome = async (req, res) => {
   try {
     const categories = await categoryModel.find({ isListed: true });
@@ -86,6 +94,14 @@ const loadHome = async (req, res) => {
       isListed: true,
       category: { $in: categories.map(category => category._id) },
       "size.quantity": { $gt: 0 }
+    }).lean();
+
+    // Add discount percentage to each product
+    productData = productData.map(product => {
+      const discountPercentage = product.regularPrice > product.salePrice
+        ? Math.round(((product.regularPrice - product.salePrice) / product.regularPrice) * 100)
+        : 0;
+      return { ...product, discountPercentage };
     });
 
     productData.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
@@ -99,6 +115,11 @@ const loadHome = async (req, res) => {
       if (!userData) {
         req.session.user = null;
         return res.redirect('/login');
+      }
+      // Check if the user is blocked
+      if (userData.isBlocked) {
+        req.session.user = null;
+        return res.redirect('/login?error=user-blocked');
       }
       return res.render('home', { user: userData, products: productData });
     } else {
@@ -115,12 +136,14 @@ const loadHome = async (req, res) => {
 const loadLogin = async (req, res) => {
   try {
     if (!req.session.user) {
-      const error = req.query.error || null; // Get error from query parameter
+      const error = req.query.error || null;
       let message = null;
       if (error === 'user-exists') {
-        message = 'User already exists with this email'; // Set message for display
+        message = 'User already exists with this email';
+      } else if (error === 'user-blocked') {
+        message = 'Your account is blocked. Please contact support.';
       }
-      return res.render('login', { message }); // Pass message to login.ejs
+      return res.render('login', { message });
     } else {
       res.redirect('/');
     }
@@ -129,7 +152,6 @@ const loadLogin = async (req, res) => {
     res.redirect('/pageNotFound');
   }
 };
-
 const loadSignup = async (req, res) => {
   try {
 
@@ -185,35 +207,42 @@ async function sendVerificationEmail(email, otp) {
 // Load signup
 const signup = async (req, res) => {
   try {
-    const { name, email, phone, password, confirm_pass } = req.body
+    const { name, email, phone, password, confirm_pass, referralCode } = req.body;
     if (password !== confirm_pass) {
-      return res.render('signup', { message: 'Password and confirm password are not match' })
+      return res.render('signup', { message: 'Password and confirm password do not match' });
     }
 
-    const findUser = await userModel.findOne({ email })
+    const findUser = await userModel.findOne({ email });
     if (findUser) {
-      return res.render('signup', { message: 'User with this email already exists' })
+      return res.render('signup', { message: 'User with this email already exists' });
     }
 
-    const otp = generateOtp()
+    // Validate referral code if provided
+    let referringUser = null;
+    if (referralCode) {
+      referringUser = await userModel.findOne({ referralCode });
+      if (!referringUser) {
+        return res.render('signup', { message: 'Invalid referral code' });
+      }
+    }
 
-    const emailSend = sendVerificationEmail(email, otp)
+    const otp = generateOtp();
+    const emailSend = await sendVerificationEmail(email, otp);
 
     if (!emailSend) {
-      return res.json('Email-error')
+      return res.json('Email-error');
     }
 
     req.session.userOtp = otp;
-    req.session.userData = { name, email, phone, password }
+    req.session.userData = { name, email, phone, password, referralCode };
 
-    res.render('verifyOtp')
-    console.log(`Your OTP is ${otp}`)
-
+    res.render('verifyOtp');
+    console.log(`Your OTP is ${otp}`);
   } catch (error) {
-    console.error('Signup error', error)
-    res.redirect('/pafeNotFound')
+    console.error('Signup error', error);
+    res.redirect('/pageNotFound');
   }
-}
+};
 
 
 // Password
@@ -229,42 +258,95 @@ const securePassword = async (password) => {
 
 const verifyOtp = async (req, res) => {
   try {
-    const { otp } = req.body
-    console.log(otp);
-
+    const { otp } = req.body;
     if (otp === req.session.userOtp) {
-      const user = req.session.userData
-      const passwordHash = await securePassword(user.password)
+      const user = req.session.userData;
+      const passwordHash = await securePassword(user.password);
+
+      
+      const referralCode = await generateReferralCode();
 
       const saveUserdata = new userModel({
         name: user.name,
         email: user.email,
         phone: user.phone,
-        password: passwordHash
-      })
+        password: passwordHash,
+        referralCode,
+        redeemed: user.referralCode ? true : false,
+        redeemedUser: user.referralCode ? (await userModel.findOne({ referralCode: user.referralCode }))._id : null
+      });
 
-      await saveUserdata.save()
+      await saveUserdata.save();
+
+      // Create wallet for the new user
+      const newWallet = new Wallet({
+        userID: saveUserdata._id,
+        balance: 0,
+        transactions: []
+      });
+      await newWallet.save();
+
+      // Handle referral rewards
+      if (user.referralCode) {
+        const referringUser = await userModel.findOne({ referralCode: user.referralCode });
+        if (referringUser) {
+          referringUser.referredUsers.push(saveUserdata._id);
+          await referringUser.save();
+
+          // Credit 499 to new user's wallet
+          const newUserWallet = await Wallet.findOne({ userID: saveUserdata._id });
+          newUserWallet.balance += 499;
+          newUserWallet.transactions.push({
+            type: 'credit',
+            amount: 499,
+            description: 'Referral bonus for signing up with referral code'
+          });
+          await newUserWallet.save();
+
+          // Credit 499 to referring user's wallet
+          const referringWallet = await Wallet.findOne({ userID: referringUser._id });
+          if (!referringWallet) {
+            const newReferringWallet = new Wallet({
+              userID: referringUser._id,
+              balance: 499,
+              transactions: [{
+                type: 'credit',
+                amount: 499,
+                description: `Referral bonus for referring ${saveUserdata.name}`
+              }]
+            });
+            await newReferringWallet.save();
+          } else {
+            referringWallet.balance += 499;
+            referringWallet.transactions.push({
+              type: 'credit',
+              amount: 499,
+              description: `Referral bonus for referring ${saveUserdata.name}`
+            });
+            await referringWallet.save();
+          }
+        }
+      }
+
       req.session.user = saveUserdata._id;
       res.status(200).json({
         success: true,
         redirectUrl: '/'
-      })
-    }
-    else {
+      });
+    } else {
       res.status(400).json({
         success: false,
-        message: 'Invaid OTP, Please try again '
-      })
+        message: 'Invalid OTP, Please try again'
+      });
     }
-
   } catch (error) {
-    console.log('Error verifying OTP', error)
+    console.log('Error verifying OTP', error);
     res.status(500).json({
       success: false,
-      message: 'An error occured'
-    })
+      message: 'An error occurred'
+    });
   }
-}
+};
 
 // Resend OTP
 const resendOtp = async (req, res) => {
@@ -396,6 +478,9 @@ const filterProduct = async (req, res) => {
 
     let findProducts = await productModel.find(query).lean();
 
+    // Calculate discount percentage
+    findProducts = calculateDiscountPercentage(findProducts);
+
     // Apply sorting
     switch (sortBy) {
       case 'price-low':
@@ -411,13 +496,10 @@ const filterProduct = async (req, res) => {
         findProducts.sort((a, b) => b.productName.localeCompare(a.productName));
         break;
       default:
-        // Default sort by newest
         findProducts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
     }
 
-    const categories = await categoryModel.find({
-      isListed: true,
-    });
+    const categories = await categoryModel.find({ isListed: true });
 
     let itemsPerPage = 9;
     let currentPages = parseInt(req.query.page) || 1;
@@ -427,15 +509,14 @@ const filterProduct = async (req, res) => {
     let currentProducts = findProducts.slice(startIndex, endIndex);
 
     let userData = null;
-
     if (user) {
       userData = await userModel.findOne({ _id: user });
       if (userData) {
-        const serachEntry = {
+        const searchEntry = {
           category: findCategory ? findCategory : null,
           searchedOn: new Date()
         };
-        userData.searchHistory.push(serachEntry);
+        userData.searchHistory.push(searchEntry);
         await userData.save();
       }
     }
@@ -445,13 +526,13 @@ const filterProduct = async (req, res) => {
     res.render("shop", {
       user: userData,
       products: currentProducts,
+      noProducts: true, // Add this flag
       totalPages,
       currentPages,
       category: categories || null,
       search: search,
-      sort: sortBy // Pass sort parameter to maintain selected option in UI
+      sort: sortBy 
     });
-
   } catch (error) {
     console.error("Filter error:", error);
     res.redirect('/pageNotFound');
@@ -477,45 +558,47 @@ const filterByPrice = async (req, res) => {
       "size.quantity": { $gt: 0 },
     }).lean();
 
+    // Calculate discount percentage
+    let products = calculateDiscountPercentage(findProduct);
+
     // Apply sorting
     switch (sortBy) {
       case 'price-low':
-        findProduct.sort((a, b) => a.salePrice - b.salePrice);
+        products.sort((a, b) => a.salePrice - b.salePrice);
         break;
       case 'price-high':
-        findProduct.sort((a, b) => b.salePrice - a.salePrice);
+        products.sort((a, b) => b.salePrice - a.salePrice);
         break;
       case 'a-z':
-        findProduct.sort((a, b) => a.productName.localeCompare(b.productName));
+        products.sort((a, b) => a.productName.localeCompare(b.productName));
         break;
       case 'z-a':
-        findProduct.sort((a, b) => b.productName.localeCompare(a.productName));
+        products.sort((a, b) => b.productName.localeCompare(a.productName));
         break;
       default:
-        // Default sort by newest
-        findProduct.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        products.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
     }
 
     let itemsPerPage = 9;
     let currentPages = parseInt(req.query.page) || 1;
     let startIndex = (currentPages - 1) * itemsPerPage;
     let endIndex = startIndex + itemsPerPage;
-    let totalPages = Math.ceil(findProduct.length / itemsPerPage);
+    let totalPages = Math.ceil(products.length / itemsPerPage);
 
-    const currentProducts = findProduct.slice(startIndex, endIndex);
+    const currentProducts = products.slice(startIndex, endIndex);
 
-    req.session.filteredProducts = findProduct;
+    req.session.filteredProducts = products;
 
     res.render('shop', {
       user: userData,
       products: currentProducts,
       category: categories,
+      noProducts: true, // Add this flag
       totalPages,
       currentPages,
       search,
-      sort: sortBy // Pass sort parameter to maintain selected option in UI
+      sort: sortBy
     });
-
   } catch (error) {
     console.log(error);
     res.redirect('/pageNotFound');
@@ -534,19 +617,20 @@ const searchProducts = async (req, res) => {
     const categories = await categoryModel.find({ isListed: true }).lean();
     const categoryId = categories.map(category => category._id.toString());
 
-  
     const escapedSearch = search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
-  
     let searchResult = await productModel.find({
       productName: { $regex: escapedSearch, $options: 'i' },
       isBlocked: false,
-      isListed:true,
+      isListed: true,
       "size.quantity": { $gt: 0 },
       category: { $in: categoryId },
     }).lean();
 
+    // Calculate discount percentage
+    searchResult = calculateDiscountPercentage(searchResult);
 
+    // Apply sorting
     switch (sortBy) {
       case 'price-low':
         searchResult.sort((a, b) => a.salePrice - b.salePrice);
@@ -561,18 +645,15 @@ const searchProducts = async (req, res) => {
         searchResult.sort((a, b) => b.productName.localeCompare(a.productName));
         break;
       default:
-     
         searchResult.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
     }
 
-    // Pagination
     let itemsPerPage = 9;
     let currentPages = parseInt(req.query.page) || 1;
     let startIndex = (currentPages - 1) * itemsPerPage;
     let endIndex = startIndex + itemsPerPage;
     let totalPages = Math.ceil(searchResult.length / itemsPerPage);
     const currentProducts = searchResult.slice(startIndex, endIndex);
-
 
     req.session.filteredProducts = searchResult;
 
@@ -583,7 +664,7 @@ const searchProducts = async (req, res) => {
       totalPages,
       currentPages,
       search: search,
-      sort: sortBy // Pass sort parameter to maintain selected option in UI
+      sort: sortBy
     });
   } catch (error) {
     console.error("Search error:", error);
@@ -603,7 +684,6 @@ const sortProducts = async (req, res) => {
     const categories = await categoryModel.find({ isListed: true }).lean();
     const categoryId = categories.map(category => category._id.toString());
 
-    // Base query
     const query = {
       isBlocked: false,
       isListed: true,
@@ -611,13 +691,14 @@ const sortProducts = async (req, res) => {
       category: { $in: categoryId }
     };
 
-    // Add search condition if provided
     if (search) {
       query.productName = { $regex: search, $options: 'i' };
     }
 
-    // Find products with the query
     let products = await productModel.find(query).lean();
+
+    // Calculate discount percentage
+    products = calculateDiscountPercentage(products);
 
     // Apply sorting
     switch (sortBy) {
@@ -634,11 +715,9 @@ const sortProducts = async (req, res) => {
         products.sort((a, b) => b.productName.localeCompare(a.productName));
         break;
       default:
-        // Default sort by newest (created date)
         products.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
     }
 
-    // Pagination
     const itemsPerPage = 9;
     const currentPages = parseInt(req.query.page) || 1;
     const startIndex = (currentPages - 1) * itemsPerPage;
@@ -646,21 +725,84 @@ const sortProducts = async (req, res) => {
     const totalPages = Math.ceil(products.length / itemsPerPage);
     const currentProducts = products.slice(startIndex, endIndex);
 
-    // Store filtered/sorted products in session
     req.session.filteredProducts = products;
 
     res.render('shop', {
       user: userData,
       products: currentProducts,
       category: categories,
+      noProducts: true, 
       totalPages,
       currentPages,
       search: search,
-      sort: sortBy // Pass sort parameter to maintain selected option in UI
+      sort: sortBy
     });
   } catch (error) {
     console.error("Sort error:", error);
     res.redirect("/pageNotFound");
+  }
+};
+
+
+const getReferralPage = async (req, res) => {
+  try {
+    const userId = req.session.user;
+    const user = await userModel.findById(userId);
+    if (!user) {
+      return res.redirect('/login');
+    }
+
+    const referredUsers = await userModel.find({ _id: { $in: user.referredUsers } });
+
+    res.render('referral', {
+      user,
+      referredUsers,
+      cartCount: req.cartCount
+    });
+  } catch (error) {
+    console.error('Error loading referral page:', error);
+    res.redirect('/pageNotFound');
+  }
+};
+
+
+
+const getAboutPage = (req, res) => {
+  res.render('about');
+};
+
+const getContactPage = (req, res) => {
+  res.render('contact');
+};
+
+
+const submitContactForm = async (req, res) => {
+  try {
+    const { fullName, email, message } = req.body;
+
+    // Server-side validation
+    if (!fullName || !email) {
+      return res.status(400).json({ error: 'Full name and email are required.' });
+    }
+
+    // Email validation
+    const emailPattern = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+    if (!emailPattern.test(email)) {
+      return res.status(400).json({ error: 'Please enter a valid email address.' });
+    }
+
+    // Save to database
+    const contact = new Contact({
+      fullName,
+      email,
+      message,
+    });
+    await contact.save();
+
+    res.status(200).json({ message: 'Contact form submitted successfully!' });
+  } catch (error) {
+    console.error('Error submitting contact form:', error);
+    res.status(500).json({ error: 'Server error' });
   }
 };
 
@@ -678,5 +820,9 @@ module.exports = {
   filterProduct,
   filterByPrice,
   searchProducts,
-  sortProducts
+  sortProducts,
+  getReferralPage,
+  getContactPage,
+  getAboutPage,
+  submitContactForm
 }

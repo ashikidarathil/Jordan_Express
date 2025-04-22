@@ -73,45 +73,22 @@ const addCategoryOffer = async (req, res) => {
     const categoryId = req.body.categoryId;
 
     const category = await categoryModel.findById(categoryId);
-
     if (!category) {
-      return res.status(404).json({
-        status: false,
-        message: 'Category not found',
-      });
+      return res.status(404).json({ status: false, message: 'Category not found' });
     }
 
     const products = await productModel.find({ category: category._id });
-    const hasProductOffer = products.some((product) => {
-      return product.productOffer > percentage;
-    });
-
-    if (hasProductOffer) {
-      return res.json({
-        status: false,
-        message: 'Products within this category already have product offer',
-      });
-    }
-
-    await categoryModel.updateOne(
-      { _id: categoryId },
-      { $set: { categoryOffer: percentage } }
-    );
+    await categoryModel.updateOne({ _id: categoryId }, { $set: { categoryOffer: percentage } });
 
     for (const product of products) {
-      product.productOffer = 0;
-      product.salePrice = Math.floor(product.regularPrice * (1 - percentage / 100)); // Apply category offer
+      const effectiveOffer = Math.max(product.productOffer || 0, percentage);
+      product.salePrice = Math.floor(product.regularPrice * (1 - effectiveOffer / 100));
       await product.save();
     }
 
-    res.json({
-      status: true,
-    });
+    res.json({ status: true, message: 'Category offer added successfully' });
   } catch (error) {
-    res.status(500).json({
-      status: false,
-      message: 'Internal server error',
-    });
+    res.status(500).json({ status: false, message: 'Internal server error' });
   }
 };
 
@@ -122,33 +99,22 @@ const removeCategoryOffer = async (req, res) => {
     const category = await categoryModel.findById(categoryId);
 
     if (!category) {
-      return res.status(404).json({
-        status: false,
-        message: 'Category not found',
-      });
+      return res.status(404).json({ status: false, message: 'Category not found' });
     }
 
     const products = await productModel.find({ category: category._id });
-
-    if (products.length > 0) {
-      for (const product of products) {
-        product.salePrice = product.regularPrice; 
-        product.productOffer = 0;
-        await product.save();
-      }
-    }
-
     category.categoryOffer = 0;
     await category.save();
 
-    res.json({
-      status: true,
-    });
+    for (const product of products) {
+      const effectiveOffer = product.productOffer || 0;
+      product.salePrice = Math.floor(product.regularPrice * (1 - effectiveOffer / 100));
+      await product.save();
+    }
+
+    res.json({ status: true, message: 'Category offer removed successfully' });
   } catch (error) {
-    res.status(500).json({
-      status: false,
-      message: 'Internal server error',
-    });
+    res.status(500).json({ status: false, message: 'Internal server error' });
   }
 };
 
@@ -228,32 +194,31 @@ const editCategory = async (req, res) => {
   }
 };
 
-const softDeleteCategory = async (req, res) => {
+const deleteCategory = async (req, res) => {
   try {
-    const categoryId = req.params.id; // Get the category ID from the request parameters
+    const categoryId = req.params.id;
 
-
-
-    // Find the category and update the `isDeleted` field
-    const updatedCategory = await categoryModel.findByIdAndUpdate(
-      categoryId,
-      { isDeleted: true },
-      { new: true } // Return the updated document
-    );
-
-    console.log(updatedCategory)
-
-    if (!updatedCategory) {
-      return res.status(404).json({ message: 'Category not found' });
+  
+    const category = await categoryModel.findById(categoryId);
+    if (!category) {
+      return res.status(404).json({ success: false, message: 'Category not found' });
     }
 
-    res.redirect('/admin/category'); // Redirect to the category list page
+ 
+    await productModel.updateMany(
+      { category: categoryId },
+      { $set: { isListed: false } }
+    );
+
+   
+    await categoryModel.findByIdAndDelete(categoryId);
+
+    res.redirect('/admin/category');
   } catch (error) {
-    console.error('Error in softDeleteCategory:', error);
-    res.status(500).json({ message: 'Internal server error' });
+    console.error('Error deleting category:', error);
+    res.status(500).json({ success: false, message: 'Internal server error' });
   }
 };
-
 
 
 
@@ -267,6 +232,6 @@ module.exports = {
   getUnListCategory,
   getEditCategory,
   editCategory,
-  softDeleteCategory
+  deleteCategory
 
 }

@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Payment Failed | Jordan Express</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .failure-container {
+      background: #ffffff;
+      border-radius: 16px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      padding: 48px;
+      max-width: 800px;
+      width: 100%;
+      text-align: center;
+      animation: fadeIn 0.5s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .failure-icon {
+      font-size: 80px;
+      color: #ef4444;
+      margin-bottom: 24px;
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
+
+    h1 {
+      font-size: 28px;
+      font-weight: 700;
+      color: #1f2937;
+      margin-bottom: 16px;
+      line-height: 1.3;
+    }
+
+    h2 {
+      font-size: 20px;
+      color: #1f2937;
+      margin: 25px 0 15px;
+      text-align: left;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 8px;
+    }
+
+    p {
+      font-size: 16px;
+      color: #4b5563;
+      line-height: 1.6;
+      margin-bottom: 32px;
+    }
+
+    .order-id {
+      font-weight: 600;
+      color: #8b5a2b;
+      background: #f5f5f5;
+      padding: 3px 8px;
+      border-radius: 4px;
+      display: inline-block;
+    }
+
+    .order-section {
+      background: #f9f9f9;
+      border-radius: 8px;
+      padding: 20px;
+      margin: 20px 0;
+      text-align: left;
+    }
+
+    .summary-item {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      font-size: 16px;
+      color: #4b5563;
+    }
+
+    .summary-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .total-item {
+      padding-top: 10px;
+      border-top: 1px solid #eee;
+      font-weight: 600;
+      color: #8b5a2b;
+    }
+
+    .items-list {
+      margin-top: 15px;
+    }
+
+    .item-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid #eee;
+    }
+
+    .product-info {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .product-image {
+      width: 80px;
+      height: 80px;
+      object-fit: cover;
+      border-radius: 5px;
+      border: 1px solid #eee;
+    }
+
+    .product-details {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .product-name {
+      font-weight: 500;
+      color: #1f2937;
+      margin-bottom: 5px;
+    }
+
+    .product-meta {
+
+      font-size: 14px;
+      color: #6b7280;
+    }
+
+    .item-price {
+      font-weight: 500;
+      color: #8b5a2b;
+    }
+
+    .address-details {
+      margin-top: 10px;
+      font-size: 16px;
+      color: #4b5563;
+    }
+
+    .address-line {
+      margin-bottom: 5px;
+    }
+
+    .btn-container {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-top: 25px;
+    }
+
+    .btn {
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 500;
+      text-decoration: none;
+      color: #ffffff;
+      transition: all 0.3s ease;
+      border: none;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-primary {
+      background: #8b5a2b;
+    }
+
+    .btn-primary:hover {
+      background: #553212;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(20, 20, 20, 0.3);
+    }
+
+    .btn-secondary {
+      background: #6b7280;
+    }
+
+    .btn-secondary:hover {
+      background: #4b5563;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(107, 114, 128, 0.3);
+    }
+
+    @media (max-width: 768px) {
+      .failure-container {
+        padding: 24px;
+        margin: 20px 15px;
+      }
+
+      h1 {
+        font-size: 24px;
+      }
+
+      .failure-icon {
+        font-size: 60px;
+      }
+
+      .btn-container {
+        flex-direction: column;
+      }
+
+      .btn {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .item-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+      }
+
+      .product-info {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="failure-container">
+    <i class="fas fa-times-circle failure-icon"></i>
+    <h1>Payment Failed</h1>
+    <p>
+      Sorry, we couldn't process your payment
+      <%= orderId ? ` for order #${orderId}` : '' %>.
+      Please try again or contact our support team if the issue persists.
+    </p>
+
+    <% if (orderId) { %>
+      <div class="order-section">
+        <h2>Order Summary</h2>
+        <div class="summary-item">
+          <span>Order Number:</span>
+          <span><%= orderId %></span>
+        </div>
+        <div class="summary-item">
+          <span>Subtotal:</span>
+          <span><%= new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format((orderTotal + discount - deliveryCharge).toFixed(2)) %></span>
+        </div>
+        <div class="summary-item">
+          <span>Delivery Charge:</span>
+          <span><%= new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(deliveryCharge.toFixed(2)) %></span>
+        </div>
+        <% if (discount > 0) { %>
+          <div class="summary-item">
+            <span>Discount:</span>
+            <span>-<%= new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(discount.toFixed(2)) %></span>
+          </div>
+        <% } %>
+        <div class="summary-item total-item">
+          <span>Total Amount:</span>
+          <span><%= new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(orderTotal.toFixed(2)) %></span>
+        </div>
+      </div>
+
+      <% if (items && items.length) { %>
+        <div class="order-section">
+          <h2>Order Items</h2>
+          <div class="items-list">
+            <% items.forEach(item => { %>
+              <div class="item-row">
+                <div class="product-info">
+                  <% if (item.product && item.product.productImage && item.product.productImage.length) { %>
+                    <img src="/Uploads/product-image/<%= item.product.productImage[0] %>" alt="<%= item.product.productName %>" class="product-image">
+                  <% } %>
+                  <div class="product-details">
+                    <div class="product-name"><%= item.product.productName %></div>
+                    <div class="product-meta">
+                      <span>Size: <%= item.size %></span>
+                      <span>Qty: <%= item.quantity %></span>
+                      <% if (item.product.color) { %>
+                        <span>Color: <%= item.product.color %></span>
+                      <% } %>
+                    </div>
+                  </div>
+                </div>
+                <div class="item-price">
+                  <%= new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format((item.price * item.quantity).toFixed(2)) %>
+                </div>
+              </div>
+            <% }); %>
+          </div>
+          <div class="summary-item total-item" style="margin-top: 20px;">
+            <span>Total:</span>
+            <span><%= new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(orderTotal.toFixed(2)) %></span>
+          </div>
+        </div>
+      <% } %>
+
+      <div class="order-section">
+        <h2>Shipping Information</h2>
+        <div class="address-details">
+          <div class="address-line"><strong><%= address.label %></strong></div>
+          <div class="address-line"><%= address.street %></div>
+          <div class="address-line"><%= address.city %>, <%= address.state %> <%= address.zipCode %></div>
+          <div class="address-line"><%= address.country %></div>
+          <div class="address-line">Phone: <%= address.phone %></div>
+        </div>
+      </div>
+    <% } %>
+
+    <div class="btn-container">
+      <button class="btn btn-primary retry-payment-btn" data-order-id="<%= orderId %>">
+        <i class="fas fa-redo"></i> Retry Payment
+      </button>
+      <% if (orderId) { %>
+        <a href="/order-details/<%= orderId %>" class="btn btn-secondary">
+          <i class="fas fa-list"></i> View Order Details
+        </a>
+      <% } else { %>
+        <a href="/orders" class="btn btn-secondary">
+          <i class="fas fa-list"></i> View Orders
+        </a>
+      <% } %>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const retryPaymentBtn = document.querySelector('.retry-payment-btn');
+
+      if (retryPaymentBtn) {
+        retryPaymentBtn.addEventListener('click', async function () {
+          const orderId = this.getAttribute('data-order-id');
+
+          // Show confirmation Swal
+          const result = await Swal.fire({
+            title: 'Confirm Retry Payment',
+            text: 'Are you sure you want to retry the payment?',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#8b5a2b',
+            cancelButtonColor: '#dc3545',
+            confirmButtonText: 'Yes, proceed',
+            cancelButtonText: 'Cancel'
+          });
+
+          // If user cancels, do nothing
+          if (!result.isConfirmed) {
+            return;
+          }
+
+          // Proceed with payment
+          try {
+            const response = await fetch('/retry-razorpay-payment', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ orderId })
+            });
+            const data = await response.json();
+
+            if (!data.success) {
+              Swal.fire({
+                title: 'Error',
+                text: data.message || 'Failed to initiate payment',
+                icon: 'error',
+                confirmButtonColor: '#8b5a2b'
+              });
+              return;
+            }
+
+            let paymentCompleted = false;
+
+            const options = {
+              key: '<%= process.env.RAZORPAY_KEY_ID %>',
+              amount: data.order.amount,
+              currency: 'INR',
+              name: 'Jordan Express',
+              description: 'Order Payment',
+              order_id: data.order.id,
+              handler: async function (response) {
+                paymentCompleted = true;
+                const verifyResponse = await fetch('/verify-razorpay-payment', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    razorpay_order_id: response.razorpay_order_id,
+                    razorpay_payment_id: response.razorpay_payment_id,
+                    razorpay_signature: response.razorpay_signature,
+                    orderId: data.orderId
+                  }),
+                });
+                const verifyData = await verifyResponse.json();
+
+                if (verifyData.success) {
+                  Swal.fire({
+                    title: 'Success!',
+                    text: 'Payment successful!',
+                    icon: 'success',
+                    confirmButtonColor: '#8b5a2b'
+                  }).then(() => {
+                    window.location.href = '/order-details/' + data.orderId;
+                  });
+                } else {
+                  window.location.href = `/payment-failure?orderId=${data.orderId}`;
+                }
+              },
+              theme: {
+                color: '#8b5a2b',
+              },
+              modal: {
+                ondismiss: function () {
+                  if (!paymentCompleted) {
+                    // Swal.fire({
+                    //   title: 'Error',
+                    //   text: 'Payment cancelled',
+                    //   icon: 'error',
+                    //   confirmButtonColor: '#8b5a2b'
+                    // });
+                    window.location.href = `/payment-failure?orderId=${orderId}`;
+                  }
+                },
+              },
+            };
+
+            const rzp = new Razorpay(options);
+
+            rzp.on('payment.failed', function () {
+              // Swal.fire({
+              //   title: 'Error',
+              //   text: 'Payment failed',
+              //   icon: 'error',
+              //   confirmButtonColor: '#8b5a2b'
+              // });
+              window.location.href = `/payment-failure?orderId=${orderId}`;
+            });
+
+            rzp.open();
+          } catch (error) {
+            console.error('Error initiating payment:', error);
+            Swal.fire({
+              title: 'Error',
+              text: 'An error occurred while initiating payment',
+              icon: 'error',
+              confirmButtonColor: '#8b5a2b'
+            });
+          }
+        });
+      }
+    });
+  </script>
+</body>
+</html>

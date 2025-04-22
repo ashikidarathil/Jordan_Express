@@ -4,42 +4,54 @@ const User = require('../../models/userSchema');
 const Cart = require('../../models/cartSchema')
 
 const getWishlistPage = async (req, res) => {
-  try {
+    try {
       const userId = req.session.user;
       const user = await User.findById(userId);
-
-      const wishlist = await Wishlist.findOne({ userID: userId })
-          .populate('products.productId');
-
+  
+      const wishlist = await Wishlist.findOne({ userID: userId }).populate('products.productId');
+  
       let wishlistCount = 0;
-      if (wishlist) {
-          wishlistCount = wishlist.products.length;
+      let wishlistItems = [];
+  
+      if (wishlist && wishlist.products.length > 0) {
+        wishlistCount = wishlist.products.length;
+        // Map wishlist items and calculate discountPercentage
+        wishlistItems = wishlist.products.map(item => {
+          const product = item.productId;
+          const discountPercentage = product.regularPrice > product.salePrice
+            ? Math.round(((product.regularPrice - product.salePrice) / product.regularPrice) * 100)
+            : 0;
+          return {
+            productId: {
+              _id: product._id,
+              productName: product.productName,
+              productImage: product.productImage,
+              regularPrice: product.regularPrice,
+              salePrice: product.salePrice,
+              discountPercentage 
+            }
+          };
+        });
       }
-
-      if (!wishlist || wishlist.products.length === 0) {
-          return res.render('wishlist', {
-              user: user,
-              wishlistItems: [],
-              wishlistCount: wishlistCount
-          });
-      }
-
+  
       res.render('wishlist', {
-          user: user,
-          wishlistItems: wishlist.products,
-          wishlistCount: wishlistCount
+        user: user,
+        wishlistItems: wishlistItems,
+        wishlistCount: wishlistCount
       });
-
-  } catch (error) {
+  
+    } catch (error) {
       console.error('Error loading wishlist page:', error);
       res.redirect('/pageNotFound');
-  }
-};
-
+    }
+  };
 const addToWishlist = async (req, res) => {
   try {
+        
       const { productId } = req.body;
       const userId = req.session.user;
+
+
 
       const product = await Product.findById(productId);
       if (!product || product.isBlocked || !product.isListed) {

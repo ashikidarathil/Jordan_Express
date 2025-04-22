@@ -92,6 +92,8 @@
                 gap: 15px;
                 padding: 15px 0;
                 border-bottom: 1px solid #ddd;
+                position: relative;
+                
             }
 
             .cart-item img {
@@ -459,6 +461,21 @@
             .confirm-no {
                 background-color: #ccc;
             }
+
+            .offer-badge {
+           
+                background-color: #FFD700;
+                color: #895D39;
+                font-size: 10px;
+                font-weight: 600;
+                padding: 4px 8px;
+                border-radius: 5px;
+               
+              
+               
+            }
+            
+
         </style>
     </head>
 
@@ -471,94 +488,109 @@
         </ul>
         <div class="container">
             <div class="cart-items">
-                <% if (cartItems && cartItems.length> 0) { %>
-                    <% cartItems.forEach(item=> { %>
-                        <div class="cart-item <%= item.productID.status === 'Out of Stock' ? 'out-of-stock' : '' %>"
-                            data-item-id="<%= item._id %>">
+                <% if (cartItems && cartItems.length > 0) { %>
+                    <% cartItems.forEach(item => { %>
+                        <div class="cart-item <%= item.productID && (item.productID.status === 'Out of Stock' || item.productID.isBlocked || !item.productID.isListed) ? 'out-of-stock' : '' %>"
+                             data-item-id="<%= item._id %>">
                             <a href="/productDetails?id=<%= item.productID._id %>">
-                                <img src="/uploads/product-image/<%= item.productID.productImage[0] %>"
-                                    alt="<%= item.productID.productName %>" style="width: 160px;">
+                                <img src="/Uploads/product-image/<%= item.productID.productImage[0] %>"
+                                     alt="<%= item.productID.productName %>" style="width: 160px;">
                             </a>
-
+                            
                             <div class="item-details">
                                 <h3>
                                     <%= item.productID.productName %>
-                                        <% if (item.productID.status==='Out of Stock' ) { %>
+                                    <% if (item.productID) { %>
+                                        <% if (item.productID.status === 'Out of Stock') { %>
                                             <span class="out-of-stock-label">Out of Stock</span>
-                                            <% } %>
+                                        <% } else if (item.productID.isBlocked || !item.productID.isListed) { %>
+                                            <span class="out-of-stock-label">Unavailable</span>
+                                        <% } %>
+                                    <% } %>
                                 </h3>
                                 <div class="review-stars"
-                                    style="color: #ffdc19;font-size: 12px;margin-left: -1px;margin-bottom: -8px;">
+                                     style="color: #ffdc19; font-size: 12px; margin-left: -1px; margin-bottom: -8px;">
                                     <i class="fa-solid fa-star"></i>
                                     <i class="fa-solid fa-star"></i>
                                     <i class="fa-solid fa-star"></i>
                                     <i class="fa-solid fa-star"></i>
-                                    <i class="fa-solid fa-star"></i>
+                                    <i class="fa-solid fa-star-half-stroke"></i>
                                 </div>
                                 <p>
                                     <span class="discounted-price">
-                                        <%= new Intl.NumberFormat('en-IN', { style: 'currency' , currency: 'INR' ,
+                                        <%= new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR',
                                             minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(item.price) %>
                                     </span>
-                                    <span class="price">
-                                        <%= new Intl.NumberFormat('en-IN', { style: 'currency' , currency: 'INR' ,
-                                            minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(
-                                            item.productID.regularPrice) %>
-                                    </span>
+                                    <% if (item.productID.discountPercentage > 0) { %>
+                                        <span class="price">
+                                            <%= new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR',
+                                                minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(item.productID.regularPrice) %>
+                                        </span>
+                                        <span class="offer-badge">
+                                            <%= item.productID.discountPercentage %>% OFF
+                                        </span>
+                                    <% } %>
                                 </p>
-
-                                <% item.size.forEach(sizeItem=> { %>
+                                <% item.size.forEach(sizeItem => { %>
                                     <div class="size-container" data-size="<%= sizeItem.size %>">
                                         <div class="size-header">
                                             <span class="size-label">Size: <%= sizeItem.size %></span>
-                                            <i class="fas fa-times remove-size" data-item-id="<%= item._id %>"
-                                                data-size="<%= sizeItem.size %>"></i>
+                                            <% if (item.productID && !(item.productID.status === 'Out of Stock' || item.productID.isBlocked || !item.productID.isListed)) { %>
+                                                <i class="fas fa-times remove-size" data-item-id="<%= item._id %>"
+                                                   data-size="<%= sizeItem.size %>"></i>
+                                            <% } %>
                                         </div>
-                                        <div class="quantity">
-                                            <button class="decrement-btn" <%=sizeItem.quantity <=1 ? 'disabled' : ''
-                                                %>>-</button>
-                                            <input type="text" value="<%= sizeItem.quantity %>" class="quantity-input"
-                                                readonly>
-                                            <% let disableIncrement=false; if (item.productID.status==='Out of Stock' )
-                                                { disableIncrement=true; } else { const
-                                                productSize=item.productID.size.find(s=> s.size === sizeItem.size); if
-                                                (!productSize || productSize.quantity <= sizeItem.quantity) {
-                                                    disableIncrement=true; } } %>
-                                                    <button class="increment-btn" <%=disableIncrement ? 'disabled' : ''
-                                                        %>
+                                        <% if (item.productID && !(item.productID.status === 'Out of Stock' || item.productID.isBlocked || !item.productID.isListed)) { %>
+                                            <div class="quantity">
+                                                <button class="decrement-btn" <%= sizeItem.quantity <= 1 ? 'disabled' : '' %>>-</button>
+                                                <input type="text" value="<%= sizeItem.quantity %>" class="quantity-input" readonly>
+                                                <% 
+                                                    let disableIncrement = false;
+                                                    if (!item.productID || item.productID.status === 'Out of Stock' || item.productID.isBlocked || !item.productID.isListed) {
+                                                        disableIncrement = true;
+                                                    } else {
+                                                        const productSize = item.productID.size.find(s => s.size === sizeItem.size);
+                                                        if (!productSize || productSize.quantity <= sizeItem.quantity) {
+                                                            disableIncrement = true;
+                                                        }
+                                                    }
+                                                %>
+                                                <button class="increment-btn" <%= disableIncrement ? 'disabled' : '' %>
                                                         data-size="<%= sizeItem.size %>">+</button>
-                                        </div>
+                                            </div>
+                                        <% } %>
                                     </div>
-                                    <% }); %>
+                                <% }); %>
                             </div>
-                            <i class="fas fa-trash-alt remove" data-item-id="<%= item._id %>"></i>
-                        </div>
-                        <% }); %>
-                            <% } else { %>
-                                <div class="empty-cart">
-                                    <h3>Cart is empty</h3>
-                                    <img src="/img/delete.png" alt="" class="empty-cart-img">
-                                    <button class="return-home-btn">Return to Home</button>
-                                </div>
-                                <% } %>
+                            <i class="fas fa-trash-alt remove" data-item-id="<%= item._id %>" style="pointer-events: auto; opacity: 1;"></i>                        </div>
+                    <% }); %>
+                <% } else { %>
+                    <div class="empty-cart">
+                        <h3>Cart is empty</h3>
+                        <img src="/img/delete.png" alt="" class="empty-cart-img">
+                        <button class="return-home-btn">Return to Home</button>
+                    </div>
+                <% } %>
             </div>
-            <% if (cartItems && cartItems.length> 0) { %>
+            <% if (cartItems && cartItems.length > 0) { %>
                 <div class="order-summary" style="height: 250px;">
                     <h2>Order Summary</h2>
                     <div class="summary-details">
                         <p><span>Subtotal</span> <span>
-                                <%= new Intl.NumberFormat('en-IN', { style: 'currency' , currency: 'INR'
-                                    }).format(subtotal.toFixed(2)) %>
+                                <%= new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(subtotal.toFixed(2)) %>
                             </span></p>
-                        <p><span>Shipping</span> <span>&#8377;0.00</span></p>
+                        <p><span>Discount</span> <span>₹0.00</span></p>
                         <p class="total"><span>Total :</span> <span>
-                                <%= new Intl.NumberFormat('en-IN', { style: 'currency' , currency: 'INR'
-                                    }).format(total.toFixed(2)) %>
+                                <%= new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(total.toFixed(2)) %>
                             </span></p>
                     </div>
-                    <button class="checkout-btn" id="proceedToCheckout">Proceed to Checkout</button>
+                    <button class="checkout-btn" id="proceedToCheckout"
+                            <%= cartItems.some(item => item.productID.status === 'Out of Stock' || item.productID.isBlocked || !item.productID.isListed) ? 'disabled' : '' %>
+                            style="<%= cartItems.some(item => item.productID.status === 'Out of Stock' || item.productID.isBlocked || !item.productID.isListed) ? 'background-color: #ccc; cursor: not-allowed;' : '' %>">
+                        Proceed to Checkout
+                    </button>
                 </div>
-                <% } %>
+            <% } %>
         </div>
 
         <div id="modal-container" class="modal-container">
@@ -581,7 +613,7 @@
                 modal.style.display = 'block';
                 setTimeout(() => {
                     hideModal();
-                }, 3000);
+                }, 2000);
             }
 
             function hideModal() {
@@ -590,7 +622,7 @@
                 setTimeout(() => {
                     modal.style.display = 'none';
                     modal.style.animation = 'slideIn 0.5s forwards';
-                }, 1000);
+                }, 500);
             }
 
             async function confirmAction(message) {
@@ -683,7 +715,6 @@
 
             async function updateCartItem(itemId, sizeValue, newQuantity) {
                 try {
-                    // Client-side validation first
                     if (newQuantity > 5) {
                         showModal('Quantity limit exceeded. Maximum 5 items allowed per size.', 'error');
                         return;
@@ -703,17 +734,17 @@
 
                     const data = await response.json();
 
-
-
                     if (data.success) {
                         const itemElement = document.querySelector(`.cart-item[data-item-id="${itemId}"]`);
                         const sizeContainer = itemElement.querySelector(`.size-container[data-size="${sizeValue}"]`);
                         const quantityInput = sizeContainer.querySelector('.quantity-input');
+                        const decrementBtn = sizeContainer.querySelector('.decrement-btn');
+                        const incrementBtn = sizeContainer.querySelector('.increment-btn');
 
+                        // Update the quantity
                         quantityInput.value = newQuantity;
 
-
-                        // Update summary with decimals
+                        // Update summary
                         document.querySelector('.summary-details p:nth-child(1) span:last-child').textContent = new Intl.NumberFormat('en-IN', {
                             style: 'currency',
                             currency: 'INR'
@@ -723,11 +754,7 @@
                             currency: 'INR'
                         }).format(data.total);
 
-                        // Update button states
-                        const decrementBtn = sizeContainer.querySelector('.decrement-btn');
-                        const incrementBtn = sizeContainer.querySelector('.increment-btn');
-
-
+                        // Update button states dynamically
                         if (data.isOutOfStock) {
                             itemElement.classList.add('out-of-stock');
                             const h3 = itemElement.querySelector('h3');
@@ -735,12 +762,16 @@
                                 h3.insertAdjacentHTML('beforeend', '<span class="out-of-stock-label">Out of Stock</span>');
                             }
                             incrementBtn.disabled = true;
+                            decrementBtn.disabled = newQuantity <= 1; 
                             showModal('This item is now out of stock', 'error');
                         } else if (data.maxQuantityReached) {
                             incrementBtn.disabled = true;
+                            decrementBtn.disabled = newQuantity <= 1; 
                             showModal('Maximum available quantity reached', 'error');
-
                         } else {
+                            // Normal case: update button states based on quantity
+                            incrementBtn.disabled = newQuantity > 6 || data.maxQuantityReached;
+                            decrementBtn.disabled = newQuantity < 1;
                             showModal('Quantity updated', 'success');
                         }
                     } else {
@@ -751,6 +782,8 @@
                     showModal('Failed to update quantity', 'error');
                 }
             }
+
+
             async function removeSizeFromCart(itemId, sizeValue) {
                 try {
                     const confirmed = await confirmAction(`Are you sure you want to remove this size (${sizeValue}) from your cart?`);
@@ -771,7 +804,7 @@
 
                     if (data.success) {
                         showModal('Size removed from cart', 'success');
-                        // Wait for 1.5 seconds before reloading to show the message
+                 
                         setTimeout(() => {
                             window.location.reload();
                         }, 1000);

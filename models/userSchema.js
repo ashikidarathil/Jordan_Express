@@ -56,16 +56,23 @@ const userSchema = new Schema({
     type: Date,
     default: Date.now
   },
-  referalCode: {
-    type: String
+ referralCode: {
+    type: String,
+    unique: true
   },
-  radeemed: {
-    type: Boolean
+  redeemed: {
+    type: Boolean,
+    default: false
   },
-  radeemedUser: {
+  redeemedUser: {
+    type: Schema.Types.ObjectId,
+    ref: 'User',
+    default: null
+  },
+  referredUsers: [{
     type: Schema.Types.ObjectId,
     ref: 'User'
-  },
+  }],
   searchHistory: [{
     category: {
       type: Schema.Types.ObjectId,

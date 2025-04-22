@@ -1,0 +1,90 @@
+<%- include("../partials/admin/header") %>
+
+<style>
+  .content-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+
+  .content-title {
+    font-size: 24px;
+    color: #333;
+    font-weight: 600;
+  }
+
+  .card {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    margin-bottom: 20px;
+  }
+
+  .card p {
+    margin: 10px 0;
+    color: #333;
+  }
+
+  .card strong {
+    color: #555;
+  }
+  .page-item {
+      list-style: none;
+    }
+
+  .btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: background-color 0.3s ease;
+  }
+
+  .btn-primary {
+    background-color: #895D39;
+    color: white;
+  }
+
+  .btn-primary:hover {
+    background-color: #6e4a2d;
+  }
+
+  a {
+    text-decoration: none;
+  }
+</style>
+
+<div>
+  <div class="content-header">
+    <h2 class="content-title">Transaction Details</h2>
+    <a href="/admin/wallets/<%= wallet._id %>/transactions" class="btn btn-primary">Back to Transactions</a>
+  </div>
+
+  <div class="card">
+    <h3>User Details</h3>
+    <p><strong>Name:</strong> <%= wallet.userID.name %></p>
+    <p><strong>Email:</strong> <%= wallet.userID.email %></p>
+    <p><strong>Phone:</strong> <%= wallet.userID.phone || 'Not provided' %></p>
+  </div>
+
+  <div class="card">
+    <h3>Transaction Details</h3>
+    <p><strong>Transaction ID:</strong> <%= transaction._id %></p>
+    <p><strong>Date:</strong> <%= transaction.date.toLocaleString() %></p>
+    <p><strong>Type:</strong> <%= transaction.type.charAt(0).toUpperCase() + transaction.type.slice(1) %></p>
+    <p><strong>Amount:</strong> ₹<%= transaction.amount.toFixed(2) %></p>
+    <p><strong>Description:</strong> <%= transaction.description %></p>
+    <% if (order) { %>
+      <p style="margin-bottom: 20px;"><strong>Source:</strong> Order #<%= order.orderID %></p>
+      <a href="/admin/orders/<%= order.orderID %>" class="btn btn-primary" >View Order Details</a>
+    <% } else { %>
+      <p><strong>Source:</strong> Wallet top-up or other</p>
+    <% } %>
+  </div>
+</div>
+
+<%- include("../partials/admin/footer") %>

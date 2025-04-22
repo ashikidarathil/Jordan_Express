@@ -2,6 +2,7 @@
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -53,7 +54,8 @@
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
         }
 
-        th, td {
+        th,
+        td {
             padding: 15px;
             text-align: left;
             border-bottom: 1px solid #eee;
@@ -99,14 +101,115 @@
             color: #666;
             margin-top: 5px;
         }
+
+        .add-money-section {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 4px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+        }
+
+        .add-money-section h2 {
+            margin: 0 0 10px 0;
+            font-size: 18px;
+            color: #555;
+        }
+
+        .add-money-section form {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .add-money-section input {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 150px;
+        }
+
+        .add-money-section button {
+            padding: 8px 15px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .add-money-section button:hover {
+            background-color: #1b6799;
+        }
+
+        .error-message {
+            color: #ff4444;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+
+        /* Pagination Styles */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        .pagination a, .pagination span {
+            padding: 8px 12px;
+            margin: 0 5px;
+            text-decoration: none;
+            color: #333;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .pagination a:hover {
+            background-color: #3498db;
+            color: #fff;
+            border-color: #3498db;
+        }
+
+        .pagination .active {
+            background-color: #3498db;
+            color: #fff;
+            border-color: #3498db;
+        }
+
+        .pagination .disabled {
+            color: #aaa;
+            border-color: #ddd;
+            cursor: not-allowed;
+        }
+
+        .pagination .disabled:hover {
+            background-color: transparent;
+            color: #aaa;
+        }
     </style>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 </head>
+
 <body>
     <div class="container">
         <h1>My Wallet</h1>
+        <div class="add-money-section">
+            <h2>Add Money to Wallet</h2>
+            <form id="addMoneyForm">
+                <input type="number" id="addMoneyAmount" placeholder="Enter amount" min="1">
+                <button type="submit">Add Money</button>
+            </form>
+            <p id="addMoneyError" class="error-message"></p>
+        </div>
         <div class="wallet-balance">
             <h2>Current Balance</h2>
-            <span><%= new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(wallet.balance) %></span>
+            <span>
+                <%= new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(wallet.balance) %>
+            </span>
         </div>
         <table>
             <thead>
@@ -129,7 +232,9 @@
                 <% } else { %>
                     <% wallet.transactions.forEach(transaction => { %>
                         <tr>
-                            <td><%= transaction.date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) %></td>
+                            <td>
+                                <%= transaction.date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) %>
+                            </td>
                             <td>
                                 <span class="transaction-type <%= transaction.type %>">
                                     <%= transaction.type.charAt(0).toUpperCase() + transaction.type.slice(1) %>
@@ -139,18 +244,145 @@
                                 <%= new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(transaction.amount) %>
                                 <% if (transaction.order && transaction.order.discount > 0 && transaction.description.includes('returned')) { %>
                                     <div class="transaction-details">
-                                        (Original: <%= new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(transaction.amount + (transaction.order.discount / transaction.order.orderItems.length)) %> - 
+                                        (Original: <%= new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(transaction.amount + (transaction.order.discount / transaction.order.orderItems.length)) %> -
                                         Discount: <%= new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(transaction.order.discount / transaction.order.orderItems.length) %>)
                                     </div>
                                 <% } %>
                             </td>
-                            <td><%= transaction.description %></td>
-                            <td>#<%= transaction.orderID || '-' %></td>
+                            <td>
+                                <%= transaction.description %>
+                            </td>
+                            <td>
+                                <%= transaction.orderID || '-' %>
+                            </td>
                         </tr>
                     <% }) %>
                 <% } %>
             </tbody>
         </table>
+
+        <!-- Pagination Controls -->
+        <% if (totalTransactions > 0) { %>
+            <div class="pagination">
+                <% if (currentPage > 1) { %>
+                    <a href="/wallet?page=<%= currentPage - 1 %>&limit=<%= limit %>">Previous</a>
+                <% } else { %>
+                    <span class="disabled">Previous</span>
+                <% } %>
+
+                <% for (let i = 1; i <= totalPages; i++) { %>
+                    <a href="/wallet?page=<%= i %>&limit=<%= limit %>" class="<%= currentPage === i ? 'active' : '' %>">
+                        <%= i %>
+                    </a>
+                <% } %>
+
+                <% if (currentPage < totalPages) { %>
+                    <a href="/wallet?page=<%= currentPage + 1 %>&limit=<%= limit %>">Next</a>
+                <% } else { %>
+                    <span class="disabled">Next</span>
+                <% } %>
+            </div>
+        <% } %>
     </div>
+
+    <script>
+        document.getElementById('addMoneyForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const amount = parseFloat(document.getElementById('addMoneyAmount').value);
+            const errorElement = document.getElementById('addMoneyError');
+
+            if (!amount || amount <= 0) {
+                errorElement.textContent = 'Please enter a valid amount';
+                return;
+            }
+            if (amount < 1000) {
+                errorElement.textContent = 'Minimum added money is 1000';
+                return;
+            }
+
+            try {
+                const response = await fetch('/create-wallet-topup', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ amount })
+                });
+                const data = await response.json();
+
+                if (!data.success) {
+                    errorElement.textContent = data.message || 'Failed to initiate payment';
+                    return;
+                }
+
+                const options = {
+                    key: '<%= process.env.RAZORPAY_KEY_ID %>',
+                    amount: data.order.amount,
+                    currency: 'INR',
+                    name: 'Jordan Express',
+                    description: 'Wallet Top-Up',
+                    order_id: data.order.id,
+                    handler: async function (response) {
+                        const verifyResponse = await fetch('/verify-wallet-topup', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                razorpay_order_id: response.razorpay_order_id,
+                                razorpay_payment_id: response.razorpay_payment_id,
+                                razorpay_signature: response.razorpay_signature,
+                                amount
+                            })
+                        });
+                        const verifyData = await verifyResponse.json();
+
+                        if (verifyData.success) {
+                            Swal.fire({
+                                title: 'Success!',
+                                text: 'Money added to wallet successfully',
+                                icon: 'success',
+                                confirmButtonColor: '#8b5a2b'
+                            }).then(() => {
+                                window.location.href = '/wallet?page=1&limit=<%= limit %>'; // Redirect to first page
+                            });
+                        } else {
+                            Swal.fire({
+                                title: 'Error',
+                                text: verifyData.message || 'Failed to add money',
+                                icon: 'error',
+                                confirmButtonColor: '#8b5a2b'
+                            });
+                        }
+                    },
+                 
+                    theme: {
+                        color: '#8b5a2b'
+                    },
+                    modal: {
+                        ondismiss: function () {
+                            Swal.fire({
+                                title: 'Payment Cancelled',
+                                text: 'Top-up was not completed',
+                                icon: 'warning',
+                                confirmButtonColor: '#8b5a2b'
+                            });
+                        }
+                    }
+                };
+
+                const rzp = new Razorpay(options);
+                rzp.on('payment.failed', function (response) {
+                    Swal.fire({
+                        title: 'Payment Failed',
+                        text: 'Please try again',
+                        icon: 'error',
+                        confirmButtonColor: '#8b5a2b'
+                    });
+                });
+                rzp.open();
+            } catch (error) {
+                console.error('Error initiating top-up:', error);
+                errorElement.textContent = 'An error occurred. Please try again.';
+            }
+        });
+    </script>
 </body>
+
 </html>

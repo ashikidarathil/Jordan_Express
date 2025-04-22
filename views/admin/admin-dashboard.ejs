@@ -1,0 +1,396 @@
+<%- include("../partials/admin/header") %>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body {
+      background-color: #f5f7fa;
+      font-family: Arial, sans-serif;
+      margin: 0;
+    }
+
+    .dashboard-title {
+      font-size: 28px;
+      color: #333;
+      margin-bottom: 20px;
+      font-weight: 600;
+    }
+
+    .dashboard-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .sales-report-btn {
+      padding: 10px 20px;
+      background-color: #895D39;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .sales-report-btn:hover {
+      background-color: #704a2d;
+    }
+
+    .dashboard-content {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .card {
+      background-color: white;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      text-align: center;
+      transition: all 0.3s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .card-icon {
+      width: 50px;
+      height: 50px;
+      background-color: rgba(137, 93, 57, 0.1);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 15px;
+    }
+
+    .card-icon i {
+      font-size: 24px;
+      color: #895D39;
+    }
+
+    .card-title {
+      font-size: 14px;
+      color: #777;
+      margin-bottom: 10px;
+    }
+
+    .card-value {
+      font-size: 24px;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .recent-section {
+      background-color: white;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      margin-bottom: 30px;
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+
+    .section-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .view-all {
+      color: #895D39;
+      font-weight: 500;
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    .view-all:hover {
+      text-decoration: underline;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 12px 15px;
+      text-align: left;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    th {
+      font-weight: 500;
+      color: #777;
+      font-size: 14px;
+    }
+
+    td {
+      color: #333;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    .status {
+      padding: 5px 12px;
+      border-radius: 50px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .status.pending {
+      background-color: rgba(241, 196, 15, 0.1);
+      color: #f1c40f;
+    }
+
+    .status.processing {
+      background-color: rgba(14, 138, 200, 0.1);
+      color: #0e8ac8;
+    }
+
+    .status.shipped {
+      background-color: rgba(46, 204, 113, 0.1);
+      color: #2ecc71;
+    }
+
+    .status.delivered {
+      background-color: rgba(52, 152, 219, 0.1);
+      color: #3498db;
+    }
+
+    .status.cancelled {
+      background-color: rgba(231, 76, 60, 0.1);
+      color: #e74c3c;
+    }
+
+    .status.partially-cancelled {
+      background-color: rgba(243, 156, 18, 0.1);
+      color: #f39c12;
+    }
+
+    .status.returned {
+      background-color: rgba(155, 89, 182, 0.1);
+      color: #9b59b6;
+    }
+
+    .status.return-rejected {
+      background-color: rgba(149, 165, 166, 0.1);
+      color: black;
+    }
+
+    /* Chart Section Styles */
+    .recent-section canvas {
+      max-height: 400px;
+    }
+
+    #chart-filter {
+      padding: 8px;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="dashboard-header">
+    <h1 class="dashboard-title">Dashboard</h1>
+    <a href="/admin/sales-report" class="sales-report-btn" style="text-decoration: none;">Sales Report</a>
+  </div>
+
+  <div class="dashboard-content">
+    <div class="card">
+      <div class="card-icon"><i class="fas fa-users"></i></div>
+      <div class="card-title">Total Customers</div>
+      <div class="card-value"><%= totalUsers %></div>
+    </div>
+    <div class="card">
+      <div class="card-icon"><i class="fas fa-box"></i></div>
+      <div class="card-title">Total Products</div>
+      <div class="card-value"><%= totalProducts %></div>
+    </div>
+    <div class="card">
+      <div class="card-icon"><i class="fas fa-shopping-cart"></i></div>
+      <div class="card-title">Total Orders</div>
+      <div class="card-value"><%= totalOrders %></div>
+    </div>
+    <div class="card">
+      <div class="card-icon"><i class="fas fa-dollar-sign"></i></div>
+      <div class="card-title">Revenue</div>
+      <div class="card-value"><%= new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(totalRevenue.toFixed(2)) %></div>
+    </div>
+    <div class="card">
+      <div class="card-icon"><i class="fas fa-truck"></i></div>
+      <div class="card-title">Total Delivery Charges</div>
+      <div class="card-value"><%= new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(totalDeliveryCharge.toFixed(2)) %></div>
+    </div>
+  </div>
+
+  <!-- Sales Chart Section -->
+  <div class="recent-section">
+    <div class="section-header">
+      <div class="section-title">Sales Chart</div>
+      <select id="chart-filter" onchange="updateChart()">
+        <option value="yearly">Yearly</option>
+        <option value="monthly">Monthly</option>
+        <option value="weekly">Weekly</option>
+        <option value="daily">Daily</option>
+      </select>
+    </div>
+    <canvas id="salesChart"></canvas>
+  </div>
+
+  <!-- Best Selling Products Section -->
+  <div class="recent-section">
+    <div class="section-header">
+      <div class="section-title" style="margin-bottom: 20px;">Best Selling Products (Top 10)</div>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Image</th>
+          <th>Product Name</th>
+          <th>Units Sold</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% bestSellingProducts.forEach(product => { %>
+          <tr>
+            <td>
+                <img src="/uploads/product-image/<%= product.productImage %>" alt="<%= product.productName %>" class="product-image" style="width: 120px;">
+            </td>
+            <td><%= product.productName %></td>
+            <td><%= product.totalSold %></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Best Selling Categories Section -->
+  <div class="recent-section">
+    <div class="section-header">
+      <div class="section-title">Best Selling Categories (Top 10)</div>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Category Name</th>
+          <th>Units Sold</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% bestSellingCategories.forEach(category => { %>
+          <tr>
+            <td><%= category.categoryName %></td>
+            <td><%= category.totalSold %></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Recent Orders Section -->
+  <div class="recent-section">
+    <div class="section-header">
+      <div class="section-title">Recent Orders</div>
+      <a href="/admin/sales-report" class="view-all">View All</a>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Order ID</th>
+          <th>Customer</th>
+          <th>Date</th>
+          <th>Amount</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% recentOrders.forEach(order => { %>
+          <tr>
+            <td>
+              <a href="/admin/orders/<%= order.orderID %>" style="text-decoration: none; color: #895D39;">
+                #<%= order.orderID %>
+              </a>
+            </td>
+            <td><%= order.userID.name %></td>
+            <td><%= order.createdOn.toLocaleDateString() %></td>
+            <td><%= new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(order.finalAmount.toFixed(2)) %></td>
+            <td>
+              <span class="status <%= order.orderItems[0].status.toLowerCase().replace(' ', '-') %>">
+                <%= order.orderItems[0].status %>
+              </span>
+            </td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Chart.js and JavaScript -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    let salesChart;
+
+    function initializeChart(labels, data) {
+      const ctx = document.getElementById('salesChart').getContext('2d');
+      salesChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Sales Amount',
+            data: data,
+            borderColor: '#895D39',
+            backgroundColor: 'rgba(137, 93, 57, 0.1)',
+            fill: true,
+          }],
+        },
+        options: {
+          responsive: true,
+          scales: {
+            y: {
+              beginAtZero: true,
+            },
+          },
+        },
+      });
+    }
+
+    function updateChart() {
+      const range = document.getElementById('chart-filter').value;
+      fetch(`/admin/chart-data?range=${range}`)
+        .then(response => response.json())
+        .then(data => {
+          salesChart.data.labels = data.chartLabels;
+          salesChart.data.datasets[0].data = data.monthlyData;
+          salesChart.update();
+        })
+        .catch(error => console.error('Error fetching chart data:', error));
+    }
+
+    // Initialize chart with default data
+    document.addEventListener('DOMContentLoaded', () => {
+      initializeChart(<%- JSON.stringify(salesData.chartLabels) %>, <%- JSON.stringify(salesData.monthlyData) %>);
+    });
+  </script>
+</body>
+</html>

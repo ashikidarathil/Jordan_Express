@@ -1,0 +1,203 @@
+<%- include("../partials/admin/header") %>
+
+<style>
+  .content-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+
+  .content-title {
+    font-size: 24px;
+    color: #333;
+    font-weight: 600;
+  }
+
+  .card-header {
+    background-color: white;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    margin-bottom: 20px;
+  }
+
+  .card-header p{
+    margin-bottom: 3px;
+  }
+
+  .table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  }
+
+  .table th,
+  .table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #f0f0f0;
+  }
+
+  .table th {
+    font-weight: 500;
+    color: #777;
+    font-size: 14px;
+  }
+
+  .table td {
+    color: #333;
+  }
+  .page-item {
+      list-style: none;
+    }
+
+  .btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: background-color 0.3s ease;
+  }
+
+  .btn-primary {
+    background-color: #895D39;
+    color: white;
+  }
+
+  .btn-primary:hover {
+    background-color: #6e4a2d;
+  }
+
+  a {
+    text-decoration: none;
+  }
+
+  .pagination {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+  }
+
+  .pagination .page-item {
+    margin: 0 5px;
+  }
+
+  .pagination .page-link {
+    padding: 8px 16px;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    color: #555;
+    text-decoration: none;
+    transition: all 0.3s ease;
+  }
+
+  .pagination .page-link:hover {
+    background-color: #895D39;
+    color: white;
+    border-color: #895D39;
+  }
+
+  .transaction-type {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+    color: white;
+  }
+
+  .transaction-type.credit {
+    background-color: #17a050; 
+  }
+
+  .transaction-type.debit {
+    background-color: #c43221; 
+  }
+</style>
+
+<div>
+  <div class="content-header">
+    <h2 class="content-title">Transactions for <%= wallet.userID.name %></h2>
+    <a href="/admin/wallets" class="btn btn-primary">Back to Wallets</a>
+  </div>
+
+  <div class="card-header">
+    <p><strong>User:</strong> <%= wallet.userID.name %> (<%= wallet.userID.email %>)</p>
+    <p><strong>Balance:</strong> <%= new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(wallet.balance.toFixed(2)) %></p>
+    <p><strong>Total Transactions:</strong> <%= totalTransactions %></p>
+  </div>
+
+  <div class="right">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Transaction ID</th>
+          <th>Date</th>
+          <th>Type</th>
+          <th>Amount</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (transactions.length > 0) { %>
+          <% transactions.forEach(transaction => { %>
+            <tr>
+              <td><%= transaction._id %></td>
+              <td><%= transaction.date.toLocaleDateString() %></td>
+              <td>
+                <span class="transaction-type <%= transaction.type %>">
+                  <%= transaction.type.charAt(0).toUpperCase() + transaction.type.slice(1) %>
+                </span>
+              </td>
+              <td><%= new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(transaction.amount.toFixed(2))%></td>
+              <td>
+                <a href="/admin/wallets/<%= wallet._id %>/transactions/<%= transaction._id %>" class="btn btn-primary">View Details</a>
+              </td>
+            </tr>
+          <% }) %>
+        <% } else { %>
+          <tr>
+            <td style="text-align: center;" colspan="5">No transactions found.</td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="container mt-3">
+    <nav aria-label="Page navigation">
+      <ul class="pagination">
+        <% if (currentPage > 1) { %>
+          <li class="page-item">
+            <a class="page-link" href="?page=<%= currentPage - 1 %>" aria-label="Previous">
+              <span aria-hidden="true">«</span>
+            </a>
+          </li>
+        <% } %>
+
+        <% for (let i = 1; i <= totalPages; i++) { %>
+          <li class="page-item <%= currentPage === i ? 'active' : '' %>">
+            <a class="page-link" href="?page=<%= i %>">
+              <%= i %>
+            </a>
+          </li>
+        <% } %>
+
+        <% if (currentPage < totalPages) { %>
+          <li class="page-item">
+            <a class="page-link" href="?page=<%= currentPage + 1 %>" aria-label="Next">
+              <span aria-hidden="true">»</span>
+            </a>
+          </li>
+        <% } %>
+      </ul>
+    </nav>
+  </div>
+</div>
+
+<%- include("../partials/admin/footer") %>

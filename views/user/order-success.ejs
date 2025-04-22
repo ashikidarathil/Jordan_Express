@@ -293,33 +293,53 @@
 
 <body>
   <div class="success-container">
-    <i class="fas fa-check-circle success-icon"></i>
+    <% if (paymentMethod === 'COD') { %>
+      <i class="fas fa-check-circle success-icon"></i>
+    <% } else { %>
+      <div style="margin-bottom: 20px;">
+        <img src="/image/order-success-illustration.png" alt="Order Success" style="width: 200px; height: auto;">
+      </div>
+    <% } %>
 
     <h1>Order Confirmed!</h1>
     <p>Thank you for your purchase. Your order <span class="order-id">#<%= orderId %></span> has been received and is
       being processed.</p>
 
-      <div class="order-section">
-        <h2>Order Summary</h2>
-        <div class="summary-item">
-          <span>Order Number:</span>
-          <span><%= orderId %></span>
-        </div>
-        <div class="summary-item">
-          <span>Subtotal:</span>
-          <span><%= new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format((orderTotal + discount).toFixed(2)) %></span>
-        </div>
-        <% if (discount > 0) { %>
-          <div class="summary-item">
-            <span>Discount:</span>
-            <span>-<%= new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(discount.toFixed(2)) %></span>
-          </div>
-        <% } %>
-        <div class="summary-item total-item">
-          <span>Total Amount:</span>
-          <span><%= new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(orderTotal.toFixed(2)) %></span>
-        </div>
+    <div class="order-section">
+      <h2>Order Summary</h2>
+      <div class="summary-item">
+        <span>Order Number:</span>
+        <span>
+          <%= orderId %>
+        </span>
       </div>
+      <div class="summary-item">
+        <span>Subtotal:</span>
+        <span>
+          <%= new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format((orderTotal + discount - deliveryCharge).toFixed(2)) %>
+        </span>
+      </div>
+      <div class="summary-item">
+        <span>Delivery Charge:</span>
+        <span>
+          <%= new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(deliveryCharge.toFixed(2)) %>
+        </span>
+      </div>
+      <% if (discount> 0) { %>
+        <div class="summary-item">
+          <span>Discount:</span>
+          <span>-<%= new Intl.NumberFormat('en-IN', { style: 'currency' , currency: 'INR' }).format(discount.toFixed(2))
+              %></span>
+        </div>
+        <% } %>
+          <div class="summary-item total-item">
+            <span>Total Amount:</span>
+            <span>
+              <%= new Intl.NumberFormat('en-IN', { style: 'currency' , currency: 'INR' }).format(orderTotal.toFixed(2))
+                %>
+            </span>
+          </div>
+    </div>
 
     <% if (items && items.length) { %>
       <div class="order-section">
@@ -329,8 +349,8 @@
             <div class="item-row">
               <div class="product-info">
                 <% if (item.product && item.product.productImage && item.product.productImage.length) { %>
-                  <img src="/uploads/product-image/<%= item.product.productImage[0] %>" alt="<%= item.product.productName %>"
-                    class="product-image">
+                  <img src="/uploads/product-image/<%= item.product.productImage[0] %>"
+                    alt="<%= item.product.productName %>" class="product-image">
                   <% } %>
                     <div class="product-details">
                       <div class="product-name">
@@ -345,14 +365,18 @@
                       </div>
                     </div>
               </div>
-              <div class="item-price"><%= new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format( (item.price * item.quantity).toFixed(2)) %>
+              <div class="item-price">
+                <%= new Intl.NumberFormat('en-IN', { style: 'currency' , currency: 'INR' , minimumFractionDigits: 0,
+                  maximumFractionDigits: 0 }).format( (item.price * item.quantity).toFixed(2)) %>
               </div>
             </div>
             <% }); %>
         </div>
         <div class="summary-item total-item" style="margin-top: 20px;">
           <span>Total:</span>
-          <span><%= new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(orderTotal.toFixed(2)) %></span>
+          <span>
+            <%= new Intl.NumberFormat('en-IN', { style: 'currency' , currency: 'INR' }).format(orderTotal.toFixed(2)) %>
+          </span>
         </div>
       </div>
       <% } %>

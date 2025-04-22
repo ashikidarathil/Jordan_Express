@@ -6,49 +6,71 @@ const Category = require('../../models/categorySchema');
 // Get Cart Page
 const getCartPage = async (req, res) => {
     try {
-        const userId = req.session.user;
-        const user = await User.findById(userId);
+      const userId = req.session.user;
+      const cart = await Cart.findOne({ userID: userId }).populate({
+        path: 'item.productID',
+        select: 'productName productImage regularPrice salePrice size status isBlocked isListed',
+      });
 
-        const cart = await Cart.findOne({ userID: userId })
-            .populate({
-                path: 'item.productID',
-                select: 'productName productImage regularPrice salePrice status size'
-            });
+      if (!cart || cart.item.length === 0) {
+        return res.render('cart', {
+          cartItems: [],
+          subtotal: 0,
+          total: 0,
+          cartCount: res.locals.cartCount || 0,
+        });
+      }
 
-        let cartCount = 0;
-        if (cart) {
-            cartCount = cart.item.length;
-        }
+      let subtotal = 0;
 
-        if (!cart || cart.item.length === 0) {
-            return res.render('cart', {
-                user: user,
-                cartItems: [],
-                subtotal: 0,
-                total: 0,
-                cartCount: cartCount
-            });
-        }
+      // Map cart items to include discountPercentage
+      const cartItems = cart.item.map(item => {
+        const product = item.productID;
+        // Calculate discountPercentage
+        const discountPercentage = product.regularPrice > product.salePrice
+          ? Math.round(((product.regularPrice - product.salePrice) / product.regularPrice) * 100)
+          : 0;
 
-        let subtotal = 0;
-        cart.item.forEach(item => {
-            subtotal += item.totalPrice;
+        // Check stock for each size
+        item.size.forEach((sizeItem) => {
+          const productSize = product.size.find((s) => s.size === sizeItem.size);
+          if (productSize && productSize.quantity === 0) {
+            product.status = 'Out of Stock';
+          }
         });
 
-        res.render('cart', {
-            user: user,
-            cartItems: cart.item,
-            subtotal: subtotal,
-            total: subtotal,
-            cartCount: cartCount
-        });
+        // Use salePrice for totalPrice calculation
+        const itemTotalPrice = item.size.reduce((total, sizeItem) => {
+          return total + (sizeItem.quantity * product.salePrice);
+        }, 0);
 
+        subtotal += itemTotalPrice;
+
+        return {
+          ...item.toObject(),
+          price: product.salePrice, // Use salePrice for display
+          productID: {
+            ...product.toObject(),
+            discountPercentage, // Add discountPercentage to productID
+            regularPrice: product.regularPrice, // Ensure regularPrice is included
+          },
+          totalPrice: itemTotalPrice, // Update totalPrice for the item
+        };
+      });
+
+      const total = subtotal;
+
+      res.render('cart', {
+        cartItems,
+        subtotal,
+        total,
+        cartCount: res.locals.cartCount || cartItems.reduce((count, item) => count + item.size.length, 0),
+      });
     } catch (error) {
-        console.error('Error loading cart page:', error);
-        res.redirect('/pageNotFound');
+      console.error('Error loading cart:', error);
+      res.redirect('/pageNotFound');
     }
 };
-
 // Add to Cart
 const addToCart = async (req, res) => {
     try {

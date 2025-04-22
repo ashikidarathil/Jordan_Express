@@ -7,8 +7,10 @@ const connectDB = require('./config/db')
 const userRouter = require('./routes/userRouter')
 const adminRouter = require('./routes/adminRouter')
 const passport = require('./config/passport')
+const flash = require('connect-flash');
 
 connectDB()
+
 
 app.set('view cache', false);
 app.use(express.json())
@@ -23,6 +25,7 @@ app.use(session({
     maxAge:72*60*60*1000
   }
 }))
+
 
 app.use(passport.initialize())
 app.use(passport.session())
@@ -40,7 +43,14 @@ app.use((req, res, next) => {
 app.use('/',userRouter)
 app.use('/admin',adminRouter)
 
-
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  
+  res.status(err.status || 500).json({
+    message: err.message || "An internal server error occurred",
+    success: false,
+  });
+});
 
 app.listen(process.env.PORT,()=>{
   console.log('Server is running..')

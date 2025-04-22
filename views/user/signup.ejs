@@ -93,6 +93,12 @@
                   </div>
                   <div id="error-5" class="error-messege"></div>
 
+                  <div class="form-group">
+                    <label for="referralCode"><i class="zmdi zmdi-code"></i></label>
+                    <input type="text" name="referralCode" id="referralCode" placeholder="Referral Code (Optional)" />
+                  </div>
+                  <div id="error-6" class="error-messege"></div>
+
                   <div class="form-group form-button"
                     style="display: flex; flex-direction: row; align-items: center; justify-content: space-between; ">
                     <input type="submit" name="signup" id="signup" class="form-submit" value="Register" />
@@ -131,13 +137,18 @@
     const passId = document.getElementById('password')
     const confirmPassId = document.getElementById('confirm_pass')
 
+
     const error1 = document.getElementById('error-1')
     const error2 = document.getElementById('error-2')
     const error3 = document.getElementById('error-3')
     const error4 = document.getElementById('error-4')
     const error5 = document.getElementById('error-5')
+    const error6 = document.getElementById('error-6')
+
 
     const signForm = document.getElementById('signForm')
+
+
 
 
     function nameValidateChecking(e) {
@@ -173,20 +184,26 @@
       }
     }
 
-    function phoneValidateChecking(e) {
+    function phoneValidateChecking() {
       const phoneValue = phoneId.value
+      const allZerosPattern = /^0{10}$/;
 
       if (phoneValue.trim() === '') {
         error3.style.display = 'block'
         error3.innerHTML = 'Enter a valid Phone number'
-      } else if (phoneValue.length < 10 || phoneValue.length > 10) {
-        error3.style.display = 'block';
-        error3.innerHTML = 'Enter 10 digit'
+      } else if (phoneValue.length !== 10) {
+        error3.style.display = 'block'
+        error3.innerHTML = 'Enter 10 digits'
+      } else if (allZerosPattern.test(phoneValue)) {
+        error3.style.display = 'block'
+        error3.innerHTML = 'Phone number cannot be all zeros'
+      } else if (!/^\d{10}$/.test(phoneValue)) {
+        error3.style.display = 'block'
+        error3.innerHTML = 'Phone number must contain only digits'
       } else {
         error3.style.display = 'none'
         error3.innerHTML = ''
       }
-
     }
 
     function passValidateChecking(e) {
@@ -217,6 +234,18 @@
     }
 
 
+    function referralCodeValidateChecking() {
+      const referralCodeValue = document.getElementById('referralCode').value;
+      if (referralCodeValue.trim() !== '' && referralCodeValue.length !== 8) {
+        error6.style.display = 'block';
+        error6.innerHTML = 'Referral code must be 8 characters long';
+      } else {
+        error6.style.display = 'none';
+        error6.innerHTML = '';
+      }
+    }
+
+
     document.addEventListener('DOMContentLoaded', function () {
       signForm.addEventListener('submit', function (e) {
 
@@ -224,6 +253,7 @@
         emailValidateChecking();
         phoneValidateChecking();
         passValidateChecking();
+        referralCodeValidateChecking();
 
         if (
           !nameId ||
@@ -251,15 +281,18 @@
           e.preventDefault()
         }
 
+        if (error6.innerHTML) {
+          e.preventDefault();
+        }
+
 
       })
     })
 
-    // Get alert and input fields
+
     const alertBox = document.getElementById("alert");
     const inputs = document.querySelectorAll("input");
 
-    // Function to hide alert when user starts typing
     inputs.forEach(input => {
       input.addEventListener("input", () => {
         alertBox.style.display = "none";

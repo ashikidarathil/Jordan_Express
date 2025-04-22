@@ -1,6 +1,6 @@
 const Coupon = require('../../models/couponSchema');
 
-// Get all coupons with pagination, search, and sorting
+
 const getCoupons = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
@@ -55,7 +55,7 @@ const addCoupon = async (req, res) => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    // New validation for coupon name
+
     const couponRegex = /^[A-Z]{4}\d{3}$/;
     if (!couponRegex.test(name)) {
       return res.status(400).json({
@@ -90,7 +90,7 @@ const addCoupon = async (req, res) => {
 
     await coupon.save();
     res.json({ success: true, message: 'Coupon added successfully' });
- V} catch (error) {
+  } catch (error) {
     console.error('Error adding coupon:', error);
     res.status(500).json({ success: false, message: 'Failed to add coupon' });
   }

@@ -195,11 +195,23 @@
 
       .discount-badge {
         position: absolute;
-        top: 2rem;
-        left: 2rem;
+        top: 2.2rem;
+        left: 1.2rem;
         background-color: #FFD700;
         color: #895D39;
-        font-size: 14px;
+        font-size: 4px;
+        font-weight: 600;
+        padding: 5px 10px;
+        border-radius: 5px;
+      }
+
+      .discount-badge-similar {
+        position: absolute;
+        top: 1rem;
+        left: 1.2rem;
+        background-color: #FFD700;
+        color: #895D39;
+        font-size: 4px;
         font-weight: 600;
         padding: 5px 10px;
         border-radius: 5px;
@@ -243,7 +255,7 @@
       }
 
       .product-price span {
-        color: red;
+        color: #895D39 ;
         font-size: 24px;
         font-weight: 600;
       }
@@ -559,8 +571,9 @@
       }
 
       .similar-products-grid {
+    
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
         gap: 1.5rem;
         max-width: 1200px;
         justify-content: start;
@@ -572,6 +585,7 @@
       }
 
       .similar-product-card {
+        position: relative;
         background: #fff;
         border-radius: 12px;
         padding: 1.25rem;
@@ -748,6 +762,7 @@
 
         .wishlist-icon {
           font-size: 18px;
+       
         }
 
         .quantity-btn {
@@ -803,7 +818,7 @@
 
           <div class="detail-info">
             <!-- Discount Badge -->
-            <div class="discount-badge" style="margin-left: -8px;">Disc. 35%</div>
+           
 
             <!-- Wishlist Icon -->
             <a href="#" class="wishlist-icon" id="wishlistIcon" title="Add to Wishlist">
@@ -826,13 +841,14 @@
             <!-- Product Price -->
             <div class="product-price">
               <span>
-                <%= new Intl.NumberFormat('en-IN', { style: 'currency' , currency: 'INR' , minimumFractionDigits: 0,
-                  maximumFractionDigits: 0 }).format( product.salePrice) %>
+                <%= new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(product.salePrice) %>
               </span>
-              <del>
-                <%= new Intl.NumberFormat('en-IN', { style: 'currency' , currency: 'INR' , minimumFractionDigits: 0,
-                  maximumFractionDigits: 0 }).format(product.regularPrice) %>
-              </del>
+              <% if (product.discountPercentage > 0) { %>
+                <del>
+                  <%= new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(product.regularPrice) %>
+                </del>
+                <span class="discount-badge" style="font-size: 12px; color: #895D39;margin-left: 5px;"><%= product.discountPercentage %>% OFF</span>
+              <% } %>
             </div>
 
             <!-- Stock Message -->
@@ -983,14 +999,14 @@
                         </div>
                         <div class="price">
                           <span>
-                            <%= new Intl.NumberFormat('en-IN', { style: 'currency' , currency: 'INR' ,
-                              minimumFractionDigits: 0, maximumFractionDigits: 0 }).format( similarProduct.salePrice) %>
+                            <%= new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(similarProduct.salePrice) %>
                           </span>
-                          <del>
-                            <%= new Intl.NumberFormat('en-IN', { style: 'currency' , currency: 'INR' ,
-                              minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(similarProduct.regularPrice)
-                              %>
-                          </del>
+                          <% if (similarProduct.discountPercentage > 0) { %>
+                            <del>
+                              <%= new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(similarProduct.regularPrice) %>
+                            </del>
+                            <span class="discount-badge-similar" style="font-size: 12px;"  ><%= similarProduct.discountPercentage %>% OFF</span>
+                          <% } %>
                         </div>
                       </a>
                     </div>

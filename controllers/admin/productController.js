@@ -26,92 +26,72 @@ const addProducts = async (req, res) => {
   try {
     const { productName, description, brand, regularPrice, salePrice, color, category, size } = req.body;
 
-    // Check if product already exists
     const productExists = await productModel.findOne({ productName });
     if (productExists) {
-      return res.status(400).json({ success: false, message: 'Product already exists. Please try with another name.' });
+      return res.status(400).json({ success: false, message: 'Product already exists.' });
     }
 
-    // Validate that brand is not empty
     if (!brand || brand.trim() === '') {
       return res.status(400).json({ success: false, message: 'Brand is required' });
     }
 
-    // Handle image uploads and resizing
     const images = [];
     if (req.files && req.files.length > 0) {
       for (let i = 0; i < req.files.length; i++) {
         const originalImagePath = req.files[i].path;
         const resizedImagePath = path.join('public', 'uploads', 'product-image', `resized-${req.files[i].filename}`);
-
-        // Resize image using sharp
         await sharp(originalImagePath)
           .resize({ width: 440, height: 440, fit: 'cover' })
           .toFile(resizedImagePath);
-
         images.push(`resized-${req.files[i].filename}`);
       }
     }
 
-    // Find category ID
     const categoryDoc = await categoryModel.findOne({ name: category });
     if (!categoryDoc) {
       return res.status(400).json({ success: false, message: 'Invalid category name' });
     }
 
-    // Parse size array (all sizes are included, even with quantity 0)
     let sizeArray = [];
     if (Array.isArray(size)) {
       sizeArray = size.map((s) => ({
         size: s.size,
-        quantity: parseInt(s.quantity) || 0, // Default to 0 if quantity is empty or invalid
+        quantity: parseInt(s.quantity) || 0,
       }));
     }
 
-    // Validate size array
     if (!sizeArray.length || sizeArray.every((s) => s.quantity <= 0)) {
       return res.status(400).json({ success: false, message: 'At least one size with a positive quantity is required' });
     }
 
-    // Create new product
+    // Calculate the effective offer
+    const productOffer = 0; // Default product offer if not set initially
+    const categoryOffer = categoryDoc.categoryOffer || 0;
+    const effectiveOffer = Math.max(productOffer, categoryOffer);
+    const finalSalePrice = Math.floor(parseFloat(regularPrice) * (1 - effectiveOffer / 100));
+
     const newProduct = new productModel({
       productName,
       description,
       brand,
       category: categoryDoc._id,
       regularPrice: parseFloat(regularPrice),
-      salePrice: parseFloat(salePrice),
+      salePrice: finalSalePrice,
+      productOffer: productOffer,
       createdAt: new Date(),
       size: sizeArray,
       color,
       productImage: images,
-      status: sizeArray.some((s) => s.quantity > 0) ? 'Available' : 'Out of Stock', // Dynamic status based on quantity
+      status: sizeArray.some((s) => s.quantity > 0) ? 'Available' : 'Out of Stock',
     });
 
     await newProduct.save();
-    return res.status(200).json({
-      success: true,
-      message: 'Product added successfully',
-    });
+    return res.status(200).json({ success: true, message: 'Product added successfully' });
   } catch (error) {
     console.error('Error in saving product:', error);
-    if (error.name === 'ValidationError') {
-      const errorMessages = Object.values(error.errors).map((err) => err.message);
-      return res.status(400).json({
-        success: false,
-        message: 'Validation failed',
-        errors: errorMessages,
-      });
-    }
-    return res.status(500).json({
-      success: false,
-      message: 'Server error',
-      error: error.message,
-    });
+    return res.status(500).json({ success: false, message: 'Server error', error: error.message });
   }
 };
-
-
 
 const getAllProducts = async (req, res) => {
   try {
@@ -226,19 +206,7 @@ const getEditProduct = async (req, res) => {
 
 const updateProduct = async (req, res) => {
   try {
-    // Destructure all fields explicitly from req.body
-    const {
-      existingImages,
-      productName,
-      description,
-      brand,
-      regularPrice,
-      salePrice,
-      color,
-      category, // This is now the category _id
-      size,
-    } = req.body;
-
+    const { existingImages, productName, description, brand, regularPrice, salePrice, color, category, size } = req.body;
     const productId = req.params.id;
     const product = await productModel.findById(productId);
 
@@ -246,123 +214,72 @@ const updateProduct = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Product not found' });
     }
 
-    // Parse and validate size array
     let sizeArray = [];
     if (Array.isArray(size)) {
       sizeArray = size.map((s) => ({
         size: s.size,
         quantity: parseInt(s.quantity),
       }));
-    } else if (typeof size === 'object' && size.size && size.quantity) {
-      sizeArray = [{ size: size.size, quantity: parseInt(size.quantity) }];
     }
 
-    // Validate size array
     if (!sizeArray.length || sizeArray.every((s) => s.quantity <= 0)) {
-      return res.status(400).json({
-        success: false,
-        message: 'At least one size with a positive quantity is required',
-      });
+      return res.status(400).json({ success: false, message: 'At least one size with a positive quantity is required' });
     }
 
-    // Check for duplicate sizes
     const sizeSet = new Set(sizeArray.map((s) => s.size));
     if (sizeSet.size !== sizeArray.length) {
       return res.status(400).json({ success: false, message: 'Duplicate sizes are not allowed' });
     }
 
-    // Parse existingImages (sent as JSON string from frontend)
-    let existingImagesArray = [];
-    if (existingImages) {
-      try {
-        existingImagesArray = JSON.parse(existingImages);
-      } catch (e) {
-        return res.status(400).json({
-          success: false,
-          message: 'Invalid existingImages format. Expected JSON array.',
-        });
-      }
-    }
-
-    // Handle new image uploads and resizing (assuming upload.array('images'))
+    let existingImagesArray = existingImages ? JSON.parse(existingImages) : [];
     let newImages = [];
-    if (req.files && Array.isArray(req.files)) {
+    if (req.files && req.files.length > 0) {
       for (let i = 0; i < req.files.length; i++) {
         const originalImagePath = req.files[i].path;
-        const resizedImagePath = path.join(
-          'public',
-          'uploads',
-          'product-image',
-          `resized-${req.files[i].filename}`
-        );
-
-        // Resize image using sharp
+        const resizedImagePath = path.join('public', 'uploads', 'product-image', `resized-${req.files[i].filename}`);
         await sharp(originalImagePath)
           .resize({ width: 440, height: 440, fit: 'cover' })
           .toFile(resizedImagePath);
-
         newImages.push(`resized-${req.files[i].filename}`);
       }
     }
 
-    // Combine existing and new images
     const updatedImages = [...existingImagesArray, ...newImages];
-    if (updatedImages.length === 0) {
-      return res.status(400).json({
-        success: false,
-        message: 'At least one image is required',
-      });
-    }
-    if (updatedImages.length > 4) {
-      return res.status(400).json({
-        success: false,
-        message: 'Maximum 4 images allowed',
-      });
+    if (updatedImages.length === 0 || updatedImages.length > 4) {
+      return res.status(400).json({ success: false, message: 'Exactly 4 images are required' });
     }
 
-    // Validate category by _id instead of name
     const categoryDoc = await categoryModel.findById(category);
     if (!categoryDoc) {
       return res.status(400).json({ success: false, message: 'Invalid category ID' });
     }
 
-    // Update product data
+    // Apply the largest offer
+    const productOffer = product.productOffer || 0;
+    const categoryOffer = categoryDoc.categoryOffer || 0;
+    const effectiveOffer = Math.max(productOffer, categoryOffer);
+    const finalSalePrice = Math.floor(parseFloat(regularPrice) * (1 - effectiveOffer / 100));
+
     Object.assign(product, {
       productName,
       description,
       brand,
       regularPrice: parseFloat(regularPrice),
-      salePrice: parseFloat(salePrice),
+      salePrice: finalSalePrice,
       color,
-      category: categoryDoc._id, // Use the validated ObjectId
+      category: categoryDoc._id,
       size: sizeArray,
       productImage: updatedImages,
       status: sizeArray.some((s) => s.quantity > 0) ? 'Available' : 'Out of Stock',
     });
 
-    // Save the updated product
     await product.save();
-
     res.json({ success: true, message: 'Product updated successfully' });
   } catch (error) {
     console.error('Error updating product:', error);
-    if (error.name === 'ValidationError') {
-      const errorMessages = Object.values(error.errors).map((err) => err.message);
-      return res.status(400).json({
-        success: false,
-        message: 'Validation failed',
-        errors: errorMessages,
-      });
-    }
-    res.status(500).json({
-      success: false,
-      message: 'Failed to update product',
-      error: error.message,
-    });
+    res.status(500).json({ success: false, message: 'Failed to update product', error: error.message });
   }
 };
-
-
 
 // Remove image controller (unchanged, but included for completeness)
 const removeImage = async (req, res) => {
@@ -478,6 +395,56 @@ const unlistProduct = async (req, res) => {
 };
 
 
+const addProductOffer = async (req, res) => {
+  try {
+    const { percentage, productId } = req.body;
+    const product = await productModel.findById(productId).populate('category');
+
+    if (!product) {
+      return res.status(404).json({ success: false, message: 'Product not found' });
+    }
+
+    const categoryOffer = product.category.categoryOffer || 0;
+    const newProductOffer = parseInt(percentage);
+
+    // Apply the largest offer
+    const effectiveOffer = Math.max(newProductOffer, categoryOffer);
+    product.productOffer = newProductOffer;
+    product.salePrice = Math.floor(product.regularPrice * (1 - effectiveOffer / 100));
+
+    await product.save();
+    res.json({ success: true, message: 'Product offer added successfully' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+};
+
+
+
+  const removeProductOffer = async (req, res) => {
+    try {
+      const { productId } = req.body;
+      const product = await productModel.findById(productId).populate('category');
+
+      if (!product) {
+        return res.status(404).json({ success: false, message: 'Product not found' });
+      }
+
+      // Set product offer to 0
+      product.productOffer = 0;
+
+      // Recalculate salePrice based on category offer (if any)
+      const categoryOffer = product.category?.categoryOffer || 0;
+      product.salePrice = Math.floor(product.regularPrice * (1 - categoryOffer / 100));
+
+      await product.save();
+      res.json({ success: true, message: 'Product offer removed successfully' });
+    } catch (error) {
+      console.error('Error removing product offer:', error);
+      res.status(500).json({ success: false, message: 'Internal server error' });
+    }
+  };
+
 
 
 module.exports = {
@@ -491,5 +458,7 @@ module.exports = {
   removeImage,
   listProduct,
   unlistProduct,
+  addProductOffer,
+  removeProductOffer,
 
 }

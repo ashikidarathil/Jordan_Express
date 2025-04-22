@@ -3,21 +3,21 @@ const mongoose = require('mongoose')
 
 const customerInfo = async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1; // Default to page 1 if not provided
-    const limit = 3; // Number of items per page
+    const page = parseInt(req.query.page) || 1; 
+    const limit = 5; 
     const skip = (page - 1) * limit;
-    const searchQuery = req.query.search || ''; // Get the search term from the query string
+    const searchQuery = req.query.search || ''; 
 
-    let query = { isAdmin: false }; // Only fetch non-admin users
+    let query = { isAdmin: false };
     if (searchQuery) {
       query.$or = [
-        { name: { $regex: new RegExp('^' + searchQuery, 'i') } }, // Match names starting with search term
+        { name: { $regex: new RegExp('^' + searchQuery, 'i') } }, 
         { email: { $regex: new RegExp('^' + searchQuery, 'i') } } 
       ];
     }
 
     const userData = await userModel.find(query)
-      .sort({ createdAt: -1 }) // Sort by creation date (newest first)
+      .sort({ createdOn: -1 }) 
       .skip(skip)
       .limit(limit);
 

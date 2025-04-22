@@ -1,4 +1,78 @@
 <%- include('../partials/user/header') %>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .discount-badge {
+            position: absolute;
+            top: 1.5rem;
+            left: 1.2rem;
+            background-color: #FFD700;
+            color: #895D39;
+            font-size: 4px;
+            font-weight: 600;
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+
+        .modal-container {
+            display: none;
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            z-index: 1000;
+            animation: slideIn 0.5s forwards;
+        }
+
+        .modal-content {
+            background-color: #f8f8f8;
+            border-left: 4px solid #8b5a2b;
+            font-size: 14px;
+            font-weight: 600;
+            padding: 15px 20px;
+            border-radius: 4px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            max-width: 300px;
+            border-radius: 20px;
+            position: relative;
+        }
+
+        .modal-error .modal-content {
+            border: none;
+            background-color: #ff3333;
+            color: white;
+        }
+
+        .modal-success .modal-content {
+            background-color: #33cc33;
+            border: none;
+            color: white;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+            }
+
+            to {
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes slideOut {
+            from {
+                transform: translateX(0);
+            }
+
+            to {
+                transform: translateX(100%);
+            }
+        }
+    </style>
+
+    <div id="modal-container" class="modal-container">
+        <div class="modal-content">
+            <p id="modal-message"></p>
+        </div>
+    </div>
 
     <section class="hero">
         <div class="contnaier">
@@ -71,7 +145,6 @@
             <div class="top-sec">
                 <h3>New Products</h3>
             </div>
-
             <div class="items">
                 <% for(let i=0; i < products.length; i++) { %>
                     <div class="item">
@@ -91,16 +164,29 @@
                                 <i class="fa-solid fa-star-half-stroke"></i>
                             </div>
                             <div class="price">
-                                <span><%= new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(products[i].salePrice) %></span>
-                                <del><%= new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(products[i].regularPrice) %></del>
+                                <span>
+                                    <%= new Intl.NumberFormat('en-IN', { style: 'currency' , currency: 'INR' ,
+                                        minimumFractionDigits: 0, maximumFractionDigits: 0
+                                        }).format(products[i].salePrice) %>
+                                </span>
+                                <% if (products[i].discountPercentage> 0) { %>
+                                    <del>
+                                        <%= new Intl.NumberFormat('en-IN', { style: 'currency' , currency: 'INR' ,
+                                            minimumFractionDigits: 0, maximumFractionDigits: 0
+                                            }).format(products[i].regularPrice) %>
+                                    </del>
+                                    <span class="discount-badge" style="font-size: 12px;">
+                                        <%= products[i].discountPercentage %>% OFF
+                                    </span>
+                                    <% } %>
                             </div>
-                            <div class="icon-product">
-                                <a href="/addToWishlist?id=<%= products[i]._id %>"><i
-                                        class="fa-regular fa-heart"></i></a>
-                                <a href="/addToCart?id=<%= products[i]._id %>"><i
-                                        class="fa-solid fa-cart-shopping"></i></a>
-                                <a href="#"><i class="fa-solid fa-right-left"></i></a>
-                            </div>
+<div class="icon-product">
+  <a href="#" class="wishlist-icon" data-product-id="<%= products[i]._id %>" title="Add to Wishlist">
+    <i class="fa-regular fa-heart"></i>
+  </a>
+  <a href="/addToCart?id=<%= products[i]._id %>"><i class="fa-solid fa-cart-shopping"></i></a>
+  <a href="#"><i class="fa-solid fa-right-left"></i></a>
+</div>
                         </div>
                     </div>
                     <% } %>
@@ -122,7 +208,7 @@
     </section>
 
 
-   
+
 
 
     <!-- <section class="blog">
@@ -169,9 +255,9 @@
                 </div>
 
                 <!-- 4 boxs -->
-            <!-- </div>
+    <!-- </div>
         </div>
-    </section> --> 
+    </section> -->
 
 
     <!-- <div class="newsletter">
@@ -227,7 +313,92 @@
                 showSlide(currentIndex);
             }, 5000);
         });
+
+
+
+        // Modal Functions
+        function showModal(message, type = 'info') {
+            const modal = document.getElementById('modal-container');
+            const modalMessage = document.getElementById('modal-message');
+            modal.className = 'modal-container';
+            let icon = '';
+            if (type === 'error') {
+                modal.classList.add('modal-error');
+                icon = '<i class="fas fa-exclamation-circle"></i> ';
+            } else if (type === 'success') {
+                modal.classList.add('modal-success');
+                icon = '<i class="fas fa-check-circle"></i> ';
+            }
+            modalMessage.innerHTML = icon + message;
+            modal.style.display = 'block';
+            setTimeout(() => hideModal(), 3000);
+        }
+
+        function hideModal() {
+            const modal = document.getElementById('modal-container');
+            modal.style.animation = 'slideOut 0.5s forwards';
+            setTimeout(() => {
+                modal.style.display = 'none';
+                modal.style.animation = 'slideIn 0.5s forwards';
+            }, 500);
+        }
+
+        // Wishlist Functionality
+        document.querySelectorAll('.wishlist-icon').forEach(icon => {
+            const productId = icon.dataset.productId;
+
+            // Check initial wishlist state
+            checkWishlistStatus(productId, icon);
+
+            icon.addEventListener('click', async function (e) {
+                e.preventDefault();
+                const isActive = this.classList.contains('active');
+
+                try {
+                    const url = isActive ? '/remove-from-wishlist' : '/add-to-wishlist';
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ productId })
+                    });
+                    const data = await response.json();
+
+                    if (data.success) {
+                        this.classList.toggle('active');
+                        const heart = this.querySelector('i');
+                        heart.classList.toggle('fa-regular');
+                        heart.classList.toggle('fa-solid');
+                        showModal(
+                            isActive ? 'Removed from wishlist!' : 'Added to wishlist!',
+                            'success'
+                        );
+                    } else {
+                        showModal(data.message || 'Failed to update wishlist', 'error');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    showModal('Network error. Please try again.', 'error');
+                }
+            });
+        });
+
+        // Function to check if product is in wishlist on page load
+        async function checkWishlistStatus(productId, icon) {
+            try {
+                const response = await fetch('/wishlist');
+                const wishlistPage = await response.text();
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(wishlistPage, 'text/html');
+                if (doc.querySelector(`[data-product-id="${productId}"]`)) {
+                    icon.classList.add('active');
+                    icon.querySelector('i').classList.remove('fa-regular');
+                    icon.querySelector('i').classList.add('fa-solid');
+                }
+            } catch (error) {
+                console.error('Error checking wishlist status:', error);
+            }
+        }
     </script>
 
 
-<%- include('../partials/user/footer') %>
+    <%- include('../partials/user/footer') %>

@@ -258,7 +258,7 @@
       <img src="/admin-img/JD.png" alt="" style="width: 200px; margin-top: -90px; margin-bottom: -66px;">
     </div>
     <div class="nav-links">
-      <a href="/admin/" class="nav-link">
+      <a href="/admin/adminDashboard" class="nav-link">
         <i class="fas fa-home"></i>
         <span>Dashboard</span>
       </a>
@@ -271,9 +271,9 @@
         <i class="fas fa-th-large"></i>
         <span>Category</span>
       </a>
-      <a href="#" class="nav-link">
-        <i class="fas fa-tags"></i>
-        <span>Brands</span>
+      <a href="/admin/wallets" class="nav-link">
+        <i class="fas fa-wallet"></i>
+        <span>Wallets</span>
       </a>
       <a href="/admin/addProducts" class="nav-link">
         <i class="fas fa-plus"></i>
@@ -287,10 +287,10 @@
         <i class="fas fa-ticket-alt"></i>
         <span>Coupon</span>
       </a>
-      <a href="#" class="nav-link">
+      <!-- <a href="#" class="nav-link">
         <i class="fas fa-image"></i>
         <span>Banner</span>
-      </a>
+      </a> -->
       <a href="/admin/orders" class="nav-link">
         <i class="fas fa-shopping-cart"></i>
         <span>Orders</span>
@@ -383,7 +383,7 @@
 
           // Find the Dashboard link (first link or link with href="/admin")
           const dashboardLink = Array.from(navLinks).find(link =>
-            link.getAttribute('href') === '/admin' ||
+            link.getAttribute('href') === '/admin/adminDashboard' ||
             link.querySelector('span').textContent.trim() === 'Dashboard'
           );
 

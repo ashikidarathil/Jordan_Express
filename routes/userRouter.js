@@ -19,6 +19,7 @@ router.post('/verify-otp',userController.verifyOtp)
 router.post('/resend-otp',userController.resendOtp)
 router.get('/logout',userController.logout)
 
+
 router.use(getCartCount);
 
 // Main pages
@@ -28,6 +29,12 @@ router.get('/filter',userAuth,userController.filterProduct);
 router.get('/filterprice',userAuth,userController.filterByPrice)
 router.post('/search',userAuth,userController.searchProducts)
 router.get('/sort', userAuth, userController.sortProducts); 
+
+
+// New pages
+router.get('/about', userController.getAboutPage); 
+router.get('/contact', userController.getContactPage); 
+router.post('/contact', userController.submitContactForm); 
 
 
 // Product Managment
@@ -53,6 +60,8 @@ router.post('/update-email',userAuth,profileController.updateEmail)
 router.get('/change-pass',userAuth,profileController.changePass)
 router.get('/change-name', userAuth,profileController.changeName);
 router.post('/update-name', userAuth,profileController.updateName);
+router.get('/referral', userAuth, userController.getReferralPage);
+
 
 
 // Address Managment
@@ -61,6 +70,8 @@ router.post('/add-address',userAuth,profileController.addAddress)
 router.get('/edit-address',userAuth,profileController.editAddress)
 router.post('/edit-address', userAuth, profileController.postEditAddress);
 router.get("/delete-address",userAuth,profileController.deleteAddress)
+
+
 
 
 // Cart Mangamnet
@@ -78,11 +89,22 @@ router.post('/remove-coupon', userAuth, orderController.removeCoupon);
 router.post('/place-order', userAuth, orderController.placeOrder);
 router.get('/order-success/:orderId', userAuth, orderController.getOrderSuccessPage); 
 router.get('/orders', userAuth, orderController.getOrdersPage);
+router.post('/create-razorpay-order', userAuth,orderController.createRazorpayOrder);
+router.post('/verify-razorpay-payment',userAuth, orderController.verifyRazorpayPayment);
 router.get('/order-details/:orderId', userAuth, orderController.getOrderDetailsPage);
 router.post('/cancel-order/:orderId', userAuth, orderController.cancelOrder);
 router.post('/return-order/:orderId', userAuth, orderController.returnOrder);
 router.get('/orders/:orderId/invoice', userAuth, orderController.downloadInvoice);
 router.get('/wallet', userAuth, orderController.getWalletPage);
+router.post('/create-wallet-topup',userAuth,orderController.createWalletTopup);
+router.post('/verify-wallet-topup', userAuth,orderController.verifyWalletTopup);
+router.get('/payment-failure', userAuth, orderController.getPaymentFailurePage);
+router.post('/cancel-razorpay-payment', userAuth, orderController.cancelRazorpayPayment);
+router.post('/retry-razorpay-payment', orderController.retryRazorpayPayment);
+router.post('/pay-now', userAuth, orderController.payNow);
+router.post('/verify-pay-now-payment', userAuth, orderController.verifyPayNowPayment);
+
+
 
 
 // Wishlist Managamnet

@@ -93,8 +93,8 @@ const placeOrder = async (req, res) => {
     const totalPrice = subtotal + deliveryCharge;
     const finalAmount = totalPrice - discount;
 
-    if (paymentMethod === 'COD' && finalAmount <= COD_MINIMUM) {
-      return res.status(400).json({ success: false, message: 'COD is only available for orders above ₹5000' });
+    if (paymentMethod === 'COD' && finalAmount >= COD_MINIMUM) {
+      return res.status(400).json({ success: false, message: 'COD is only available for orders below ₹5000' });
     }
 
     let wallet;

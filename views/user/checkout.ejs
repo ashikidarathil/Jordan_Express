@@ -491,7 +491,7 @@
               <input type="radio" name="payment" value="COD" id="codOption">
               Cash On Delivery
             </label>
-            <p id="codMessage" class="cod-message" style="display: none;">COD is only available for orders above ₹5000
+            <p id="codMessage" class="cod-message" style="display: none;">COD is only available for orders below ₹5000
             </p>
             <label>
               <input type="radio" name="payment" value="Razorpay">
@@ -648,7 +648,7 @@
         const codLabel = codOption.parentElement;
         const codMessage = document.getElementById('codMessage');
 
-        if (total <= 5000) {
+        if (total >= 5000) {
           codOption.disabled = true;
           codLabel.style.opacity = '0.5';
           codLabel.style.cursor = 'not-allowed';

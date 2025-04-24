@@ -803,13 +803,13 @@
       <div class="product-detail">
         <div class="detail-gallery">
           <div class="image-container" style="width: 73%;margin-left: 70px;">
-            <img src="Uploads/product-image/<%= product.productImage[0] %>" alt="Main Product"
+            <img src="uploads/product-image/<%= product.productImage[0] %>" alt="Main Product"
               class="product-image-main" id="main-image">
             <div class="slider-nav-thumbnails" style="padding-bottom: 10px;">
-              <img src="Uploads/product-image/<%= product.productImage[0] %>" alt="Thumbnail 1" class="active">
-              <img src="Uploads/product-image/<%= product.productImage[1] %>" alt="Thumbnail 2">
-              <img src="Uploads/product-image/<%= product.productImage[2] %>" alt="Thumbnail 3">
-              <img src="Uploads/product-image/<%= product.productImage[3] %>" alt="Thumbnail 4">
+              <img src="uploads/product-image/<%= product.productImage[0] %>" alt="Thumbnail 1" class="active">
+              <img src="uploads/product-image/<%= product.productImage[1] %>" alt="Thumbnail 2">
+              <img src="uploads/product-image/<%= product.productImage[2] %>" alt="Thumbnail 3">
+              <img src="uploads/product-image/<%= product.productImage[3] %>" alt="Thumbnail 4">
             </div>
             <div class="zoom-lens" id="zoomLens"></div>
             <div class="zoom-result" id="zoomResult"></div>
@@ -981,7 +981,7 @@
               <% similarProducts.forEach(similarProduct => { %>
                 <div class="similar-product-card">
                   <a href="/productDetails?id=<%= similarProduct._id %>">
-                    <img src="Uploads/product-image/<%= similarProduct.productImage[0] %>"
+                    <img src="uploads/product-image/<%= similarProduct.productImage[0] %>"
                       alt="<%= similarProduct.productName %>">
                     <h4>
                       <%= similarProduct.productName %>

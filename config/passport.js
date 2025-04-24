@@ -34,15 +34,15 @@ passport.use(
           return done(new Error('No email provided by Google'), null);
         }
 
-        // Check for existing user by email
+    
         const existingUser = await userModel.findOne({ email });
         if (existingUser) {
           console.log('User already exists with email:', email);
           return done(null, false, { message: 'User already exists with this email' });
         }
 
-        // Create new user
-        console.log('Creating new user with email:', email);
+       
+        // console.log('Creating new user with email:', email);
         user = new userModel({
           name: profile.displayName,
           email: email,

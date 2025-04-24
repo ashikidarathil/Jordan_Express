@@ -567,111 +567,146 @@ const downloadSalesReport = async (req, res) => {
 
 const getChartData = async (req, res) => {
   try {
-    const { range, startDate, endDate } = req.query;
-    let dateFilter = {};
+    const { range } = req.query;
     const now = new Date();
+    let datasets = [];
+    let chartLabels = [];
 
-    switch (range) {
-      case 'daily':
-        dateFilter = {
-          createdOn: {
-            $gte: new Date(now.setHours(0, 0, 0, 0)),
-            $lte: new Date(now.setHours(23, 59, 59, 999)),
-          },
-        };
-        break;
-      case 'weekly':
-        const weekStart = new Date(now.setDate(now.getDate() - now.getDay()));
-        weekStart.setHours(0, 0, 0, 0);
-        dateFilter = {
-          createdOn: {
-            $gte: weekStart,
-            $lte: new Date(),
-          },
-        };
-        break;
-      case 'monthly':
-        const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-        dateFilter = {
-          createdOn: {
-            $gte: monthStart,
-            $lte: new Date(),
-          },
-        };
-        break;
-      case 'yearly':
-        const yearStart = new Date(now.getFullYear(), 0, 1);
-        dateFilter = {
+    if (range === 'yearly') {
+      const currentYear = now.getFullYear();
+      const years = [currentYear, currentYear - 1, currentYear - 2];
+      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      chartLabels = months;
+
+      for (const year of years) {
+        const yearStart = new Date(year, 0, 1);
+        const yearEnd = new Date(year, 11, 31, 23, 59, 59, 999);
+        const dateFilter = {
           createdOn: {
             $gte: yearStart,
-            $lte: new Date(),
+            $lte: yearEnd,
           },
         };
-        break;
-      case 'custom':
-        if (startDate && endDate) {
-          dateFilter = {
-            createdOn: {
-              $gte: new Date(startDate),
-              $lte: new Date(new Date(endDate).setHours(23, 59, 59, 999)),
-            },
-          };
-        }
-        break;
-      default:
-        break;
-    }
 
-    const allOrders = await Order.find(dateFilter);
-    let chartLabels = [];
-    let monthlyData = [];
+        const allOrders = await Order.find(dateFilter);
+        const monthlyTotals = Array(12).fill(0);
+        allOrders.forEach(order => {
+          const month = order.createdOn.getMonth();
+          monthlyTotals[month] += order.finalAmount;
+        });
 
-    if (range === 'yearly' || range === 'custom') {
-      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-      const monthlyTotals = Array(12).fill(0);
-      allOrders.forEach(order => {
-        const month = order.createdOn.getMonth();
-        monthlyTotals[month] += order.finalAmount;
-      });
-      chartLabels = months;
-      monthlyData = monthlyTotals;
+        datasets.push({
+          label: `Year ${year}`,
+          data: monthlyTotals,
+        });
+      }
     } else if (range === 'monthly') {
-      const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
-      const dailyTotals = Array(daysInMonth).fill(0);
-      const labels = Array.from({ length: daysInMonth }, (_, i) => `${i + 1}`);
-      allOrders.forEach(order => {
-        const day = order.createdOn.getDate() - 1;
-        dailyTotals[day] += order.finalAmount;
-      });
-      chartLabels = labels;
-      monthlyData = dailyTotals;
+      const currentYear = now.getFullYear();
+      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      chartLabels = Array.from({ length: new Date(currentYear, now.getMonth() + 1, 0).getDate() }, (_, i) => `${i + 1}`);
+
+      for (let month = 0; month <= now.getMonth(); month++) {
+        const monthStart = new Date(currentYear, month, 1);
+        const monthEnd = new Date(currentYear, month + 1, 0, 23, 59, 59, 999);
+        const dateFilter = {
+          createdOn: {
+            $gte: monthStart,
+            $lte: monthEnd,
+          },
+        };
+
+        const allOrders = await Order.find(dateFilter);
+        const daysInMonth = new Date(currentYear, month + 1, 0).getDate();
+        const dailyTotals = Array(daysInMonth).fill(0);
+        allOrders.forEach(order => {
+          const day = order.createdOn.getDate() - 1;
+          dailyTotals[day] += order.finalAmount;
+        });
+
+        datasets.push({
+          label: months[month],
+          data: dailyTotals,
+        });
+      }
     } else if (range === 'weekly') {
-      const labels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-      const weeklyTotals = Array(7).fill(0);
-      allOrders.forEach(order => {
-        const day = order.createdOn.getDay();
-        weeklyTotals[day] += order.finalAmount;
-      });
-      chartLabels = labels;
-      monthlyData = weeklyTotals;
+      const currentMonth = now.getMonth();
+      const currentYear = now.getFullYear();
+      const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+      chartLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+      const weeks = [];
+      let weekStart = new Date(currentYear, currentMonth, 1);
+      while (weekStart.getMonth() === currentMonth) {
+        weeks.push(new Date(weekStart));
+        weekStart.setDate(weekStart.getDate() + 7);
+      }
+
+      for (let i = 0; i < weeks.length; i++) {
+        const weekStart = weeks[i];
+        const weekEnd = new Date(weekStart);
+        weekEnd.setDate(weekEnd.getDate() + 6);
+        if (weekEnd.getMonth() !== currentMonth) {
+          weekEnd.setDate(daysInMonth);
+        }
+        weekEnd.setHours(23, 59, 59, 999);
+
+        const dateFilter = {
+          createdOn: {
+            $gte: weekStart,
+            $lte: weekEnd,
+          },
+        };
+
+        const allOrders = await Order.find(dateFilter);
+        const weeklyTotals = Array(7).fill(0);
+        allOrders.forEach(order => {
+          const day = order.createdOn.getDay();
+          weeklyTotals[day] += order.finalAmount;
+        });
+
+        datasets.push({
+          label: `Week ${i + 1}`,
+          data: weeklyTotals,
+        });
+      }
     } else if (range === 'daily') {
-      const labels = Array.from({ length: 24 }, (_, i) => `${i}:00`);
-      const hourlyTotals = Array(24).fill(0);
-      allOrders.forEach(order => {
-        const hour = order.createdOn.getHours();
-        hourlyTotals[hour] += order.finalAmount;
-      });
-      chartLabels = labels;
-      monthlyData = hourlyTotals;
+      const currentWeekStart = new Date(now.setDate(now.getDate() - now.getDay()));
+      currentWeekStart.setHours(0, 0, 0, 0);
+      chartLabels = Array.from({ length: 24 }, (_, i) => `${i}:00`);
+
+      for (let i = 0; i < 7; i++) {
+        const dayStart = new Date(currentWeekStart);
+        dayStart.setDate(dayStart.getDate() + i);
+        const dayEnd = new Date(dayStart);
+        dayEnd.setHours(23, 59, 59, 999);
+
+        const dateFilter = {
+          createdOn: {
+            $gte: dayStart,
+            $lte: dayEnd,
+          },
+        };
+
+        const allOrders = await Order.find(dateFilter);
+        const hourlyTotals = Array(24).fill(0);
+        allOrders.forEach(order => {
+          const hour = order.createdOn.getHours();
+          hourlyTotals[hour] += order.finalAmount;
+        });
+
+        datasets.push({
+          label: ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][i],
+          data: hourlyTotals,
+        });
+      }
     }
 
-    res.json({ chartLabels, monthlyData });
+    res.json({ chartLabels, datasets });
   } catch (error) {
     console.error('Error fetching chart data:', error);
     res.status(500).json({ success: false, message: 'Server Error' });
   }
 };
-
 
 
 module.exports = {

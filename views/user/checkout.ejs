@@ -504,23 +504,38 @@
             </label>
           </div>
           <div class="order-details">
-            <p><span>Subtotal</span> <span id="subtotal">
-                <%= new Intl.NumberFormat('en-IN', { style: 'currency' , currency: 'INR' }).format(subtotal.toFixed(2))
-                  %>
-              </span></p>
-            <p><span>Delivery Charge</span> <span id="deliveryCharge">
-                <%= new Intl.NumberFormat('en-IN', { style: 'currency' , currency: 'INR'
-                  }).format(deliveryCharge.toFixed(2)) %>
-              </span></p>
+            <% 
+              const baseSubtotal = subtotal / 1.18;
+              const gstSubtotal = subtotal - baseSubtotal;
+              const baseDelivery = deliveryCharge / 1.18;
+              const gstDelivery = deliveryCharge - baseDelivery;
+              const baseTotal = total / 1.18;
+              const gstTotal = total - baseTotal;
+            %>
+            <p><span>Subtotal (Excl. GST)</span> <span id="subtotalBase">
+                <%= new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(baseSubtotal.toFixed(2)) %>
+            </span></p>
+            <p><span>GST (18%) on Subtotal</span> <span id="subtotalGST">
+                <%= new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(gstSubtotal.toFixed(2)) %>
+            </span></p>
+            <p><span>Subtotal (Incl. GST)</span> <span id="subtotal">
+                <%= new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(subtotal.toFixed(2)) %>
+            </span></p>
+
+            <p><span>Delivery Charge (Incl. GST)</span> <span id="deliveryCharge">
+                <%= new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(deliveryCharge.toFixed(2)) %>
+            </span></p>
             <p><span>Discount</span> <span id="discount">
-                <%= new Intl.NumberFormat('en-IN', { style: 'currency' , currency: 'INR' }).format(discount.toFixed(2))
-                  %>
-              </span></p>
-            <p class="total"><span>Total :</span> <span id="total">
-                <%= new Intl.NumberFormat('en-IN', { style: 'currency' , currency: 'INR' }).format(total.toFixed(2)) %>
-              </span></p>
+                <%= new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(discount.toFixed(2)) %>
+            </span></p>
+            <p class="total"><span>Total (Incl. GST):</span> <span id="total">
+                <%= new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(total.toFixed(2)) %>
+            </span></p>
+
           </div>
           <button class="place-order-btn" id="placeOrderBtn">Place Order</button>
+        </div>
+ 
         </div>
       </div>
     </div>

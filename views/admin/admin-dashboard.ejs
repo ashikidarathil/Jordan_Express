@@ -136,6 +136,7 @@
     }
 
     th {
+bundled: true
       font-weight: 500;
       color: #777;
       font-size: 14px;
@@ -196,7 +197,6 @@
       color: black;
     }
 
-    /* Chart Section Styles */
     .recent-section canvas {
       max-height: 400px;
     }
@@ -274,7 +274,7 @@
         <% bestSellingProducts.forEach(product => { %>
           <tr>
             <td>
-                <img src="/uploads/product-image/<%= product.productImage %>" alt="<%= product.productName %>" class="product-image" style="width: 120px;">
+                <img src="/Uploads/product-image/<%= product.productImage %>" alt="<%= product.productName %>" class="product-image" style="width: 120px;">
             </td>
             <td><%= product.productName %></td>
             <td><%= product.totalSold %></td>
@@ -345,30 +345,59 @@
     </table>
   </div>
 
-  <!-- Chart.js and JavaScript -->
+
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script>
     let salesChart;
 
-    function initializeChart(labels, data) {
+    function initializeChart(datasets, labels) {
       const ctx = document.getElementById('salesChart').getContext('2d');
       salesChart = new Chart(ctx, {
-        type: 'line',
+        type: 'bar', // Changed to bar chart
         data: {
           labels: labels,
-          datasets: [{
-            label: 'Sales Amount',
-            data: data,
-            borderColor: '#895D39',
-            backgroundColor: 'rgba(137, 93, 57, 0.1)',
-            fill: true,
-          }],
+          datasets: datasets.map((dataset, index) => ({
+            label: dataset.label,
+            data: dataset.data,
+            backgroundColor: [
+              '#895D39', // Brown
+              '#3498db', // Blue
+              '#e74c3c', // Red
+              '#2ecc71', // Green
+              '#f1c40f', // Yellow
+              '#9b59b6', // Purple
+            ][index % 6], // Cycle through colors
+            borderColor: [
+              '#704a2d',
+              '#2980b9',
+              '#c0392b',
+              '#27ae60',
+              '#f39c12',
+              '#8e44ad',
+            ][index % 6],
+            borderWidth: 1,
+          })),
         },
         options: {
           responsive: true,
           scales: {
             y: {
               beginAtZero: true,
+              title: {
+                display: true,
+                text: 'Sales Amount (INR)',
+              },
+            },
+            x: {
+              title: {
+                display: true,
+                text: 'Time Period',
+              },
+            },
+          },
+          plugins: {
+            legend: {
+              position: 'top',
             },
           },
         },
@@ -381,15 +410,39 @@
         .then(response => response.json())
         .then(data => {
           salesChart.data.labels = data.chartLabels;
-          salesChart.data.datasets[0].data = data.monthlyData;
+          salesChart.data.datasets = data.datasets.map((dataset, index) => ({
+            label: dataset.label,
+            data: dataset.data,
+            backgroundColor: [
+              '#895D39',
+              '#3498db',
+              '#e74c3c',
+              '#2ecc71',
+              '#f1c40f',
+              '#9b59b6',
+            ][index % 6],
+            borderColor: [
+              '#704a2d shoreside brown',
+              '#2980b9',
+              '#c0392b',
+              '#27ae60',
+              '#f39c12',
+              '#8e44ad',
+            ][index % 6],
+            borderWidth: 1,
+          }));
           salesChart.update();
         })
         .catch(error => console.error('Error fetching chart data:', error));
     }
 
-    // Initialize chart with default data
+    // Initialize chart with default data (yearly comparison)
     document.addEventListener('DOMContentLoaded', () => {
-      initializeChart(<%- JSON.stringify(salesData.chartLabels) %>, <%- JSON.stringify(salesData.monthlyData) %>);
+      fetch('/admin/chart-data?range=yearly')
+        .then(response => response.json())
+        .then(data => {
+          initializeChart(data.datasets, data.chartLabels);
+        });
     });
   </script>
 </body>

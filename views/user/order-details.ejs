@@ -421,7 +421,7 @@
     </div>
 
     <div class="invoice-actions" style="margin-top: 20px; text-align: right; margin-bottom: 20px;">
-      <% if (orders.orderItems.every(item => item.status === 'Delivered')) { %>
+      <% if (orders.paymentStatus === 'Paid') { %>
         <button class="btn btn-invoice" onclick="window.location.href='/orders/<%= orders.orderID %>/invoice'">
           <i class="fas fa-file-download"></i> Download Invoice (PDF)
         </button>
@@ -459,7 +459,7 @@
           </p>
           <% if ((orders.paymentStatus === 'Failed' && (orders.paymentMethod === 'Razorpay' )) 
                 && orders.orderItems.some(item => item.status !== 'Cancelled')) { %>
-            <button class="btn btn-primary retry-payment-btn" data-order-id="<%= orders.orderID %>">Retry Payment</button>
+            <button class="btn btn-primary retry-payment-btn" style="background-color: rgb(192, 21, 21);" data-order-id="<%= orders.orderID %>">Retry Payment</button>
           <% } %>
           <% 
     
@@ -483,14 +483,35 @@
 
     <div class="order-summary">
       <h2 class="section-title">Order Summary</h2>
+      <% 
+        const baseSubtotal = orders.totalPrice / 1.18;
+        const gstSubtotal = orders.totalPrice - baseSubtotal;
+        const baseDelivery = orders.deliveryCharge / 1.18;
+        const gstDelivery = orders.deliveryCharge - baseDelivery;
+        const baseFinal = orders.finalAmount / 1.18;
+        const gstFinal = orders.finalAmount - baseFinal;
+      %>
       <div class="order-summary-row">
-        <span class="order-summary-label">Subtotal:</span>
+        <span class="order-summary-label">Subtotal (Excl. GST):</span>
+        <span class="order-summary-value">
+          <%= new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(baseSubtotal.toFixed(2)) %>
+        </span>
+      </div>
+      <div class="order-summary-row">
+        <span class="order-summary-label">GST (18%) on Subtotal:</span>
+        <span class="order-summary-value">
+          <%= new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(gstSubtotal.toFixed(2)) %>
+        </span>
+      </div>
+      <div class="order-summary-row">
+        <span class="order-summary-label">Subtotal (Incl. GST):</span>
         <span class="order-summary-value">
           <%= new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(orders.totalPrice.toFixed(2)) %>
         </span>
       </div>
+
       <div class="order-summary-row">
-        <span class="order-summary-label">Delivery Charge:</span>
+        <span class="order-summary-label">Delivery Charge :</span>
         <span class="order-summary-value">
           <%= new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(orders.deliveryCharge.toFixed(2)) %>
         </span>
@@ -504,11 +525,12 @@
         </div>
       <% } %>
       <div class="order-summary-row order-summary-total">
-        <span class="order-summary-label">Total:</span>
+        <span class="order-summary-label">Total (Incl. GST):</span>
         <span class="order-summary-value">
           <%= new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(orders.finalAmount.toFixed(2)) %>
         </span>
       </div>
+
     </div>
 
     <div class="order-items">
@@ -908,7 +930,7 @@
           const isPayNow = this.classList.contains('pay-now-btn');
           const actionText = isPayNow ? 'Pay Now' : 'Retry Payment';
 
-          // Show confirmation Swal
+       
           const result = await Swal.fire({
             title: `Confirm ${actionText}`,
             text: `Are you sure you want to proceed with the payment?`,
@@ -920,7 +942,7 @@
             cancelButtonText: 'Cancel'
           });
 
-          // If user cancels, do nothing (buttons remain)
+
           if (!result.isConfirmed) {
             return;
           }

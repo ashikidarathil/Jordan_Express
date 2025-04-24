@@ -1,4 +1,3 @@
-// services/invoiceService.js
 const PDFDocument = require('pdfkit');
 
 const generateInvoice = async (order) => {
@@ -65,11 +64,12 @@ const generateInvoice = async (order) => {
     const tableTop = infoTop + LINE_GAP * 9;
     const tableWidth = CONTENT_WIDTH;
     const columnWidths = {
-      item: 200,
-      size: 80,
-      qty: 60,
-      price: 80,
-      amount: 100
+      item: 160, // Reduced to accommodate new columns
+      size: 60,
+      qty: 50,
+      basePrice: 80,
+      gst: 80,
+      amount: 80
     };
     const tableLeft = CENTER_X - (tableWidth / 2);
 
@@ -79,8 +79,9 @@ const generateInvoice = async (order) => {
        .text('Item', tableLeft, tableTop, { width: columnWidths.item, align: 'left' })
        .text('Size', tableLeft + columnWidths.item, tableTop, { width: columnWidths.size, align: 'center' })
        .text('Qty', tableLeft + columnWidths.item + columnWidths.size, tableTop, { width: columnWidths.qty, align: 'right' })
-       .text('Price', tableLeft + columnWidths.item + columnWidths.size + columnWidths.qty, tableTop, { width: columnWidths.price, align: 'right' })
-       .text('Amount', tableLeft + columnWidths.item + columnWidths.size + columnWidths.qty + columnWidths.price, tableTop, { width: columnWidths.amount, align: 'right' })
+       .text('Base Price', tableLeft + columnWidths.item + columnWidths.size + columnWidths.qty, tableTop, { width: columnWidths.basePrice, align: 'right' })
+       .text('GST (18%)', tableLeft + columnWidths.item + columnWidths.size + columnWidths.qty + columnWidths.basePrice, tableTop, { width: columnWidths.gst, align: 'right' })
+       .text('Amount', tableLeft + columnWidths.item + columnWidths.size + columnWidths.qty + columnWidths.basePrice + columnWidths.gst, tableTop, { width: columnWidths.amount, align: 'right' })
        .moveTo(tableLeft, tableTop + LINE_GAP)
        .lineTo(tableLeft + tableWidth, tableTop + LINE_GAP)
        .stroke();
@@ -89,14 +90,18 @@ const generateInvoice = async (order) => {
     let currentY = tableTop + LINE_GAP + 10;
     order.orderItems.forEach(item => {
       const amount = item.price * item.quantity;
+      const basePrice = amount / 1.18; // Total base price for quantity
+      const gstAmount = amount - basePrice; // Total GST for quantity
       const size = item.size || 'N/A';
+      
       doc.font('Times-Roman')
          .fontSize(9)
          .text(item.product.productName || 'Unknown Item', tableLeft, currentY, { width: columnWidths.item, align: 'left' })
          .text(size, tableLeft + columnWidths.item, currentY, { width: columnWidths.size, align: 'center' })
          .text(item.quantity.toString(), tableLeft + columnWidths.item + columnWidths.size, currentY, { width: columnWidths.qty, align: 'right' })
-         .text(`${item.price.toFixed(2)}`, tableLeft + columnWidths.item + columnWidths.size + columnWidths.qty, currentY, { width: columnWidths.price, align: 'right' })
-         .text(`${amount.toFixed(2)}`, tableLeft + columnWidths.item + columnWidths.size + columnWidths.qty + columnWidths.price, currentY, { width: columnWidths.amount, align: 'right' });
+         .text(` ${basePrice.toFixed(2)}`, tableLeft + columnWidths.item + columnWidths.size + columnWidths.qty, currentY, { width: columnWidths.basePrice, align: 'right' })
+         .text(` ${gstAmount.toFixed(2)}`, tableLeft + columnWidths.item + columnWidths.size + columnWidths.qty + columnWidths.basePrice, currentY, { width: columnWidths.gst, align: 'right' })
+         .text(` ${amount.toFixed(2)}`, tableLeft + columnWidths.item + columnWidths.size + columnWidths.qty + columnWidths.basePrice + columnWidths.gst, currentY, { width: columnWidths.amount, align: 'right' });
       currentY += LINE_GAP;
     });
 
@@ -106,41 +111,55 @@ const generateInvoice = async (order) => {
     const summaryLeft = PAGE_WIDTH - RIGHT_MARGIN - summaryWidth;
     
     let summaryY = summaryTop;
-    
+
     // Define subtotal and delivery charge
     const subtotal = order.totalPrice;
     const deliveryCharge = order.deliveryCharge || 0;
     
+    // Calculate GST for subtotal and delivery
+    const baseSubtotal = subtotal / 1.18;
+    const gstSubtotal = subtotal - baseSubtotal;
+    const baseDelivery = deliveryCharge / 1.18;
+    const gstDelivery = deliveryCharge - baseDelivery;
+    const totalAmount = subtotal + deliveryCharge - (order.discount || 0);
+    const baseTotal = totalAmount / 1.18;
+    const gstTotal = totalAmount - baseTotal;
+
     const summaryItems = [
-      ['Subtotal:', subtotal],
-      ['Delivery Charge:', deliveryCharge]
+      ['Subtotal (Excl. GST):', baseSubtotal],
+      ['GST (18%) on Subtotal:', gstSubtotal],
+      ['Subtotal (Incl. GST):', subtotal],
+      // ['Delivery Charge (Excl. GST):', baseDelivery],
+      // ['GST (18%) on Delivery:', gstDelivery],
+      ['Delivery Charge :', deliveryCharge]
     ];
-    
+
     if (order.discount > 0) {
       summaryItems.push(['Discount:', -order.discount]);
     }
 
     doc.font('Times-Roman')
        .fontSize(10);
-    
+
     summaryItems.forEach(([label, value]) => {
       doc.text(label, summaryLeft, summaryY, { width: 100, align: 'right' })
-         .text(`${value.toFixed(2)}`, summaryLeft + 100, summaryY, { width: 100, align: 'right' });
+         .text(` ${Math.abs(value).toFixed(2)}`, summaryLeft + 100, summaryY, { width: 100, align: 'right' });
       summaryY += LINE_GAP;
     });
 
-    // Calculate the total
-    const totalAmount = subtotal + deliveryCharge - (order.discount || 0);
-
+    // Total
     doc.moveTo(summaryLeft, summaryY + 5)
        .lineTo(summaryLeft + summaryWidth, summaryY + 5)
        .stroke()
        .font('Times-Bold')
-       .text('Total:', summaryLeft, summaryY + 15, { width: 100, align: 'right' })
-       .text(`${totalAmount.toFixed(2)}`, summaryLeft + 100, summaryY + 15, { width: 100, align: 'right' });
+       .text('Total (Incl. GST):', summaryLeft, summaryY + 15, { width: 100, align: 'right' })
+       .text(` ${totalAmount.toFixed(2)}`, summaryLeft + 100, summaryY + 15, { width: 100, align: 'right' })
+       .font('Times-Roman')
+       .fontSize(8)
+   
 
     // Footer
-    const footerTop = summaryY + 200;
+    const footerTop = summaryY + 190;
     doc.font('Times-Italic')
        .fontSize(8)
        .text('Thank you for your purchase!', 0, footerTop, { width: PAGE_WIDTH, align: 'center' })

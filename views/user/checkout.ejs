@@ -231,12 +231,17 @@
         font-size: 13px;
       }
 
+
+
       .payment-methods label {
         display: flex;
         align-items: center;
         gap: 10px;
         font-size: 14px;
         margin-bottom: 10px;
+        padding: 15px 10px;
+        border: 1px solid #724a22;
+        border-radius: 5px;
       }
 
       .item-details .total-price {
@@ -490,8 +495,10 @@
             <label>
               <input type="radio" name="payment" value="COD" id="codOption">
               Cash On Delivery
+
             </label>
-            <p id="codMessage" class="cod-message" style="display: none;">COD is only available for orders below ₹5000
+            <p id="codMessage" class="cod-message" style="display: none;margin-top: 3px;">COD is only available for
+              orders below ₹5000
             </p>
             <label>
               <input type="radio" name="payment" value="Razorpay">
@@ -504,40 +511,41 @@
             </label>
           </div>
           <div class="order-details">
-            <% 
-              const baseSubtotal = subtotal / 1.18;
-              const gstSubtotal = subtotal - baseSubtotal;
-              const baseDelivery = deliveryCharge / 1.18;
-              const gstDelivery = deliveryCharge - baseDelivery;
-              const baseTotal = total / 1.18;
-              const gstTotal = total - baseTotal;
-            %>
-            <p><span>Subtotal (Excl. GST)</span> <span id="subtotalBase">
-                <%= new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(baseSubtotal.toFixed(2)) %>
-            </span></p>
-            <p><span>GST (18%) on Subtotal</span> <span id="subtotalGST">
-                <%= new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(gstSubtotal.toFixed(2)) %>
-            </span></p>
-            <p><span>Subtotal (Incl. GST)</span> <span id="subtotal">
-                <%= new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(subtotal.toFixed(2)) %>
-            </span></p>
+            <% const baseSubtotal=subtotal / 1.18; const gstSubtotal=subtotal - baseSubtotal; const
+              baseDelivery=deliveryCharge / 1.18; const gstDelivery=deliveryCharge - baseDelivery; const baseTotal=total
+              / 1.18; const gstTotal=total - baseTotal; %>
+              <p><span>Subtotal (Excl. GST)</span> <span id="subtotalBase">
+                  <%= new Intl.NumberFormat('en-IN', { style: 'currency' , currency: 'INR'
+                    }).format(baseSubtotal.toFixed(2)) %>
+                </span></p>
+              <p><span>GST (18%) on Subtotal</span> <span id="subtotalGST">
+                  <%= new Intl.NumberFormat('en-IN', { style: 'currency' , currency: 'INR'
+                    }).format(gstSubtotal.toFixed(2)) %>
+                </span></p>
+              <p><span>Subtotal (Incl. GST)</span> <span id="subtotal">
+                  <%= new Intl.NumberFormat('en-IN', { style: 'currency' , currency: 'INR'
+                    }).format(subtotal.toFixed(2)) %>
+                </span></p>
 
-            <p><span>Delivery Charge (Incl. GST)</span> <span id="deliveryCharge">
-                <%= new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(deliveryCharge.toFixed(2)) %>
-            </span></p>
-            <p><span>Discount</span> <span id="discount">
-                <%= new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(discount.toFixed(2)) %>
-            </span></p>
-            <p class="total"><span>Total (Incl. GST):</span> <span id="total">
-                <%= new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(total.toFixed(2)) %>
-            </span></p>
+              <p><span>Delivery Charge (Incl. GST)</span> <span id="deliveryCharge">
+                  <%= new Intl.NumberFormat('en-IN', { style: 'currency' , currency: 'INR'
+                    }).format(deliveryCharge.toFixed(2)) %>
+                </span></p>
+              <p><span>Discount</span> <span id="discount">
+                  <%= new Intl.NumberFormat('en-IN', { style: 'currency' , currency: 'INR'
+                    }).format(discount.toFixed(2)) %>
+                </span></p>
+              <p class="total"><span>Total (Incl. GST):</span> <span id="total">
+                  <%= new Intl.NumberFormat('en-IN', { style: 'currency' , currency: 'INR' }).format(total.toFixed(2))
+                    %>
+                </span></p>
 
           </div>
           <button class="place-order-btn" id="placeOrderBtn">Place Order</button>
         </div>
- 
-        </div>
+
       </div>
+    </div>
     </div>
 
     <!-- Add Address Modal -->
@@ -703,7 +711,7 @@
           applyCouponBtn.style.cursor = 'pointer';
         }
 
-        updateCODAvailability(); // Update COD availability after coupon changes
+        updateCODAvailability(); 
       }
 
       async function applyCoupon(couponCodeFromList = null) {
@@ -1072,134 +1080,142 @@
 
 
       async function placeOrder() {
-    try {
-      const selectedAddress = document.querySelector('.address-card.selected');
-      if (!selectedAddress) {
-        await showErrorAlert('Please select a shipping address');
-        return;
-      }
+        try {
+          const selectedAddress = document.querySelector('.address-card.selected');
+          if (!selectedAddress) {
+            await showErrorAlert('Please select a shipping address');
+            return;
+          }
 
-      const cartItems = document.querySelectorAll('.cart-item');
-      if (cartItems.length === 0) {
-        await showErrorAlert('Your cart is empty');
-        return;
-      }
+          const cartItems = document.querySelectorAll('.cart-item');
+          if (cartItems.length === 0) {
+            await showErrorAlert('Your cart is empty');
+            return;
+          }
 
-      const paymentMethod = document.querySelector('input[name="payment"]:checked').value;
-      const totalElement = document.getElementById('total').textContent;
-      const total = parseFloat(totalElement.replace(/[^0-9.]/g, ''));
+          const paymentMethod = document.querySelector('input[name="payment"]:checked').value;
+          const totalElement = document.getElementById('total').textContent;
+          const total = parseFloat(totalElement.replace(/[^0-9.]/g, ''));
 
-      if (paymentMethod === 'Razorpay') {
-        const response = await fetch('/create-razorpay-order', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            addressIndex: selectedAddressIndex,
-            couponCode: appliedCoupon,
-          }),
-        });
-        const data = await response.json();
-
-        if (!data.success) {
-          await showErrorAlert(data.message || 'Failed to initiate payment');
-          return;
-        }
-
-        let paymentCompleted = false;
-
-        const options = {
-          key: '<%= razorpayKeyId %>',
-          amount: data.order.amount,
-          currency: 'INR',
-          name: 'Jordan Express',
-          description: 'Order Payment',
-          order_id: data.order.id,
-          handler: async function (response) {
-            paymentCompleted = true;
-            const verifyResponse = await fetch('/verify-razorpay-payment', {
+          if (paymentMethod === 'Razorpay') {
+            const response = await fetch('/create-razorpay-order', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
-                razorpay_order_id: response.razorpay_order_id,
-                razorpay_payment_id: response.razorpay_payment_id,
-                razorpay_signature: response.razorpay_signature,
                 addressIndex: selectedAddressIndex,
                 couponCode: appliedCoupon,
-                orderId: data.orderId
               }),
             });
-            const verifyData = await verifyResponse.json();
+            const data = await response.json();
 
-            if (verifyData.success) {
-              window.location.href = `/order-success/${verifyData.orderId}`;
-            } else {
-              console.error('Payment verification failed:', verifyData);
-              window.location.href = `/payment-failure?orderId=${data.orderId}`;
+            if (!data.success) {
+              await showErrorAlert(data.message || 'Failed to initiate payment');
+              return;
             }
-          },
-          prefill: {
-            name: '<%= user.name || "Customer" %>',
-            email: '<%= user.email || "" %>',
-          },
-          theme: {
-            color: '#8b5a2b',
-          },
-          modal: {
-            ondismiss: async function () {
-              if (!paymentCompleted) {
-                console.log('Payment modal dismissed, orderId:', data.orderId);
-                try {
-                  await fetch('/cancel-razorpay-payment', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ orderId: data.orderId })
-                  });
-                } catch (error) {
-                  console.error('Error cancelling payment:', error);
+
+            let paymentCompleted = false;
+
+            const options = {
+              key: '<%= razorpayKeyId %>',
+              amount: data.order.amount,
+              currency: 'INR',
+              name: 'Jordan Express',
+              description: 'Order Payment',
+              order_id: data.order.id,
+              handler: async function (response) {
+                paymentCompleted = true;
+                const verifyResponse = await fetch('/verify-razorpay-payment', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    razorpay_order_id: response.razorpay_order_id,
+                    razorpay_payment_id: response.razorpay_payment_id,
+                    razorpay_signature: response.razorpay_signature,
+                    addressIndex: selectedAddressIndex,
+                    couponCode: appliedCoupon,
+                    orderId: data.orderId,
+                  }),
+                });
+                const verifyData = await verifyResponse.json();
+
+                if (verifyData.success) {
+                  window.location.href = `/order-success/${verifyData.orderId}`;
+                } else {
+                  console.error('Payment verification failed:', verifyData);
+                  window.location.href = `/payment-failure?orderId=${data.orderId}`;
                 }
-                showErrorAlert('Payment cancelled');
-                window.location.href = `/payment-failure?orderId=${data.orderId}`;
+              },
+              prefill: {
+                name: '<%= user.name || "Customer" %>',
+                email: '<%= user.email || "" %>',
+              },
+              theme: {
+                color: '#8b5a2b',
+              },
+              modal: {
+                ondismiss: async function () {
+                  if (!paymentCompleted) {
+                    console.log('Payment modal dismissed, orderId:', data.orderId);
+                    try {
+                      await fetch('/cancel-razorpay-payment', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ orderId: data.orderId }),
+                      });
+                    } catch (error) {
+                      console.error('Error cancelling payment:', error);
+                    }
+                    window.location.href = `/payment-failure?orderId=${data.orderId}`;
+                  }
+                },
+              },
+            };
+
+            const rzp = new Razorpay(options);
+
+            rzp.on('payment.failed', async function (response) {
+              console.error('Payment failed, orderId:', data.orderId, 'Error:', response.error);
+              try {
+                await fetch('/cancel-razorpay-payment', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ orderId: data.orderId }),
+                });
+              } catch (error) {
+                console.error('Error updating payment status on failure:', error);
               }
-            },
-          },
-        };
+              await showErrorAlert('Payment failed: ' + response.error.description);
+              window.location.href = `/payment-failure?orderId=${data.orderId}`;
+            });
 
-        const rzp = new Razorpay(options);
+            rzp.open();
+          } else {
+            showSuccessAlert('Processing your order...');
 
-        rzp.on('payment.failed', function (response) {
-          console.error('Payment failed, orderId:', data.orderId, 'Error:', response.error);
-          showErrorAlert('Payment failed');
-          window.location.href = `/payment-failure?orderId=${data.orderId}`;
-        });
+            const response = await fetch('/place-order', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                addressIndex: selectedAddressIndex,
+                paymentMethod,
+                couponCode: appliedCoupon,
+              }),
+            });
 
-        rzp.open();
-      } else {
-        showSuccessAlert('Processing your order...');
+            const data = await response.json();
 
-        const response = await fetch('/place-order', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            addressIndex: selectedAddressIndex,
-            paymentMethod,
-            couponCode: appliedCoupon,
-          }),
-        });
-
-        const data = await response.json();
-
-        if (data.success) {
-          await showSuccessAlert('Order placed successfully!');
-          window.location.href = '/order-success/' + data.orderId;
-        } else {
-          await showErrorAlert(data.message || 'Failed to place order');
+            if (data.success) {
+              await showSuccessAlert('Order placed successfully!');
+              window.location.href = '/order-success/' + data.orderId;
+            } else {
+              await showErrorAlert(data.message || 'Failed to place order');
+            }
+          }
+        } catch (error) {
+          console.error('Error placing order:', error);
+          await showErrorAlert('An error occurred while placing the order');
         }
       }
-    } catch (error) {
-      console.error('Error placing order:', error);
-      await showErrorAlert('An error occurred while placing the order');
-    }
-  }
 
 
       async function showSuccessAlert(message) {

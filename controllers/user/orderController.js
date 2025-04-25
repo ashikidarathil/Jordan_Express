@@ -716,7 +716,7 @@ const createRazorpayOrder = async (req, res) => {
       invoiceNumber,
       couponApplied: !!couponCode,
       couponCode: couponCode || null,
-      paymentStatus: 'Pending'
+      paymentStatus: 'Pending' 
     });
 
     await order.save();
@@ -803,17 +803,6 @@ const cancelRazorpayPayment = async (req, res) => {
 
     order.paymentStatus = 'Failed';
     await order.save();
-
-    // for (const item of order.orderItems) {
-    //   const product = await Product.findById(item.product);
-    //   if (product) {
-    //     const sizeVariant = product.size.find(s => s.size === item.size);
-    //     if (sizeVariant) {
-    //       sizeVariant.quantity += item.quantity;
-    //       await product.save();
-    //     }
-    //   }
-    // }
 
     res.status(200).json({ success: true, orderId });
   } catch (error) {

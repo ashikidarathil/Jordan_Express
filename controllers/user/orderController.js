@@ -462,7 +462,6 @@ const cancelOrder = async (req, res) => {
         }
       }
     } else {
-      // Cancel entire order
       for (const item of order.orderItems) {
         if (['Pending', 'Processing'].includes(item.status)) {
           item.status = 'Cancelled';
@@ -493,11 +492,22 @@ const cancelOrder = async (req, res) => {
 
     await order.save();
 
-    // Process refund if applicable
+ 
     if (refundAmount > 0 && order.paymentStatus === 'Paid') {
       let wallet = await Wallet.findOne({ userID: userId });
       if (!wallet) {
         wallet = new Wallet({ userID: userId });
+      }
+
+      let newRefundAmount = 0
+
+      if(productId){
+        let product = await Product.findById(productId)
+        let sizeVariant = product.size.find(s => s.size === itemsToCancel.size)
+
+        if(sizeVariant.quantity < 5 && product.productOffer === 0){
+          newRefundAmount = refundAmount * 0.50
+        }
       }
       wallet.balance += refundAmount;
       wallet.transactions.push({

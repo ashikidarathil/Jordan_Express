@@ -498,17 +498,6 @@ const cancelOrder = async (req, res) => {
       if (!wallet) {
         wallet = new Wallet({ userID: userId });
       }
-
-      let newRefundAmount = 0
-
-      if(productId){
-        let product = await Product.findById(productId)
-        let sizeVariant = product.size.find(s => s.size === itemsToCancel.size)
-
-        if(sizeVariant.quantity < 5 && product.productOffer === 0){
-          newRefundAmount = refundAmount * 0.50
-        }
-      }
       wallet.balance += refundAmount;
       wallet.transactions.push({
         type: 'credit',

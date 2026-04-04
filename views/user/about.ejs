@@ -1,132 +1,316 @@
 <%- include('../partials/user/header') %>
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>About Us - Jordan Express</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <style>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+  :root {
+    --primary: #895D39;
+    --primary-dark: #5A3A22;
+    --primary-light: #FDF8F4;
+    --text-main: #2D3436;
+    --text-muted: #636E72;
+    --bg-alt: #F9F9F9;
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
 
-  
+  .about-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
 
+  /* Hero Section */
+  .about-hero {
+    margin-top: 0 !important;
+    padding: 60px 0 40px;
+    text-align: center;
+    background: linear-gradient(to bottom, var(--primary-light), #fff);
+  }
 
-    .container {
-      
-      margin: 0 auto;
-      margin-bottom: 100px;
-      margin-top: 100px;
-      margin-right: 150px;
-      margin-left: 150px;
-      
-  
-      
-      
-      
-    }
-    .logo {
-      max-width: 300px;
-      height: auto;
-      margin-bottom: 20px;
-    }
-    .title {
-      font-size: 28px;
-      color: #895D39  ;
-      margin-bottom: 20px;
-      font-weight: 600;
-      margin-top: 10px;
-    }
-    .description {
-      font-size: 16px;
-      color: #666;
-      line-height: 1.6;
-      margin-bottom: 30px;
-    }
-    .shop-btn {
-      padding: 10px 20px;
-      background-color: #895D39  ;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      font-size: 14px;
-      font-weight: 500;
-      text-decoration: none;
-    }
-    .shop-btn:hover {
-      background-color: #5A3A22;
-    }
-    .features {
-      display: flex;
-      justify-content: space-around;
-      margin-top: 40px;
-      flex-wrap: wrap;
-      padding: 0px 100px;
-    }
-    .feature-item {
-      width: 350px;
-      text-align: center;
+  .hero-badge {
+    display: inline-block;
+    padding: 8px 20px;
+    background: rgba(137, 93, 57, 0.1);
+    color: var(--primary);
+    border-radius: 50px;
+    font-size: 14px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 25px;
+  }
 
-      padding: 20px;
-      border-radius: 10px;
-     
-    }
-    .feature-item i{
-      margin-bottom: 10px;
-    }
-    .feature-icon {
-      font-size: 40px;
-      color: #895D39  ;
-      margin-bottom: 10px;
-    }
-    .feature-title {
-      font-size: 18px;
-      color: #895D39  ;
-      margin-bottom: 10px;
-      margin-bottom: 10px;
-    
-    }
-    .feature-text {
-      font-size: 14px;
-      color: #666;
-    }
-  </style>
-</head>
-<body>
+  .about-hero h1 {
+    font-size: 48px;
+    font-weight: 900;
+    margin-bottom: 20px;
+    color: var(--text-main);
+  }
 
+  .about-hero p {
+    max-width: 600px;
+    margin: 0 auto;
+    font-size: 18px;
+    color: var(--text-muted);
+    line-height: 1.6;
+  }
 
-    <div class="features">
-      <div class="feature-item">
-        <i class="fas fa-shopping-bag" style="color: #895D39  ;font-size: 44px;"></i>
-        <h3 class="feature-title">Free Shipping</h3>
-        <p class="feature-text">Far far away, behind the word mountains, far from the countries Vokalia and Consonantia, there live the blind texts.</p>
-      </div>
-      <div class="feature-item">
-        <i class="fas fa-headset" style="color: #895D39  ;font-size: 44px;"></i>
-        <h3 class="feature-title">Support Customer</h3>
-        <p class="feature-text">Far far away, behind the word mountains, far from the countries Vokalia and Consonantia, there live the blind texts.</p>
-      </div>
-      <div class="feature-item">
-        <i class="fas fa-lock" style="color: #895D39  ;font-size: 44px;"></i>
-        <h3 class="feature-title">Secure Payments</h3>
-        <p class="feature-text">Far far away, behind the word mountains, far from the countries Vokalia and Consonantia, there live the blind texts.</p>
-      </div>
+  /* Stats Grid */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 30px;
+    margin: -40px auto 100px;
+    background: white;
+    padding: 40px;
+    border-radius: 30px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.05);
+    position: relative;
+    z-index: 2;
+  }
+
+  .stat-item {
+    text-align: center;
+    border-right: 1px solid #f1f1f1;
+  }
+
+  .stat-item:last-child { border-right: none; }
+
+  .stat-number {
+    display: block;
+    font-size: 36px;
+    font-weight: 800;
+    color: var(--primary);
+    margin-bottom: 5px;
+  }
+
+  .stat-label {
+    font-size: 14px;
+    color: var(--text-muted);
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+
+  /* Our Story Section */
+  .story-section {
+    padding: 100px 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: center;
+  }
+
+  .story-image {
+    position: relative;
+    border-radius: 40px;
+    overflow: hidden;
+    box-shadow: 0 30px 60px rgba(0,0,0,0.1);
+  }
+
+  .story-image img {
+    width: 100%;
+    display: block;
+    transition: var(--transition);
+  }
+
+  .story-image:hover img {
+    transform: scale(1.05);
+  }
+
+  .story-content h2 {
+    font-size: 36px;
+    font-weight: 800;
+    margin-bottom: 25px;
+    color: var(--text-main);
+  }
+
+  .story-content p {
+    font-size: 16px;
+    color: var(--text-muted);
+    line-height: 1.8;
+    margin-bottom: 30px;
+  }
+
+  /* Benefits Grid */
+  .benefits-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 40px;
+    padding: 100px 0;
+  }
+
+  .benefit-card {
+    background: var(--bg-alt);
+    padding: 50px 40px;
+    border-radius: 30px;
+    text-align: center;
+    transition: var(--transition);
+    border: 1px solid transparent;
+  }
+
+  .benefit-card:hover {
+    background: white;
+    border-color: var(--primary);
+    transform: translateY(-10px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.05);
+  }
+
+  .benefit-icon {
+    width: 80px;
+    height: 80px;
+    background: white;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 30px;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.03);
+    transition: var(--transition);
+  }
+
+  .benefit-card:hover .benefit-icon {
+    background: var(--primary);
+    color: white;
+  }
+
+  .benefit-icon i {
+    font-size: 32px;
+    color: var(--primary);
+  }
+
+  .benefit-card:hover .benefit-icon i { color: white; }
+
+  .benefit-card h3 {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 15px;
+  }
+
+  .benefit-card p {
+    font-size: 14px;
+    color: var(--text-muted);
+    line-height: 1.6;
+  }
+
+  /* CTA Section */
+  .about-cta {
+    margin: 100px 0;
+    padding: 80px;
+    background: var(--primary);
+    border-radius: 40px;
+    text-align: center;
+    color: white;
+  }
+
+  .about-cta h2 {
+    font-size: 32px;
+    font-weight: 800;
+    margin-bottom: 20px;
+  }
+
+  .about-cta p {
+    font-size: 18px;
+    margin-bottom: 40px;
+    opacity: 0.9;
+  }
+
+  .btn-white {
+    background: white;
+    color: var(--primary);
+    padding: 18px 45px;
+    border-radius: 15px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: var(--transition);
+    display: inline-block;
+  }
+
+  .btn-white:hover {
+    transform: scale(1.05);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+  }
+
+  /* Responsive */
+  @media (max-width: 991px) {
+    .stats-row { grid-template-columns: repeat(2, 1fr); margin: 0 auto 50px; }
+    .stat-item:nth-child(2) { border-right: none; }
+    .story-section { grid-template-columns: 1fr; gap: 50px; }
+    .benefits-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  @media (max-width: 768px) {
+    .about-hero { padding: 40px 0 20px; }
+    .about-hero h1 { font-size: 36px; }
+    .stats-row { grid-template-columns: 1fr; }
+    .stat-item { border-right: none; border-bottom: 1px solid #f1f1f1; padding-bottom: 20px; }
+    .stat-item:last-child { border-bottom: none; }
+    .benefits-grid { grid-template-columns: 1fr; }
+    .about-cta { padding: 40px 20px; }
+  }
+</style>
+
+<section class="about-hero">
+  <div class="about-container">
+    <span class="hero-badge">Since 2022</span>
+    <h1>Our Journey of Style</h1>
+    <p>Redefining footwear through premium craftsmanship and a passion for comfort. Jordan Express is where performance meets elegance.</p>
+  </div>
+</section>
+
+<div class="about-container">
+  <div class="stats-row">
+    <div class="stat-item">
+      <span class="stat-number">2Y+</span>
+      <span class="stat-label">In Business</span>
     </div>
-
-    <div class="container" style="display: flex;background-color: rgb(243, 242, 242);padding: 50px;">
-     <div>
-      <img src="/image/logo.png" alt="Jordan Express Logo" class="logo" style="margin-right: 50px;width: 220px;margin-left: 50px;">
-     </div>
-    <div style="margin-left: 0px;max-width: 700px;">
-      <h1 class="title">Established Since 2022</h1>
-      <p class="description">
-        But nothing the copy said could convince her and so it didn't take long until a few insidious Copy Writers ambushed her, made her drunk with Longe and Parole and dragged her into their agency, where they abused her for their. But nothing the copy said could convince her.
-      </p>
-      <a href="/shop" class="shop-btn">Shop now</a>
+    <div class="stat-item">
+      <span class="stat-number">10K+</span>
+      <span class="stat-label">Happy Clients</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-number">150+</span>
+      <span class="stat-label">Stock Units</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-number">24/7</span>
+      <span class="stat-label">Expert Support</span>
     </div>
   </div>
-</body>
-</html>
+
+  <section class="story-section">
+    <div class="story-image">
+      <img src="/image/established.jpg" onerror="this.src='https://images.unsplash.com/photo-1549298916-b41d501d3772?auto=format&fit=crop&q=80&w=1200'" alt="Jordan Express Story">
+    </div>
+    <div class="story-content">
+      <h2>Crafted for the Modern Lifestyle</h2>
+      <p>Founded in 2022, Jordan Express began with a simple mission: to bridge the gap between high-end athletic performance and daily urban style. We believe that what you wear on your feet defines your path.</p>
+      <p>Every pair in our collection is handpicked to ensure the highest standards of durability and comfort. Our commitment to excellence has made us a trusted name for shoe enthusiasts worldwide.</p>
+      <a href="/shop" class="btn-dash btn-dash-primary" style="padding: 15px 35px; border-radius: 12px; font-weight: 700; text-decoration: none; color: white;">Explore Collection</a>
+    </div>
+  </section>
+
+  <section class="benefits-grid">
+    <div class="benefit-card">
+      <div class="benefit-icon"><i class="fas fa-shipping-fast"></i></div>
+      <h3>Free Shipping</h3>
+      <p>We believe in transparent pricing. That's why we offer worldwide free shipping on all premium orders.</p>
+    </div>
+    <div class="benefit-card">
+      <div class="benefit-icon"><i class="fas fa-shield-alt"></i></div>
+      <h3>Secure Shopping</h3>
+      <p>Your transactions are protected by industry-leading encryption. Shop with 100% confidence.</p>
+    </div>
+    <div class="benefit-card">
+      <div class="benefit-icon"><i class="fas fa-undo"></i></div>
+      <h3>Easy Returns</h3>
+      <p>Not the perfect fit? No worries. Our hassle-free return policy ensures you find the right pair.</p>
+    </div>
+  </section>
+
+  <div class="about-cta">
+    <h2>Step Into the Future of Style</h2>
+    <p>Join thousands of satisfied customers and experience the Jordan Express difference today.</p>
+    <a href="/shop" class="btn-white">Shop Latest Releases</a>
+  </div>
+</div>
 
 <%- include('../partials/user/footer') %>

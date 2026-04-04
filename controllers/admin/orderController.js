@@ -169,7 +169,7 @@ const verifyReturnRequest = async (req, res) => {
       wallet.transactions.push({
         type: 'credit',
         amount: refundAmount,
-        description: item.returnReason,
+        description: `Refund for returned order items from ${orderId}`,
         orderID: orderId
       });
       await wallet.save();

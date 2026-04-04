@@ -1,353 +1,388 @@
 <%- include('../partials/user/header') %>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <style>
-        .discount-badge {
+
+
+        /* Hero Custom Adjustments */
+        .hero {
+            padding: 85px 0 0 0;
+            background-color: #fff;
+            height: auto !important;
+            margin: 0 !important;
+        }
+        .hero .slider-container {
+            background-color: #fdf5e6;
+            border-radius: 20px;
+            overflow: hidden;
+            position: relative;
+            min-height: 450px;
+            display: flex;
+            align-items: center;
+        }
+        .hero .slide-content {
+            padding: 40px;
+            opacity: 0;
+            display: none;
+            transition: opacity 0.5s ease;
+        }
+        .hero .slide-content.active {
+            display: block;
+            opacity: 1;
+        }
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin: 20px 0;
+            line-height: 1.1;
+        }
+        .hero h1 span { color: var(--primary-color); }
+        
+        /* Banner Styles */
+        .banner-card {
+            position: relative;
+            border-radius: 15px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+        .banner-card img {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+        .banner-card:hover img { transform: scale(1.05); }
+        .banner-card::after {
+            content: '';
             position: absolute;
-            top: 1.5rem;
-            left: 1.2rem;
-            background-color: #FFD700;
-            color: #895D39;
-            font-size: 4px;
-            font-weight: 600;
-            padding: 5px 10px;
-            border-radius: 5px;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 75%;
+            background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, transparent 100%);
+            pointer-events: none;
+            z-index: 1;
+        }
+        .banner-text {
+            position: absolute;
+            bottom: 25px;
+            right: 25px;
+            text-align: right;
+            color: #fff;
+            z-index: 2;
+        }
+        .banner-text h5 { font-size: 1.8rem; font-weight: 700; margin: 5px 0 15px; }
+        .banner-text .btn { font-size: 0.75rem !important; font-weight: 600; letter-spacing: 0.5px; }
+
+        
+
+
+        @media (max-width: 768px) {
+            .hero { padding: 60px 0 0 0 !important; margin: 0 !important; height: auto !important; }
+            .hero h1 { font-size: 1.6rem; margin: 10px 0; }
+            .hero .lead { font-size: 0.85rem; margin-bottom: 1.5rem !important; }
+            .hero .slider-container { min-height: auto !important; padding: 10px !important; }
+            .hero .slide-content { padding: 30px 55px; } 
+            .hero .arrow-left, .hero .arrow-right { width: 38px !important; height: 38px !important; } 
+            .hero .btn-primary-custom { padding: 6px 10px !important; font-size: 0.65rem !important; }
+        }
+
+        .hero .arrow-left, .hero .arrow-right {
+            display: flex !important;
+            align-items: center;
+            justify-content: center;
+            padding: 0 !important;
         }
 
         .modal-container {
             display: none;
             position: fixed;
-            top: 80px;
+            top: 100px;
             right: 20px;
-            z-index: 1000;
+            z-index: 2000;
+        }
+        .modal-content-custom {
+            padding: 15px 25px;
+            border-radius: 10px;
+            color: #fff;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
             animation: slideIn 0.5s forwards;
         }
-
-        .modal-content {
-            background-color: #f8f8f8;
-            border-left: 4px solid #8b5a2b;
-            font-size: 14px;
-            font-weight: 600;
-            padding: 15px 20px;
-            border-radius: 4px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            max-width: 300px;
-            border-radius: 20px;
-            position: relative;
-        }
-
-        .modal-error .modal-content {
-            border: none;
-            background-color: #ff3333;
-            color: white;
-        }
-
-        .modal-success .modal-content {
-            background-color: #33cc33;
-            border: none;
-            color: white;
-        }
+        .modal-success-bg { background-color: #28a745; }
+        .modal-error-bg { background-color: #dc3545; }
 
         @keyframes slideIn {
-            from {
-                transform: translateX(100%);
-            }
-
-            to {
-                transform: translateX(0);
-            }
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
         }
-
         @keyframes slideOut {
-            from {
-                transform: translateX(0);
-            }
-
-            to {
-                transform: translateX(100%);
-            }
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100%); opacity: 0; }
         }
     </style>
 
     <div id="modal-container" class="modal-container">
-        <div class="modal-content">
-            <p id="modal-message"></p>
+        <div id="modal-content-box" class="modal-content-custom">
+            <p id="modal-message" class="mb-0"></p>
         </div>
     </div>
 
+    <!-- Hero Section -->
     <section class="hero">
-        <div class="contnaier">
-            <!-- Slider Wrapper -->
-            <div class="slider-wrapper">
-                <!-- Slides -->
-                <div class="content active">
-                    <p>New Shop Collection</p>
-                    <h1>Find Your Favorite <br> <span>Clothing Collection</span></h1>
-                    <p>up to 40% off final sale items.</p>
-                    <p class="last-p">caught in the moment!</p>
-                    <a href="#" class="btn">Show Collection</a>
-                </div>
-                <div class="content">
-                    <p>Winter Sale 2025</p>
-                    <h1>Explore New <br> <span>Winter Styles</span></h1>
-                    <p>up to 50% off on selected items.</p>
-                    <p class="last-p">stay warm in style!</p>
-                    <a href="#" class="btn">Shop Now</a>
-                </div>
-                <div class="content">
-                    <p>Summer Vibes</p>
-                    <h1>Discover <br> <span>Summer Trends</span></h1>
-                    <p>up to 30% off summer collection.</p>
-                    <p class="last-p">shine bright!</p>
-                    <a href="#" class="btn">Explore More</a>
-                </div>
-            </div>
-            <!-- Navigation Arrows -->
-            <div class="slider-arrows">
-                <button class="arrow-left"><i class="fa-solid fa-chevron-left"></i></button>
-                <button class="arrow-right"><i class="fa-solid fa-chevron-right"></i></button>
-            </div>
-        </div>
-    </section>
-
-    <section class="banner">
-        <div class="boxs contnaier">
-            <div class="box">
-                <img src="/image/small-bann-1.jpg" alt="">
-                <div class="text">
-                    <span>Men's</span>
-                    <h5>New Arrival</h5>
-                    <a href="#" class="btn">Discover Now</a>
-                </div>
-            </div>
-
-            <div class="box">
-                <img src="/image/small-bann-2.jpg" alt="">
-                <div class="text">
-                    <span>Your Looks</span>
-                    <h5>Must Haves</h5>
-                    <a href="#" class="btn">Discover Now</a>
-                </div>
-            </div>
-
-            <div class="box">
-                <img src="/image/small-bann-3.jpg" alt="">
-                <div class="text">
-                    <span>Your Looks</span>
-                    <h5>Must Haves</h5>
-                    <a href="#" class="btn">Discover Now</a>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section class="products">
         <div class="container">
-            <div class="top-sec">
-                <h3>New Products</h3>
+            <div class="slider-container px-4 px-md-5">
+                <!-- Slides -->
+                <div class="slider-wrapper w-100">
+                    <div class="slide-content active">
+                        <p class="text-uppercase tracking-wider text-muted mb-2">New Shop Collection</p>
+                        <h1>Find Your Favorite <br> <span>Clothing Collection</span></h1>
+                        <p class="lead mb-4">Up to 40% off final sale items. Caught in the moment!</p>
+                        <a href="/shop" class="btn btn-sm btn-primary-custom px-3 py-2" style="font-size: 0.85rem;">Show Collection</a>
+                    </div>
+                    <div class="slide-content">
+                        <p class="text-uppercase tracking-wider text-muted mb-2">Winter Sale 2025</p>
+                        <h1>Explore New <br> <span>Winter Styles</span></h1>
+                        <p class="lead mb-4">Up to 50% off on selected items. Stay warm in style!</p>
+                        <a href="/shop" class="btn btn-sm btn-primary-custom px-3 py-2" style="font-size: 0.85rem;">Shop Now</a>
+                    </div>
+                    <div class="slide-content">
+                        <p class="text-uppercase tracking-wider text-muted mb-2">Summer Vibes</p>
+                        <h1>Discover <br> <span>Summer Trends</span></h1>
+                        <p class="lead mb-4">Up to 30% off summer collection. Shine bright!</p>
+                        <a href="/shop" class="btn btn-sm btn-primary-custom px-3 py-2" style="font-size: 0.85rem;">Explore More</a>
+                    </div>
+                </div>
+
+                <!-- Navigation Arrows -->
+                <div class="position-absolute top-50 start-0 translate-middle-y ps-3">
+                    <button class="btn btn-light rounded-circle shadow-sm arrow-left" style="width: 45px; height: 45px;"><i class="fa-solid fa-chevron-left"></i></button>
+                </div>
+                <div class="position-absolute top-50 end-0 translate-middle-y pe-3">
+                    <button class="btn btn-light rounded-circle shadow-sm arrow-right" style="width: 45px; height: 45px;"><i class="fa-solid fa-chevron-right"></i></button>
+                </div>
             </div>
-            <div class="items">
-                <% for(let i=0; i < products.length; i++) { %>
-                    <div class="item">
-                        <a href="/productDetails?id=<%= products[i]._id %>">
-                            <img src="uploads/product-image/<%= products[i].productImage[0] %>"
-                                alt="<%= products[i].productName %>">
-                        </a>
-                        <div class="product-desc">
-                            <a href="/productDetails?id=<%= products[i]._id %>" class="title-prod">
-                                <%= products[i].productName %>
-                            </a>
-                            <div class="stars">
-                                <i class="fa-solid fa-star"></i>
-                                <i class="fa-solid fa-star"></i>
-                                <i class="fa-solid fa-star"></i>
-                                <i class="fa-solid fa-star"></i>
-                                <i class="fa-solid fa-star-half-stroke"></i>
-                            </div>
-                            <div class="price">
-                                <span>
-                                    <%= new Intl.NumberFormat('en-IN', { style: 'currency' , currency: 'INR' ,
-                                        minimumFractionDigits: 0, maximumFractionDigits: 0
-                                        }).format(products[i].salePrice) %>
-                                </span>
-                                <% if (products[i].discountPercentage> 0) { %>
-                                    <del>
-                                        <%= new Intl.NumberFormat('en-IN', { style: 'currency' , currency: 'INR' ,
-                                            minimumFractionDigits: 0, maximumFractionDigits: 0
-                                            }).format(products[i].regularPrice) %>
-                                    </del>
-                                    <span class="discount-badge" style="font-size: 12px;">
-                                        <%= products[i].discountPercentage %>% OFF
-                                    </span>
-                                    <% } %>
-                            </div>
-<div class="icon-product">
-  <a href="#" class="wishlist-icon" data-product-id="<%= products[i]._id %>" title="Add to Wishlist">
-    <i class="fa-regular fa-heart"></i>
-  </a>
-  <a href="/productDetails?id=<%= products[i]._id %>"><i class="fa-solid fa-cart-shopping"></i></a>
-  <a href="#"><i class="fa-solid fa-right-left"></i></a>
-</div>
+        </div>
+    </section>
+
+    <!-- Banner Section -->
+    <section class="pb-5 pt-0">
+        <div class="container">
+
+            <!-- Section Heading -->
+            <div class="text-center mb-4">
+                <h2 class="section-title">Category</h2>
+            </div>
+            <!-- Desktop: 3-column grid (hidden on mobile) -->
+            <div class="row g-4 d-none d-md-flex">
+                <div class="col-md-4">
+                    <div class="banner-card">
+                        <img src="/image/small-bann-1.jpg" alt="Men's Collection">
+                        <div class="banner-text">
+                            <span class="text-uppercase small fw-bold">Men's</span>
+                            <h5>New Arrival</h5>
+                            <a href="/shop" class="btn btn-sm btn-light px-2 py-1">Discover Now</a>
                         </div>
                     </div>
-                    <% } %>
+                </div>
+                <div class="col-md-4">
+                    <div class="banner-card">
+                        <img src="/image/small-bann-2.jpg" alt="Your Looks">
+                        <div class="banner-text">
+                            <span class="text-uppercase small fw-bold">Trending</span>
+                            <h5>Must Haves</h5>
+                            <a href="/shop" class="btn btn-sm btn-light px-2 py-1">Discover Now</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="banner-card">
+                        <img src="/image/small-bann-3.jpg" alt="Must Haves">
+                        <div class="banner-text">
+                            <span class="text-uppercase small fw-bold">Seasonal</span>
+                            <h5>Top Picks</h5>
+                            <a href="/shop" class="btn btn-sm btn-light px-2 py-1">Discover Now</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mobile: Auto-cycling Carousel (hidden on desktop) -->
+            <div id="bannerCarousel" class="carousel slide d-md-none" data-bs-ride="carousel" data-bs-interval="3500" data-bs-touch="true">
+                <!-- Slides -->
+                <div class="carousel-inner rounded-4 overflow-hidden">
+                    <div class="carousel-item active">
+                        <div class="banner-card" style="border-radius: 16px;">
+                            <img src="/image/small-bann-1.jpg" alt="Men's Collection">
+                            <div class="banner-text">
+                                <span class="text-uppercase small fw-bold">Men's</span>
+                                <h5>New Arrival</h5>
+                                <a href="/shop" class="btn btn-sm btn-light px-2 py-1">Discover Now</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="carousel-item">
+                        <div class="banner-card" style="border-radius: 16px;">
+                            <img src="/image/small-bann-2.jpg" alt="Trending">
+                            <div class="banner-text">
+                                <span class="text-uppercase small fw-bold">Trending</span>
+                                <h5>Must Haves</h5>
+                                <a href="/shop" class="btn btn-sm btn-light px-2 py-1">Discover Now</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="carousel-item">
+                        <div class="banner-card" style="border-radius: 16px;">
+                            <img src="/image/small-bann-3.jpg" alt="Seasonal">
+                            <div class="banner-text">
+                                <span class="text-uppercase small fw-bold">Seasonal</span>
+                                <h5>Top Picks</h5>
+                                <a href="/shop" class="btn btn-sm btn-light px-2 py-1">Discover Now</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Product Section -->
+    <section class="products pb-5 pt-4 bg-light">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="section-title">New Arrivals</h2>
+            </div>
+            
+            <div class="row g-4 mb-5">
+                <% for(let i=0; i < products.length; i++) { %>
+                    <div class="col-6 col-md-4 col-lg-3">
+                        <div class="product-card-custom item position-relative h-100">
+                            <% if (products[i].discountPercentage > 0) { %>
+                                <span class="discount-badge"><%= products[i].discountPercentage %>% OFF</span>
+                            <% } %>
+                            
+                            <a href="/productDetails?id=<%= products[i]._id %>" class="d-block overflow-hidden">
+                                <img src="uploads/product-image/<%= products[i].productImage[0] %>" 
+                                     alt="<%= products[i].productName %>" class="img-fluid w-100" style="aspect-ratio: 1; object-fit: cover;">
+                            </a>
+                            
+                            <div class="p-3 text-center">
+                                <a href="/productDetails?id=<%= products[i]._id %>" class="text-decoration-none text-dark fw-bold d-block mb-1 text-truncate">
+                                    <%= products[i].productName %>
+                                </a>
+                                <div class="text-warning small mb-2">
+                                    <i class="fa-solid fa-star"></i>
+                                    <i class="fa-solid fa-star"></i>
+                                    <i class="fa-solid fa-star"></i>
+                                    <i class="fa-solid fa-star"></i>
+                                    <i class="fa-solid fa-star-half-stroke"></i>
+                                </div>
+                                <div class="price">
+                                    <span class="fw-bold text-primary-custom fs-5">
+                                        <%= new Intl.NumberFormat('en-IN', { style: 'currency' , currency: 'INR' , minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(products[i].salePrice) %>
+                                    </span>
+                                    <% if (products[i].discountPercentage > 0) { %>
+                                        <del class="text-muted small ms-2" style="text-decoration: line-through !important;">
+                                            <%= new Intl.NumberFormat('en-IN', { style: 'currency' , currency: 'INR' , minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(products[i].regularPrice) %>
+                                        </del>
+                                    <% } %>
+                                </div>
+                            </div>
+                            
+                            <!-- Overlay Icons -->
+                            <div class="icon-product">
+                                <a href="#" class="wishlist-icon shadow-sm" data-product-id="<%= products[i]._id %>" title="Add to Wishlist">
+                                    <i class="fa-regular fa-heart"></i>
+                                </a>
+                                <a href="/productDetails?id=<%= products[i]._id %>" class="shadow-sm" title="View Details">
+                                    <i class="fa-solid fa-cart-shopping"></i>
+                                </a>
+                                <a href="#" title="Compare">
+                                    <i class="fa-solid fa-right-left"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                <% } %>
             </div>
         </div>
     </section>
 
-
-    <section class="banner-2">
-        <div class="contnaier">
-            <div class="content">
-                <span>hurry ip and get 25% discount</span>
-                <h3>deals of the week</h3>
-                <p>Lorem ipsum dolor sit amet consectetur
-                    adipisicing elit. Dignissimos, nesciunt? Unde voluptas doloribus quia et.</p>
-                <a href="#" class="btn">Show Collection</a>
+    <!-- Deals Section -->
+    <section class="banner-2 py-5">
+        <div class="container">
+            <div class="rounded-4 p-5 text-white" style="background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('/img/banne-2.png'); background-size: cover; background-position: center; min-height: 400px; display: flex; align-items: center;">
+                <div class="col-md-6 col-lg-5">
+                    <span class="text-uppercase fw-bold tracking-wider mb-2 d-block" style="color: var(--accent-color);">Hurry up and get 25% discount</span>
+                    <h3 class="display-4 fw-bold mb-3">Deals of the Week</h3>
+                    <p class="lead mb-4">Discover the best offers on our premium clothing collection. Limited time only!</p>
+                    <a href="/shop" class="btn btn-sm btn-primary-custom px-3 py-2" style="font-size: 0.85rem;">Show Collection</a>
+                </div>
             </div>
         </div>
     </section>
-
-
-
-
-
-    <!-- <section class="blog">
-        <div class="contnaier">
-            <div class="top-sec">
-                <h3>From The Blog</h3>
-            </div>
-
-            <div class="boxs">
-                <div class="box">
-                    <img src="img/blog1.jpg" alt="">
-                    <div class="desc-blog">
-                        <span>February 03, 2023</span>
-                        <h4>lauryn hill could make tulle skirt and cowboy</h4>
-                        <a href="#" class="btn">Read More</a>
-                    </div>
-                </div>
-
-                <div class="box">
-                    <img src="img/blog2.jpg" alt="">
-                    <div class="desc-blog">
-                        <span>February 03, 2023</span>
-                        <h4>lauryn hill could make tulle skirt and cowboy</h4>
-                        <a href="#" class="btn">Read More</a>
-                    </div>
-                </div>
-
-                <div class="box">
-                    <img src="img/blog3.jpg" alt="">
-                    <div class="desc-blog">
-                        <span>February 03, 2023</span>
-                        <h4>lauryn hill could make tulle skirt and cowboy</h4>
-                        <a href="#" class="btn">Read More</a>
-                    </div>
-                </div>
-
-                <div class="box">
-                    <img src="img/blog4.jpg" alt="">
-                    <div class="desc-blog">
-                        <span>February 03, 2023</span>
-                        <h4>lauryn hill could make tulle skirt and cowboy</h4>
-                        <a href="#" class="btn">Read More</a>
-                    </div>
-                </div>
-
-                <!-- 4 boxs -->
-    <!-- </div>
-        </div>
-    </section> -->
-
-
-    <!-- <div class="newsletter">
-        <div class="contnaier">
-            <div class="text">
-                <h4>sign up to newsletter</h4>
-                <p>Get email updates about our latest shop...and receive</p>
-            </div>
-
-            <div class="subscribe-form">
-                <form action="">
-                    <input type="email" placeholder="enter your email here...">
-                    <button class="btn-srch">Subscribe</button>
-                </form>
-            </div>
-        </div>
-    </div> -->
-
 
     <script>
-        // JavaScript for Sliding Functionality
+        // JavaScript for Hero Slider
         document.addEventListener('DOMContentLoaded', () => {
-            const slides = document.querySelectorAll('.slider-wrapper .content');
+            const slides = document.querySelectorAll('.slide-content');
             const leftArrow = document.querySelector('.arrow-left');
             const rightArrow = document.querySelector('.arrow-right');
             let currentIndex = 0;
 
-            // Function to show the current slide
             function showSlide(index) {
                 slides.forEach((slide, i) => {
                     slide.classList.toggle('active', i === index);
                 });
             }
 
-            // Initial slide
-            showSlide(currentIndex);
-
-            // Left arrow click
             leftArrow.addEventListener('click', () => {
                 currentIndex = (currentIndex - 1 + slides.length) % slides.length;
                 showSlide(currentIndex);
             });
 
-            // Right arrow click
             rightArrow.addEventListener('click', () => {
                 currentIndex = (currentIndex + 1) % slides.length;
                 showSlide(currentIndex);
             });
 
-            // Optional: Auto-slide every 5 seconds
             setInterval(() => {
                 currentIndex = (currentIndex + 1) % slides.length;
                 showSlide(currentIndex);
             }, 5000);
         });
 
-
-
-        // Modal Functions
+        // Modal Notification Logic
         function showModal(message, type = 'info') {
-            const modal = document.getElementById('modal-container');
-            const modalMessage = document.getElementById('modal-message');
-            modal.className = 'modal-container';
+            const container = document.getElementById('modal-container');
+            const contentBox = document.getElementById('modal-content-box');
+            const msgP = document.getElementById('modal-message');
+            
+            contentBox.classList.remove('modal-success-bg', 'modal-error-bg');
             let icon = '';
-            if (type === 'error') {
-                modal.classList.add('modal-error');
-                icon = '<i class="fas fa-exclamation-circle"></i> ';
-            } else if (type === 'success') {
-                modal.classList.add('modal-success');
-                icon = '<i class="fas fa-check-circle"></i> ';
+            
+            if (type === 'success') {
+                contentBox.classList.add('modal-success-bg');
+                icon = '<i class="fas fa-check-circle me-2"></i> ';
+            } else if (type === 'error') {
+                contentBox.classList.add('modal-error-bg');
+                icon = '<i class="fas fa-exclamation-circle me-2"></i> ';
             }
-            modalMessage.innerHTML = icon + message;
-            modal.style.display = 'block';
-            setTimeout(() => hideModal(), 3000);
-        }
-
-        function hideModal() {
-            const modal = document.getElementById('modal-container');
-            modal.style.animation = 'slideOut 0.5s forwards';
+            
+            msgP.innerHTML = icon + message;
+            container.style.display = 'block';
+            contentBox.style.animation = 'slideIn 0.5s forwards';
+            
             setTimeout(() => {
-                modal.style.display = 'none';
-                modal.style.animation = 'slideIn 0.5s forwards';
-            }, 500);
+                contentBox.style.animation = 'slideOut 0.5s forwards';
+                setTimeout(() => { container.style.display = 'none'; }, 500);
+            }, 3000);
         }
 
-        // Wishlist Functionality
+        // Wishlist Async Logic
         document.querySelectorAll('.wishlist-icon').forEach(icon => {
             const productId = icon.dataset.productId;
-
-            // Check initial wishlist state
             checkWishlistStatus(productId, icon);
 
             icon.addEventListener('click', async function (e) {
@@ -368,37 +403,28 @@
                         const heart = this.querySelector('i');
                         heart.classList.toggle('fa-regular');
                         heart.classList.toggle('fa-solid');
-                        showModal(
-                            isActive ? 'Removed from wishlist!' : 'Added to wishlist!',
-                            'success'
-                        );
+                        showModal(isActive ? 'Removed from wishlist!' : 'Added to wishlist!', 'success');
                     } else {
                         showModal(data.message || 'Failed to update wishlist', 'error');
                     }
                 } catch (error) {
-                    console.error('Error:', error);
                     showModal('Network error. Please try again.', 'error');
                 }
             });
         });
 
-        // Function to check if product is in wishlist on page load
         async function checkWishlistStatus(productId, icon) {
             try {
                 const response = await fetch('/wishlist');
-                const wishlistPage = await response.text();
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(wishlistPage, 'text/html');
-                if (doc.querySelector(`[data-product-id="${productId}"]`)) {
+                const html = await response.text();
+                if (html.includes(`data-product-id="${productId}"`)) {
                     icon.classList.add('active');
-                    icon.querySelector('i').classList.remove('fa-regular');
-                    icon.querySelector('i').classList.add('fa-solid');
+                    const heart = icon.querySelector('i');
+                    heart.classList.remove('fa-regular');
+                    heart.classList.add('fa-solid');
                 }
-            } catch (error) {
-                console.error('Error checking wishlist status:', error);
-            }
+            } catch (e) {}
         }
     </script>
 
-
-    <%- include('../partials/user/footer') %>
+<%- include('../partials/user/footer') %>

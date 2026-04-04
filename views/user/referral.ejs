@@ -1,139 +1,356 @@
-<%- include('../partials/user/dasboard') %>
+<%- include('../partials/user/dashboard-layout') %>
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Refer & Earn | Jordan Express</title>
-  <style>
-    body {
-      background-color: #f5f5f5;
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-    }
-    .container {
-      max-width: 1200px;
-      margin: 20px auto;
-      padding: 20px;
-    }
-    h1 {
-      font-size: 24px;
-      margin-bottom: 20px;
-      color: #333;
-    }
-    .referral-section {
-      background-color: #fff;
-      padding: 20px;
-      border-radius: 4px;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-      margin-bottom: 20px;
-    }
-    .referral-section h2 {
-      margin: 0 0 10px 0;
-      font-size: 18px;
-      color: #555;
-    }
-    .referral-code {
-      font-size: 24px;
-      font-weight: 600;
-      color: #3498db;
-      margin-bottom: 10px;
-    }
-    .copy-button {
-      padding: 8px 15px;
-      background-color: #3498db;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-    .copy-button:hover {
-      background-color: #1b6799;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      background-color: #fff;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-    }
-    th, td {
-      padding: 15px;
-      text-align: left;
-      border-bottom: 1px solid #eee;
-    }
-    th {
-      background-color: #f9f9f9;
-      font-weight: 600;
-      color: #555;
-    }
-    .no-referrals {
-      text-align: center;
-      padding: 40px;
-      color: #777;
-    }
-  </style>
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-</head>
-<body>
-  <div class="container">
-    <h1>Refer & Earn</h1>
-    <div class="referral-section">
-      <h2>Your Referral Code</h2>
-      <div class="referral-code"><%= user.referralCode %></div>
-      <button class="copy-button" onclick="copyReferralCode()">Copy Code</button>
+<style>
+  :root {
+    --dash-primary: #8b5a2b;
+    --dash-primary-dark: #6f4722;
+    --dash-border: #eee;
+    --dash-text: #2c3e50;
+    --dash-text-muted: #6c757d;
+    --dash-shadow: 0 5px 20px rgba(0,0,0,0.05);
+    --transition: all 0.3s ease;
+  }
+
+  .ref-hero {
+    background: linear-gradient(135deg, #fff5eb, #fdfcfb);
+    border-radius: 20px;
+    padding: 40px;
+    border: 1px solid var(--dash-border);
+    margin-bottom: 30px;
+    display: flex;
+    align-items: center;
+    gap: 40px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .ref-hero::after {
+    content: '';
+    position: absolute;
+    top: -50px;
+    right: -50px;
+    width: 200px;
+    height: 200px;
+    background: radial-gradient(circle, rgba(139, 90, 43, 0.05) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+
+  .ref-hero-content { flex: 1; z-index: 1; }
+
+  .code-display {
+    background: white;
+    border: 2px dashed var(--dash-border);
+    border-radius: 12px;
+    padding: 8px 12px 8px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 24px;
+    max-width: 400px;
+    transition: var(--transition);
+  }
+
+  .code-display:hover {
+    border-color: var(--dash-primary);
+    background: #fafafa;
+  }
+
+  .code-text {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 800;
+    font-size: 22px;
+    letter-spacing: 2px;
+    color: var(--dash-primary);
+  }
+
+  .btn-copy {
+    background: var(--dash-primary);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .btn-copy:hover {
+    background: var(--dash-primary-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(139, 90, 43, 0.2);
+  }
+
+  .btn-copy:active {
+    transform: translateY(0);
+  }
+
+  .ref-steps {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    margin-top: 30px;
+  }
+
+  .ref-step-card {
+    background: white;
+    padding: 30px 20px;
+    border-radius: 20px;
+    text-align: center;
+    border: 1px solid var(--dash-border);
+    transition: var(--transition);
+  }
+
+  .ref-step-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--dash-shadow);
+    border-color: var(--dash-primary);
+  }
+
+  .ref-step-icon {
+    width: 60px;
+    height: 60px;
+    background: #fff5eb;
+    color: var(--dash-primary);
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    font-size: 24px;
+    transform: rotate(-5deg);
+    transition: var(--transition);
+  }
+
+  .ref-step-card:hover .ref-step-icon {
+    transform: rotate(0deg) scale(1.1);
+    background: var(--dash-primary);
+    color: white;
+  }
+
+  .ref-step-card h4 {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    color: var(--dash-text);
+  }
+
+  .ref-step-card p {
+    font-size: 13px;
+    color: var(--dash-text-muted);
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  .dash-card {
+    background: white;
+    border-radius: 20px;
+    padding: 30px;
+    border: 1px solid var(--dash-border);
+    box-shadow: var(--dash-shadow);
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+  }
+
+  .empty-state i {
+    font-size: 50px;
+    color: #ffd8b1;
+    margin-bottom: 20px;
+    opacity: 0.5;
+  }
+
+  .empty-state h3 {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--dash-text);
+    margin-bottom: 10px;
+  }
+
+  .empty-state p {
+    font-size: 14px;
+    color: var(--dash-text-muted);
+    max-width: 300px;
+    margin: 0 auto;
+  }
+
+  .table th {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--dash-text-muted);
+    padding: 15px 20px;
+    border-top: none;
+  }
+
+  .table td {
+    padding: 20px;
+    font-size: 14px;
+    vertical-align: middle;
+    border-color: #f8f9fa;
+  }
+
+  .reward-badge {
+    background: #e8f5e9;
+    color: #2e7d32;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 12px;
+  }
+
+  @media (max-width: 992px) {
+    .ref-hero { flex-direction: column; text-align: center; padding: 40px 25px; gap: 30px; }
+    .code-display { margin-left: auto; margin-right: auto; width: 100%; max-width: 320px; padding: 6px 6px 6px 20px; }
+    .code-text { font-size: 18px; }
+    .gift-icon-container { display: none; }
+    .ref-steps { grid-template-columns: 1fr; gap: 15px; }
+    .ref-step-card { padding: 25px; display: flex; align-items: center; text-align: left; gap: 20px; }
+    .ref-step-icon { margin: 0; width: 50px; height: 50px; font-size: 20px; flex-shrink: 0; }
+    .ref-step-card h4 { margin-bottom: 4px; font-size: 15px; }
+    .ref-step-card p { font-size: 12px; }
+    .dash-card { padding: 20px; }
+  }
+</style>
+
+<div class="page-header">
+  <div class="page-info">
+    <h2>Refer and Earn</h2>
+    <p>Invite your friends to Jordan Express and earn rewards together!</p>
+  </div>
+</div>
+
+<div class="ref-hero">
+  <div class="ref-hero-content">
+    <h3 style="font-weight: 800; font-size: 26px; color: var(--dash-text); margin-bottom: 12px;">Give ₹499, Get ₹499!</h3>
+    <p style="color: var(--dash-text-muted); font-size: 15px; line-height: 1.6; max-width: 500px; margin: 0 auto 0 0;">
+      Share the love of Jordan Express! When your friend signs up with your code, you <strong>both</strong> get rewarded instantly.
+    </p>
+    
+    <div class="code-display">
+      <span class="code-text" id="referralCodeText"><%= user.referralCode || 'GENERATING...' %></span>
+      <button class="btn-copy" onclick="copyCode()">
+        <i class="fas fa-copy"></i> Copy
+      </button>
     </div>
-    <div class="referral-section">
-      <h2>Referred Users</h2>
-      <table>
+  </div>
+  
+  <div class="gift-icon-container d-none d-lg-flex" style="flex-shrink: 0;">
+    <div style="width: 160px; height: 160px; background: white; border-radius: 40px; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 40px rgba(139, 90, 43, 0.1); transform: rotate(10deg);">
+      <i class="fas fa-gift" style="font-size: 70px; color: var(--dash-primary);"></i>
+    </div>
+  </div>
+</div>
+
+<div class="ref-steps">
+  <div class="ref-step-card">
+    <div class="ref-step-icon"><i class="fas fa-paper-plane"></i></div>
+    <div class="ref-step-content">
+      <h4>1. Send Invite</h4>
+      <p>Share your unique referral code with friends via SMS or Social Media.</p>
+    </div>
+  </div>
+  <div class="ref-step-card">
+    <div class="ref-step-icon"><i class="fas fa-user-plus"></i></div>
+    <div class="ref-step-content">
+      <h4>2. They Sign Up</h4>
+      <p>Your friend creates an account using your code during registration.</p>
+    </div>
+  </div>
+  <div class="ref-step-card">
+    <div class="ref-step-icon"><i class="fas fa-wallet"></i></div>
+    <div class="ref-step-content">
+      <h4>3. Both Earn</h4>
+      <p>We'll credit ₹499 to both wallets as soon as they verify their account.</p>
+    </div>
+  </div>
+</div>
+
+<div class="dash-card mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 style="font-size: 18px; font-weight: 700; margin: 0;">Your Referrals</h3>
+    <% if (referredUsers.length > 0) { %>
+      <span class="badge rounded-pill" style="background: #fff5eb; color: var(--dash-primary); padding: 8px 16px; font-weight: 700;">
+        Total Earned: ₹<%= referredUsers.length * 499 %>
+      </span>
+    <% } %>
+  </div>
+  
+  <% if (referredUsers.length === 0) { %>
+    <div class="empty-state">
+      <div class="mb-4">
+        <i class="fas fa-users"></i>
+      </div>
+      <h3>No referrals yet</h3>
+      <p>Your rewards will appear here once your friends start joining!</p>
+    </div>
+  <% } else { %>
+    <div class="table-responsive">
+      <table class="table">
         <thead>
           <tr>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Signup Date</th>
+            <th>Friend's Details</th>
+            <th>Joined On</th>
+            <th class="text-end">Reward Status</th>
           </tr>
         </thead>
         <tbody>
-          <% if (referredUsers.length === 0) { %>
+          <% referredUsers.forEach(referredUser => { %>
             <tr>
-              <td colspan="3" class="no-referrals">
-                <p>No referrals yet. Share your code to earn rewards!</p>
+              <td>
+                <div class="d-flex align-items-center">
+                  <div style="width: 36px; height: 36px; background: #f8f9fa; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 12px; font-weight: 700; color: var(--dash-primary); font-size: 12px;">
+                    <%= referredUser.name.charAt(0).toUpperCase() %>
+                  </div>
+                  <div>
+                    <div style="font-weight: 700; font-size: 14px;"><%= referredUser.name %></div>
+                    <div style="font-size: 11px; color: var(--dash-text-muted);"><%= referredUser.email %></div>
+                  </div>
+                </div>
+              </td>
+              <td style="color: var(--dash-text-muted); font-size: 13px;">
+                <%= referredUser.createdOn.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) %>
+              </td>
+              <td class="text-end">
+                <span class="reward-badge">+ ₹499.00</span>
               </td>
             </tr>
-          <% } else { %>
-            <% referredUsers.forEach(referredUser => { %>
-              <tr>
-                <td><%= referredUser.name %></td>
-                <td><%= referredUser.email %></td>
-                <td><%= referredUser.createdOn.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) %></td>
-              </tr>
-            <% }) %>
-          <% } %>
+          <% }) %>
         </tbody>
       </table>
     </div>
-  </div>
+  <% } %>
+</div>
 
-  <script>
-    function copyReferralCode() {
-      const referralCode = '<%= user.referralCode %>';
-      navigator.clipboard.writeText(referralCode).then(() => {
-        Swal.fire({
-          title: 'Copied!',
-          text: 'Referral code copied to clipboard',
-          icon: 'success',
-          confirmButtonColor: '#8b5a2b'
-        });
-      }).catch(err => {
-        Swal.fire({
-          title: 'Error',
-          text: 'Failed to copy referral code',
-          icon: 'error',
-          confirmButtonColor: '#8b5a2b'
-        });
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+  function copyCode() {
+    const code = document.getElementById('referralCodeText').innerText;
+    if (code === 'GENERATING...') return;
+    
+    navigator.clipboard.writeText(code).then(() => {
+      const Toast = Swal.mixin({
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 2500,
+        timerProgressBar: true
       });
-    }
-  </script>
-</body>
-</html>
+
+      Toast.fire({
+        icon: 'success',
+        title: 'Referral code copied!',
+        background: '#ffffff',
+        color: '#2c3e50',
+        iconColor: '#2e7d32'
+      });
+    });
+  }
+</script>
+
+<%- include('../partials/user/dashboard-footer') %>

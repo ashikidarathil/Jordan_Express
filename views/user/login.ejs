@@ -1,112 +1,334 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>Jordan Express </title>
-
-  <!-- Font Icon -->
-  <link rel="stylesheet" href="registration/fonts/material-icon/css/material-design-iconic-font.min.css">
-
-  <!-- Main css -->
-  <link rel="stylesheet" href="registration/css/style.css">
-
-
-
+  <title>Login - Jordan Express</title>
+  
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
   <style>
-    .error-messege {
-      margin-top: -26px;
-      color: red;
-      font-size: 0.7rem;
-      display: none;
-      padding-bottom: 12px;
+    :root {
+      --primary: #895D39;
+      --primary-dark: #5A3A22;
+      --primary-light: #FDF8F4;
+      --text-main: #2D3436;
+      --text-muted: #636E72;
+      --bg-white: #FFFFFF;
+      --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--primary-light);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      color: var(--text-main);
+    }
+
+    .auth-card {
+      width: 100%;
+      max-width: 450px;
+      background: var(--bg-white);
+      padding: 50px 40px;
+      border-radius: 30px;
+      box-shadow: 0 40px 100px rgba(137, 93, 57, 0.08);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .logo-area {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .logo-area img {
+      width: 160px;
+      margin-bottom: 20px;
+    }
+
+    .logo-area h1 {
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--text-main);
+      letter-spacing: -0.5px;
+    }
+
+    .logo-area p {
+      color: var(--text-muted);
+      font-size: 14px;
+      margin-top: 8px;
+    }
+
+    .form-group {
+      margin-bottom: 24px;
+      position: relative;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+      letter-spacing: 0.5px;
+    }
+
+    .input-wrapper {
+      position: relative;
+    }
+
+    .input-wrapper > i:not(.eye-toggle) {
+      position: absolute;
+      left: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #999;
+      font-size: 18px;
+      transition: var(--transition);
+      pointer-events: none;
+    }
+
+    .auth-input {
+      width: 100%;
+      padding: 16px 50px 16px 55px;
+      border: 1px solid #eee;
+      background: #fafafa;
+      border-radius: 15px;
+      font-size: 15px;
+      font-family: inherit;
+      transition: var(--transition);
+      outline: none;
+    }
+
+    .auth-input:focus {
+      border-color: var(--primary);
+      background: white;
+      box-shadow: 0 0 0 4px rgba(137, 93, 57, 0.05);
+    }
+
+    .auth-input:focus + i { color: var(--primary); }
+
+    .eye-toggle {
+      position: absolute;
+      right: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      color: #999;
+      transition: var(--transition);
+      z-index: 5;
+    }
+
+    .eye-toggle:hover { color: var(--primary); }
+
+    .error-messege {
+      font-size: 11px;
+      color: #dc3545;
+      margin-top: 8px;
+      display: none;
+      font-weight: 600;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-5px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      75% { transform: translateX(5px); }
+    }
+
+    .form-error .auth-input {
+      border-color: #dc3545 !important;
+      background-color: #fff9f9;
+    }
+
+    .forgot-link {
+      display: block;
+      text-align: right;
+      font-size: 13px;
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 600;
+      margin-bottom: 30px;
+      transition: var(--transition);
+    }
+
+    .forgot-link:hover { text-decoration: underline; color: var(--primary-dark); }
+
+    .btn-auth-primary {
+      width: 100%;
+      padding: 18px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 15px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: var(--transition);
+      box-shadow: 0 10px 20px rgba(137, 93, 57, 0.15);
+    }
+
+    .btn-auth-primary:hover {
+      background: var(--primary-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 15px 30px rgba(137, 93, 57, 0.2);
+    }
+
+    .divider {
+      display: flex;
+      align-items: center;
+      text-align: center;
+      margin: 30px 0;
+      color: #ddd;
+    }
+
+    .divider::before, .divider::after {
+      content: '';
+      flex: 1;
+      border-bottom: 1px solid #eee;
+    }
+
+    .divider span {
+      padding: 0 15px;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      letter-spacing: 1px;
+    }
+
+    .btn-google {
+      width: 100%;
+      padding: 15px;
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      text-decoration: none;
+      color: var(--text-main);
+      font-weight: 600;
+      font-size: 15px;
+      transition: var(--transition);
+    }
+
+    .btn-google:hover {
+      background: #fafafa;
+      border-color: #bbb;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    }
+
+    .btn-google img { width: 22px; }
+
+    .auth-footer {
+      text-align: center;
+      margin-top: 40px;
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+
+    .auth-footer a {
+      color: var(--primary);
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    .auth-footer a:hover { text-decoration: underline; }
 
     .alert {
       position: fixed;
-      top: 50px;
+      top: 40px;
       left: 50%;
       transform: translateX(-50%);
-      background: #ff4d4d;
+      background: #dc3545;
       color: white;
-      padding: 10px 20px;
-      border-radius: 5px;
-      font-weight: bold;
-      text-align: center;
-      width: 80%;
-      max-width: 500px;
-      box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
-      display: block;
+      padding: 12px 25px;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 14px;
+      box-shadow: 0 10px 30px rgba(220, 53, 69, 0.3);
+      z-index: 1000;
+      animation: slideDown 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    @keyframes slideDown {
+      from { transform: translate(-50%, -20px); opacity: 0; }
+      to { transform: translate(-50%, 0); opacity: 1; }
+    }
+
+    @media (max-width: 480px) {
+      .auth-card { padding: 40px 25px; border-radius: 20px; }
+      .logo-area h1 { font-size: 24px; }
     }
   </style>
-
 </head>
 
 <body>
 
-  <div class="main">
-    <!-- Sing in  Form -->
-    <section class="sign-in">
-      <div class="container">
+  <% if (locals.message && locals.message.length> 0) { %>
+    <div class="alert" id="alert"><%= locals.message %></div>
+  <% } %>
 
-        <% if (locals.message && locals.message.length> 0) { %>
-          <div class="alert" id="alert">
-            <%= locals.message %>
-          </div>
-          <% } %>
+  <div class="auth-card">
+    <div class="logo-area">
+      <img src="/img/Image.PNG" alt="Jordan Express">
+      <h1>Welcome Back</h1>
+      <p>Log in to access your premium account</p>
+    </div>
 
-
-            <div class="signin-content">
-              <div class="signin-image">
-                <figure><img src="registration/images/signin-image.jpg" alt="sing up image"></figure>
-                <a href="/signup" class="signup-image-link">Create an account</a>
-              </div>
-
-              <div class="signin-form">
-                <h2 class="form-title">Login</h2>
-                <form method="POST" class="register-form" id="login-form" action="/login" novalidate>
-
-                  <div class="form-group">
-                    <label for="email"><i class="zmdi zmdi-email"></i></label>
-                    <input type="text" name="email" id="email" placeholder="Your Email" />
-                  </div>
-                  <div id="error-2" class="error-messege"></div>
-
-                  <div class="form-group">
-                    <label for="your_pass"><i class="zmdi zmdi-lock"></i></label>
-                    <input type="password" name="password" id="password" placeholder="Password" />
-                  </div>
-                  <div id="error-4" class="error-messege"></div>
-
-                  <div class="form-group">
-                    <a href="/forget-password" class="signup-image-link" style="text-align: left;">forget password?</a>
-                  </div>
-
-                  <div class="form-group form-button"
-                    style="display: flex; flex-direction: row; align-items: center; justify-content: space-between; ">
-                    <input type="submit" name="signup" id="signup" class="form-submit" value="login" />
-
-                    <span class="social-label" style="padding-top: 25px; padding-left: 20px;">Or login with</span>
-                    <ul class="socials" style="padding-top: 25px;">
-                      <li><a href="/auth/google"><i class="display-flex-center zmdi zmdi-google"></i></a></li>
-                    </ul>
-                  </div>
-
-              </div>
-            </div>
-
+    <form method="POST" id="login-form" action="/login" novalidate>
+      <div class="form-group">
+        <label for="email">Email Address</label>
+        <div class="input-wrapper">
+          <input type="email" name="email" id="email" class="auth-input" placeholder="e.g. john@example.com">
+          <i class="fas fa-envelope"></i>
+        </div>
+        <div id="error-2" class="error-messege"></div>
       </div>
-    </section>
 
+      <div class="form-group" style="margin-bottom: 15px;">
+        <label for="password">Password</label>
+        <div class="input-wrapper">
+          <input type="password" name="password" id="password" class="auth-input" placeholder="Enter your password">
+          <i class="fas fa-lock"></i>
+          <i class="fas fa-eye eye-toggle" onclick="togglePass()"></i>
+        </div>
+        <div id="error-4" class="error-messege"></div>
+      </div>
+
+      <a href="/forget-password" class="forgot-link">Forgot password?</a>
+
+      <button type="submit" class="btn-auth-primary">Login Now</button>
+
+      <div class="divider"><span>Or continue with</span></div>
+
+      <a href="/auth/google" class="btn-google">
+        <img src="https://www.svgrepo.com/show/355037/google.svg" alt="Google">
+        Login with Google
+      </a>
+    </form>
+
+    <div class="auth-footer">
+      Don't have an account? <a href="/signup">Create One</a>
+    </div>
   </div>
 
-  <!-- JS -->
   <script src="registration/vendor/jquery/jquery.min.js"></script>
-  <script src="registration/js/main.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
   <script>
     const emailId = document.getElementById('email');
     const passId = document.getElementById('password');
@@ -114,17 +336,29 @@
     const error4 = document.getElementById('error-4');
     const loginForm = document.getElementById('login-form');
 
+    function togglePass() {
+      const type = passId.getAttribute('type') === 'password' ? 'text' : 'password';
+      passId.setAttribute('type', type);
+      const icon = document.querySelector('.eye-toggle');
+      icon.classList.toggle('fa-eye');
+      icon.classList.toggle('fa-eye-slash');
+    }
+
     function validateEmail() {
       const emailValue = emailId.value.trim();
       const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
+      emailId.parentElement.parentElement.classList.remove('form-error');
+
       if (emailValue === '') {
-        error2.innerHTML = 'Please enter your Email';
+        error2.innerHTML = 'Email address is required';
         error2.style.display = 'block';
+        emailId.parentElement.parentElement.classList.add('form-error');
         return false;
       } else if (!emailPattern.test(emailValue)) {
-        error2.innerHTML = 'Invalid Email format';
+        error2.innerHTML = 'Enter a valid email address';
         error2.style.display = 'block';
+        emailId.parentElement.parentElement.classList.add('form-error');
         return false;
       } else {
         error2.style.display = 'none';
@@ -134,18 +368,12 @@
 
     function validatePassword() {
       const passValue = passId.value.trim();
-      const alpha = /[a-zA-Z]/;
-      const digit = /\d/;
-
+      passId.parentElement.parentElement.classList.remove('form-error');
 
       if (passValue === '') {
-        error4.innerHTML = 'Please enter your Password';
+        error4.innerHTML = 'Password is required to login';
         error4.style.display = 'block';
-        return false
-      }
-      else if (passValue.length < 8 || !alpha.test(passValue) || !digit.test(passValue)) {
-        error4.innerHTML = 'Password must be at least 8 characters and contain letters & numbers';
-        error4.style.display = 'block';
+        passId.parentElement.parentElement.classList.add('form-error');
         return false;
       } else {
         error4.style.display = 'none';
@@ -153,39 +381,29 @@
       }
     }
 
-    // Validate on input
     emailId.addEventListener('input', validateEmail);
     passId.addEventListener('input', validatePassword);
 
     loginForm.addEventListener('submit', function (e) {
-      if (!validateEmail() || !validatePassword()) {
+      const isEmailValid = validateEmail();
+      const isPassValid = validatePassword();
+      if (!isEmailValid || !isPassValid) {
         e.preventDefault();
+        const card = document.querySelector('.auth-card');
+        card.style.animation = 'none';
+        card.offsetHeight; // trigger reflow
+        card.style.animation = 'shake 0.4s ease';
       }
     });
 
-    // Get alert and input fields
     const alertBox = document.getElementById("alert");
     const inputs = document.querySelectorAll("input");
 
-    // Function to hide alert when user starts typing
     inputs.forEach(input => {
       input.addEventListener("input", () => {
-        alertBox.style.display = "none";
+        if (alertBox) alertBox.style.display = "none";
       });
     });
-
-
-
-
   </script>
-
-
-
 </body>
-
-</html>
-
-
-</body>
-
 </html>

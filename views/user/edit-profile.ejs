@@ -1,202 +1,744 @@
-<%- include("../partials/user/dasboard") %>
+<%- include('../partials/user/dashboard-layout') %>
 
-    <div class="content-area">
-        <style>
-            .content-area {
-                padding: 20px;
-            }
+<style>
+  .settings-card {
+    background: white;
+    border-radius: 16px;
+    padding: 30px;
+    border: 1px solid var(--dash-border);
+    margin-bottom: 25px;
+  }
 
-            .page-title {
-                font-size: 1.8rem;
-                margin-bottom: 20px;
-                color: #2c3e50;
-                display: flex;
-                align-items: center;
-            }
+  .settings-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 0;
+    border-bottom: 1px solid var(--dash-border);
+  }
 
-            .page-title i {
-                margin-right: 10px;
-            }
+  .settings-row:last-child {
+    border-bottom: none;
+  }
 
-            .card {
-                background-color: white;
-                border-radius: 8px;
-                box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-                padding: 20px;
-                margin-bottom: 20px;
-            }
+  .settings-info h4 {
+    margin: 0 0 5px 0;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--dash-text);
+  }
 
-            .profile-section {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                text-align: center;
-                margin-bottom: 30px;
-            }
+  .settings-info p {
+    margin: 0;
+    font-size: 13px;
+    color: var(--dash-text-muted);
+  }
 
-            .profile-img {
-                width: 120px;
-                height: 120px;
-                border-radius: 50%;
-                object-fit: cover;
-                border: 5px solid white;
-                box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-                margin-bottom: 15px;
-            }
+  .btn-settings-action {
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: var(--transition);
+    background: #f8f9fa;
+    color: var(--dash-text);
+    border: 1px solid #ddd;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+  }
 
-            .form-group {
-                margin-bottom: 25px;
-            }
+  .btn-settings-action:hover {
+    background: var(--dash-primary);
+    color: white !important;
+    border-color: var(--dash-primary);
+  }
 
-            .form-group label {
-                display: block;
-                margin-bottom: 5px;
-                font-weight: 500;
-            }
+  .google-lock {
+    background: #fff5f5;
+    border: 1px solid #fed7d7;
+    padding: 15px 20px;
+    border-radius: 12px;
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    color: #c53030;
+    font-size: 13px;
+    margin-bottom: 30px;
+  }
 
-            .form-control {
-                width: 100%;
-                padding: 10px;
-                border: 1px solid #ddd;
-                border-radius: 4px;
-                font-size: 1rem;
-                margin-bottom: 10px;
-            }
+  /* Profile Photo Area */
+  .photo-section {
+    display: flex;
+    align-items: center;
+    gap: 25px;
+    margin-bottom: 40px;
+    padding-bottom: 30px;
+    border-bottom: 1px solid var(--dash-border);
+  }
 
-            .form-control:disabled {
-                background-color: #e9ecef;
-                cursor: not-allowed;
-            }
+  .photo-preview {
+    width: 100px;
+    height: 100px;
+    background: var(--primary-light);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 40px;
+    color: var(--dash-primary);
+    border: 4px solid white;
+    box-shadow: var(--dash-shadow);
+  }
 
-            .form-control:focus {
-                outline: none;
-                border-color: #3498db;
-            }
+  /* Modal Styles */
+  .modal-overlay {
+    display: none;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    background: rgba(0, 0, 0, 0.4) !important;
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
+    z-index: 1100 !important;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
 
-            .row {
-                display: flex;
-                flex-wrap: wrap;
-                margin: 0 -10px;
-            }
+  .modal-overlay.active {
+    opacity: 1;
+  }
 
-            .col-md-6 {
-                flex: 0 0 50%;
-                max-width: 50%;
-                padding: 0 10px;
-            }
+  .modal-dash-content {
+    background: white;
+    border-radius: 24px;
+    padding: 35px;
+    width: 100%;
+    max-width: 480px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+    z-index: 1101 !important;
+    position: relative;
+    transform: translateY(20px);
+    transition: transform 0.3s ease;
+  }
 
-            .btn {
-                padding: 8px 15px;
-                border-radius: 4px;
-                border: none;
-                cursor: pointer;
-                font-weight: 500;
-                transition: all 0.3s ease;
-            }
+  /* Ensure SweetAlert2 is always on top */
+  body .swal2-container {
+    z-index: 999999 !important;
+  }
 
-            .btn-primary {
-                background-color: #3498db;
-                color: white;
-            }
+  .modal-overlay.active .modal-dash-content {
+    transform: translateY(0);
+  }
 
-            .btn-primary:hover {
-                background-color: #2980b9;
-            }
+  .form-dash-input {
+    width: 100%;
+    padding: 12px 16px;
+    border-radius: 12px;
+    border: 1px solid var(--dash-border);
+    background: #fafafa;
+    outline: none;
+    transition: var(--transition);
+    font-size: 14px;
+    margin-bottom: 15px;
+  }
 
-            .change-btn {
-                padding: 5px 8px;
-                font-size: 13px;
+  .form-dash-input:focus {
+    border-color: var(--dash-primary);
+    background: white;
+    box-shadow: 0 0 0 4px rgba(139, 90, 43, 0.05);
+  }
 
-                text-decoration: none;
-                background-color: #3498db;
-                border: none;
-                border-radius: 4px;
-                color: white;
-                margin-bottom: 10px;
-            }
+  .modal-step { display: none; }
+  .modal-step.active { display: block; }
 
-            .change-btn:hover {
-                background-color: #2980b9;
-            }
+  .otp-digit-box {
+    width: 45px;
+    height: 55px;
+    border: 1px solid var(--dash-border);
+    border-radius: 12px;
+    text-align: center;
+    font-size: 24px;
+    font-weight: 800;
+    margin: 0 5px;
+    background: #fafafa;
+    color: var(--dash-text);
+    outline: none;
+    transition: var(--transition);
+  }
 
-            .alert-info {
-                color: red;
-                font-size: 14px;
-            }
-        </style>
+  .otp-digit-box:focus {
+    border-color: var(--dash-primary);
+    background: white;
+    box-shadow: 0 0 0 4px rgba(139, 90, 43, 0.05);
+  }
 
-        <h1 class="page-title">
-            <i class="fas fa-user-edit"></i>
-            Edit Profile
-        </h1>
+  /* Password eye toggle */
+  .password-wrapper {
+    position: relative;
+    width: 100%;
+  }
 
-        <div class="card">
-            <form action="" method="">
-                <div class="profile-section">
-     
-                    <div style="border: 2px solid grey; border-radius: 50%;width: 70px;height: 70px;display: flex;align-items: center;justify-content: center;margin-bottom: 10px;" ><i class="fas fa-user" style="font-size: 30px;"></i></div>
+  .eye-toggle {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: var(--dash-text-muted);
+    font-size: 14px;
+    z-index: 10;
+    padding: 5px;
+    transition: var(--transition);
+  }
 
-                    <input type="file" id="profileImage" name="profileImage" accept="image/*" style="display: none;">
-                    <button type="button" class="btn btn-primary"
-                        onclick="document.getElementById('profileImage').click()">
-                        Change Photo
-                    </button>
-                </div>
+  .eye-toggle:hover {
+    color: var(--dash-primary);
+  }
 
+  /* Mobile Adjustments */
+  @media (max-width: 576px) {
+    .security-box {
+      flex-direction: column !important;
+      align-items: flex-start !important;
+      gap: 15px;
+    }
 
+    .security-box .btn-settings-action {
+      width: 100%;
+      justify-content: center;
+    }
+    
+    .settings-row {
+      flex-direction: column;
+      align-items: flex-start !important;
+      gap: 12px;
+    }
 
-                <div class="form-group">
-                    <label>Name</label>
-                    <input type="text" class="form-control" name="lastName" value="<%= user.name %>" readonly>
-                    <% if (!isGoogleUser) { %>
-                        <a href="/change-name" class="change-btn">Change Name</a>
-                        <% } else { %>
-                            <div class="alert alert-info">
-                                Profile editing is restricted for Google-authenticated accounts
-                            </div>
-                            <% } %>
-                </div>
+    .settings-row .btn-settings-action {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+</style>
 
-                <div class="form-group">
-                    <label>Email</label>
-                    <input type="email" class="form-control" name="email" value="<%= user.email %>" readonly>
-                    <% if (!isGoogleUser) { %>
-                        <a href="/change-email" class="change-btn">Change Email</a>
-                        <% } else { %>
-                            <div class="alert alert-info">
-                                Profile editing is restricted for Google-authenticated accounts
-                            </div>
-                            <% } %>
-                </div>
+<div class="page-header">
+  <div class="page-info">
+    <h2>Account Settings</h2>
+    <p>Manage your personal information and security preferences.</p>
+  </div>
+</div>
 
-                <div class="form-group">
-                    <label>Password</label>
-                    <input type="password" name="password" class="form-control" value="mypassword" disabled>
-                    <% if (!isGoogleUser) { %>
-                        <a href="/change-pass" class="change-btn">Change Password</a>
-                        <% } else { %>
-                            <div class="alert alert-info">
-                                Profile editing is restricted for Google-authenticated accounts
-                            </div>
-                            <% } %>
-                </div>
-
-
-
-            </form>
-        </div>
-
-        <script>
-            // Preview profile image before upload
-            document.getElementById('profileImage').addEventListener('change', function (e) {
-                const file = e.target.files[0];
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = function (event) {
-                        document.getElementById('profileImagePreview').src = event.target.result;
-                    }
-                    reader.readAsDataURL(file);
-                }
-            });
-        </script>
+<% if (isGoogleUser) { %>
+  <div class="google-lock">
+    <i class="fab fa-google" style="font-size: 24px;"></i>
+    <div>
+      <strong>Google Authenticated Account</strong><br>
+      Some profile details are managed by Google and cannot be changed here.
     </div>
+  </div>
+<% } %>
+
+<div class="dash-card">
+  <div class="photo-section">
+    <div class="photo-preview">
+      <%= user.name.charAt(0) %>
+    </div>
+    <div>
+      <h3 style="font-size: 18px; font-weight: 800; margin: 0 0 5px 0;">Profile Photo</h3>
+      <p style="color: var(--dash-text-muted); font-size: 13px; margin-bottom: 15px;">This will be displayed on your dashboard.</p>
+      <button class="btn-dash btn-dash-primary" onclick="Swal.fire('Feature coming soon!', 'We are working on bringing profile image uploads to Jordan Express.', 'info')">
+        Upload New Photo
+      </button>
+    </div>
+  </div>
+
+  <div class="settings-list">
+    <!-- Full Name Setting -->
+    <div class="settings-row">
+      <div class="settings-info">
+        <h4>Full Name</h4>
+        <p id="display-name text-capitalize"><%= user.name %></p>
+      </div>
+      <% if (!isGoogleUser) { %>
+        <button onclick="openNameModal()" class="btn-settings-action">
+          <i class="fas fa-pen"></i> Edit
+        </button>
+      <% } else { %>
+        <span class="badge text-muted" style="border: 1px solid #ddd; padding: 6px 10px;">Managed by Google</span>
+      <% } %>
+    </div>
+
+    <!-- Email Address Setting -->
+    <div class="settings-row">
+      <div class="settings-info">
+        <h4>Email Address</h4>
+        <p>
+          <span id="display-email"><%= user.email %></span>
+          <span class="badge bg-success ms-2" style="font-size: 10px; opacity: 0.8;">Verified</span>
+          <% if (isGoogleUser) { %>
+            <i class="fab fa-google text-primary ms-2" title="Google Account"></i>
+          <% } %>
+        </p>
+      </div>
+      <% if (!isGoogleUser) { %>
+        <button onclick="openEmailModal()" class="btn-settings-action">
+          <i class="fas fa-envelope"></i> Change
+        </button>
+      <% } else { %>
+        <span class="badge text-muted" style="border: 1px solid #ddd; padding: 6px 10px;">Managed by Google</span>
+      <% } %>
+    </div>
+
+    <!-- Password / Security Setting -->
+    <div class="settings-row flex-column align-items-start border-bottom-0 pb-0">
+      <div class="d-flex justify-content-between align-items-center w-100 mb-3">
+        <div class="settings-info">
+          <h4>Security & Password</h4>
+          <p>Manage your sign-in and security.</p>
+        </div>
+        <div style="font-size: 12px; color: var(--dash-text-muted);">
+          Last login: <%= new Date().toLocaleDateString() %>
+        </div>
+      </div>
+
+      <% if (isGoogleUser) { %>
+        <div class="w-100" style="background: #f8f9fa; border: 1px solid var(--dash-border); border-radius: 12px; padding: 20px; text-align: center; margin-bottom: 5px;">
+          <div style="font-size: 15px; font-weight: 700; color: var(--dash-text); margin-bottom: 6px;">
+            <i class="fab fa-google text-primary me-2"></i> Connected with Google
+          </div>
+          <p style="font-size: 12px; color: var(--dash-text-muted); margin: 0; max-width: 400px; margin: 0 auto;">
+            Your account is secured via Google. Profile updates and password management are handled through your Google security settings.
+          </p>
+          <button class="btn-dash btn-dash-outline mt-3" style="opacity: 0.6; cursor: not-allowed; font-size: 12px;" disabled>
+            <i class="fas fa-key"></i> Change Password
+          </button>
+        </div>
+      <% } else { %>
+        <div class="w-100 d-flex justify-content-between align-items-center p-3 security-box" style="background: #fafafa; border: 1px solid var(--dash-border); border-radius: 12px;">
+          <div class="d-flex align-items-center gap-3">
+            <div style="width: 40px; height: 40px; background: white; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: var(--dash-primary); border: 1px solid var(--dash-border);">
+              <i class="fas fa-lock"></i>
+            </div>
+            <div>
+              <div style="font-weight: 700; font-size: 14px; color: var(--dash-text);">Account Password</div>
+              <div style="font-size: 12px; color: var(--dash-text-muted);">Secure and encrypted</div>
+            </div>
+          </div>
+          <button onclick="openPasswordModal()" class="btn-settings-action" style="background: white;">
+            <i class="fas fa-key"></i> Update Password
+          </button>
+        </div>
+      <% } %>
+    </div>
+  </div>
+</div>
+
+<!-- Modals -->
+
+<!-- Name Modal -->
+<div id="nameModal" class="modal-overlay">
+  <div class="modal-dash-content">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h3 style="font-weight: 800; margin: 0; font-size: 20px;">Update Name</h3>
+      <button type="button" onclick="closeModal('nameModal')" style="background: none; border: none; font-size: 20px; color: #999;"><i class="fas fa-times"></i></button>
+    </div>
+    <form id="nameForm" onsubmit="handleNameSubmit(event)">
+      <label class="d-block mb-2" style="font-size: 12px; font-weight: 700; color: var(--dash-text-muted); text-transform: uppercase;">New Display Name</label>
+      <input type="text" name="newName" id="newNameInput" class="form-dash-input" value="<%= user.name %>" required>
+      <div class="mt-4 pt-3 border-top d-flex gap-3">
+        <button type="button" onclick="closeModal('nameModal')" class="btn-dash" style="background: #eee; color: #444; flex: 1; justify-content: center;">Cancel</button>
+        <button type="submit" class="btn-dash btn-dash-primary" style="flex: 2; justify-content: center;">Save Changes</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Email Multi-step Modal -->
+<div id="emailModal" class="modal-overlay">
+  <div class="modal-dash-content">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h3 style="font-weight: 800; margin: 0; font-size: 20px;">Change Email</h3>
+      <button type="button" onclick="closeModal('emailModal')" style="background: none; border: none; font-size: 20px; color: #999;"><i class="fas fa-times"></i></button>
+    </div>
+
+    <!-- Step 1: Verification -->
+    <div id="email-step-1" class="modal-step active">
+      <div class="text-center mb-4">
+        <div style="width: 60px; height: 60px; background: #fff5eb; color: var(--dash-primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; font-size: 24px;">
+          <i class="fas fa-shield-alt"></i>
+        </div>
+        <h4 style="font-weight: 700; font-size: 16px;">Verify your identity</h4>
+        <p style="font-size: 13px; color: var(--dash-text-muted);">We'll send a 6-digit OTP to <strong><%= user.email %></strong> to confirm it's you.</p>
+      </div>
+      <button onclick="sendOtp()" id="sendOtpBtn" class="btn-dash btn-dash-primary w-100 py-3">Send OTP</button>
+    </div>
+
+    <!-- Step 2: OTP Entry -->
+    <div id="email-step-2" class="modal-step">
+      <div class="text-center mb-4">
+        <h4 style="font-weight: 700; font-size: 16px;">Enter OTP</h4>
+        <p style="font-size: 13px; color: var(--dash-text-muted);">Enter the code sent to your email.</p>
+      </div>
+      <div class="d-flex justify-content-center mb-4 otp-container">
+        <input type="text" maxlength="1" class="otp-digit-box" oninput="this.value=this.value.replace(/[^0-9]/g,'')">
+        <input type="text" maxlength="1" class="otp-digit-box" oninput="this.value=this.value.replace(/[^0-9]/g,'')">
+        <input type="text" maxlength="1" class="otp-digit-box" oninput="this.value=this.value.replace(/[^0-9]/g,'')">
+        <input type="text" maxlength="1" class="otp-digit-box" oninput="this.value=this.value.replace(/[^0-9]/g,'')">
+        <input type="text" maxlength="1" class="otp-digit-box" oninput="this.value=this.value.replace(/[^0-9]/g,'')">
+        <input type="text" maxlength="1" class="otp-digit-box" oninput="this.value=this.value.replace(/[^0-9]/g,'')">
+      </div>
+      <div class="text-center mt-2 mb-4">
+        <button onclick="sendOtp()" class="btn p-0 border-0 shadow-none" style="font-size: 13px; color: var(--dash-primary); font-weight: 700; background: none;">Resend OTP</button>
+      </div>
+      <button onclick="verifyOtp()" id="verifyOtpBtn" class="btn-dash btn-dash-primary w-100 py-3">Verify OTP</button>
+    </div>
+
+    <!-- Step 3: New Email -->
+    <div id="email-step-3" class="modal-step">
+      <div class="mb-4">
+        <h4 style="font-weight: 700; font-size: 16px;">Set New Email</h4>
+        <p style="font-size: 13px; color: var(--dash-text-muted);">Enter your new email address below.</p>
+      </div>
+      <input type="email" id="newEmailInput" class="form-dash-input" placeholder="newemail@example.com">
+      <button onclick="updateEmail()" id="updateEmailBtn" class="btn-dash btn-dash-primary w-100 py-3">Update Email</button>
+    </div>
+  </div>
+</div>
+
+<!-- Password Modal -->
+<div id="passwordModal" class="modal-overlay">
+  <div class="modal-dash-content">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h3 style="font-weight: 800; margin: 0; font-size: 20px;">Change Password</h3>
+      <button type="button" onclick="closeModal('passwordModal')" style="background: none; border: none; font-size: 20px; color: #999;"><i class="fas fa-times"></i></button>
+    </div>
+    <form id="passwordForm" onsubmit="handlePasswordSubmit(event)">
+      <div class="mb-3">
+        <label class="d-block mb-1" style="font-size: 12px; font-weight: 700; color: var(--dash-text-muted); text-transform: uppercase;">Current Password</label>
+        <div class="password-wrapper">
+          <input type="password" name="oldPassword" class="form-dash-input pe-5" required>
+          <i class="fas fa-eye eye-toggle" onclick="togglePasswordVisibility(this)"></i>
+        </div>
+      </div>
+      <div class="mb-3">
+        <label class="d-block mb-1" style="font-size: 12px; font-weight: 700; color: var(--dash-text-muted); text-transform: uppercase;">New Password</label>
+        <div class="password-wrapper">
+          <input type="password" name="newPassword" id="newPass1" class="form-dash-input pe-5" required>
+          <i class="fas fa-eye eye-toggle" onclick="togglePasswordVisibility(this)"></i>
+        </div>
+      </div>
+      <div class="mb-3">
+        <label class="d-block mb-1" style="font-size: 12px; font-weight: 700; color: var(--dash-text-muted); text-transform: uppercase;">Confirm New Password</label>
+        <div class="password-wrapper">
+          <input type="password" id="newPass2" class="form-dash-input pe-5" required>
+          <i class="fas fa-eye eye-toggle" onclick="togglePasswordVisibility(this)"></i>
+        </div>
+      </div>
+      <div class="mt-4 pt-3 border-top d-flex gap-3">
+        <button type="button" onclick="closeModal('passwordModal')" class="btn-dash" style="background: #eee; color: #444; flex: 1; justify-content: center;">Cancel</button>
+        <button type="submit" class="btn-dash btn-dash-primary" style="flex: 2; justify-content: center;">Change Password</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+  // Robust Modal teleportation to bypass stacking context issues
+  function teleportModals() {
+    const modals = ['nameModal', 'emailModal', 'passwordModal'];
+    modals.forEach(id => {
+      const modal = document.getElementById(id);
+      if (modal && modal.parentElement !== document.body) {
+        document.body.appendChild(modal);
+      }
+    });
+  }
+
+  // Initial teleport on load
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', teleportModals);
+  } else {
+    teleportModals();
+  }
+
+  function openModal(id) {
+    teleportModals();
+    const modal = document.getElementById(id);
+    modal.style.display = 'flex';
+    setTimeout(() => modal.classList.add('active'), 10);
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeModal(id) {
+    const modal = document.getElementById(id);
+    modal.classList.remove('active');
+    setTimeout(() => {
+      modal.style.display = 'none';
+      document.body.style.overflow = '';
+    }, 300);
+  }
+
+  function openNameModal() { openModal('nameModal'); }
+  function openEmailModal() { 
+    // Reset steps
+    document.querySelectorAll('.modal-step').forEach(s => s.classList.remove('active'));
+    document.getElementById('email-step-1').classList.add('active');
+    
+    // Clear OTP inputs
+    document.querySelectorAll('.otp-digit-box').forEach(input => input.value = '');
+    
+    openModal('emailModal'); 
+  }
+
+  // OTP Auto-focus Logic
+  document.addEventListener('input', function(e) {
+    if (e.target.classList.contains('otp-digit-box')) {
+      const input = e.target;
+      if (input.value.length === 1) {
+        const next = input.nextElementSibling;
+        if (next) next.focus();
+      }
+    }
+  });
+
+  document.addEventListener('keydown', function(e) {
+    if (e.target.classList.contains('otp-digit-box')) {
+      if (e.key === 'Backspace' && e.target.value.length === 0) {
+        const prev = e.target.previousElementSibling;
+        if (prev) prev.focus();
+      }
+    }
+  });
+  function openPasswordModal() { openModal('passwordModal'); }
+
+  // --- NAME UPDATE ---
+  async function handleNameSubmit(e) {
+    e.preventDefault();
+    const newName = document.getElementById('newNameInput').value;
+    const submitBtn = e.target.querySelector('button[type="submit"]');
+    
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+
+    try {
+      const res = await fetch('/update-name', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({ newName })
+      });
+      const data = await res.json();
+      
+      if (data.success) {
+        closeModal('nameModal');
+        Swal.fire({
+          icon: 'success',
+          title: 'Name Updated!',
+          text: 'Your profile name has been changed successfully.',
+          confirmButtonColor: '#8b5a2b'
+        }).then(() => {
+          window.location.reload(); // Reload to update all UI elements
+        });
+      } else {
+        Swal.fire('Error', data.message, 'error');
+      }
+    } catch (err) {
+      Swal.fire('Error', 'Failed to update name.', 'error');
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = 'Save Changes';
+    }
+  }
+
+  // --- EMAIL UPDATE FLOW ---
+  async function sendOtp() {
+    const btn = document.getElementById('sendOtpBtn');
+    const originalText = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending OTP...';
+
+    try {
+      const res = await fetch('/change-email', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({ email: '<%= user.email %>' })
+      });
+      const data = await res.json();
+      
+      if (data.success) {
+        document.getElementById('email-step-1').classList.remove('active');
+        document.getElementById('email-step-2').classList.add('active');
+      } else {
+        Swal.fire('Error', data.message || 'Failed to send OTP.', 'error');
+      }
+    } catch (err) {
+      Swal.fire('Error', 'An error occurred.', 'error');
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = originalText;
+    }
+  }
+
+  async function verifyOtp() {
+    const digits = document.querySelectorAll('.otp-digit-box');
+    let otp = '';
+    digits.forEach(d => otp += d.value);
+    
+    const btn = document.getElementById('verifyOtpBtn');
+    
+    if (otp.length < 6) return Swal.fire('Error', 'Please enter a 6-digit code.', 'warning');
+
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying...';
+
+    try {
+      const res = await fetch('/verify-email-otp', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({ otp })
+      });
+      const data = await res.json();
+      
+      if (data.success) {
+        document.getElementById('email-step-2').classList.remove('active');
+        document.getElementById('email-step-3').classList.add('active');
+      } else {
+        Swal.fire('Error', data.message || 'Invalid OTP.', 'error');
+      }
+    } catch (err) {
+      Swal.fire('Error', 'An error occurred.', 'error');
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = 'Verify OTP';
+    }
+  }
+
+  async function updateEmail() {
+    const newEmail = document.getElementById('newEmailInput').value;
+    const btn = document.getElementById('updateEmailBtn');
+
+    if (!newEmail) return Swal.fire('Error', 'Please enter a new email.', 'warning');
+
+    // Simple Email Format Validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(newEmail)) {
+      return Swal.fire('Invalid Email', 'Please enter a valid email address format.', 'error');
+    }
+
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating...';
+
+    try {
+      const res = await fetch('/update-email', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({ newEmail })
+      });
+      const data = await res.json();
+      
+      if (data.success) {
+        closeModal('emailModal');
+        Swal.fire({
+          icon: 'success',
+          title: 'Email Updated!',
+          text: 'Your email address has been changed successfully.',
+          confirmButtonColor: '#8b5a2b'
+        }).then(() => window.location.reload());
+      } else {
+        Swal.fire('Error', data.message, 'error');
+      }
+    } catch (err) {
+      Swal.fire('Error', 'An error occurred.', 'error');
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = 'Update Email';
+    }
+  }
+
+  // --- PASSWORD UPDATE ---
+  async function handlePasswordSubmit(e) {
+    e.preventDefault();
+    const oldPassword = e.target.oldPassword.value;
+    const newPassword = document.getElementById('newPass1').value;
+    const confirmPassword = document.getElementById('newPass2').value;
+    const submitBtn = e.target.querySelector('button[type="submit"]');
+
+    if (newPassword !== confirmPassword) {
+      return Swal.fire('Error', 'New passwords do not match.', 'error');
+    }
+
+    if (newPassword.length < 6) {
+      return Swal.fire('Error', 'New password must be at least 6 characters.', 'warning');
+    }
+
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Changing...';
+
+    try {
+      const res = await fetch('/change-password', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({ oldPassword, newPassword })
+      });
+      const data = await res.json();
+      
+      if (data.success) {
+        closeModal('passwordModal');
+        Swal.fire({
+          icon: 'success',
+          title: 'Password Changed!',
+          text: 'Your account is now more secure.',
+          confirmButtonColor: '#8b5a2b'
+        });
+        e.target.reset();
+      } else {
+        Swal.fire('Error', data.message, 'error');
+      }
+    } catch (err) {
+      Swal.fire('Error', 'Failed to change password.', 'error');
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = 'Change Password';
+    }
+  }
+
+  function togglePasswordVisibility(btn) {
+    const input = btn.previousElementSibling;
+    const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
+    input.setAttribute('type', type);
+    btn.classList.toggle('fa-eye');
+    btn.classList.toggle('fa-eye-slash');
+  }
+
+  // Close modals on outside click
+  window.onclick = function(event) {
+    if (event.target.classList.contains('modal-overlay')) {
+      closeModal(event.target.id);
+    }
+  }
+</script>
+
+<%- include('../partials/user/dashboard-footer') %>

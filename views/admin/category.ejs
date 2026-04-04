@@ -224,6 +224,7 @@
 
 <div class="content-header">
   <h2 class="content-title">Category</h2>
+  <button class="btn btn-submit" style="margin:0;" onclick="showAddModal()">+ Add New Category</button>
 </div>
 
 <header class="card-header">
@@ -240,27 +241,8 @@
 
 <div class="card">
   <div class="card-body">
-    <div class="row">
-      <div class="col-md-3">
-        <form method="post" action="/admin/addCategory" onsubmit="return handleFormSubmit(event)">
-          <div class="mb-4">
-            <label for="product_name" class="form-label">Name</label>
-            <input type="text" name="name" placeholder="Type here" class="form-control" id="product_name">
-            <div id="name-error" class="error-message"></div>
-          </div>
-          <div class="mb-4">
-            <label class="form-label">Description</label>
-            <textarea placeholder="Type here" name="description" class="form-control" id="descriptionId"></textarea>
-            <div id="description-error" class="error-message"></div>
-          </div>
-          <div class="d-grid">
-            <button class="btn-submit" type="submit">Create category</button>
-          </div>
-        </form>
-      </div>
-      <div class="col-md-9">
-        <div class="table-responsive">
-          <table class="table table-hover">
+    <div class="table-responsive">
+      <table class="table table-hover">
             <thead>
               <tr>
                 <th>Name</th>
@@ -319,8 +301,27 @@
             </tbody>
           </table>
         </div>
+  </div>
+</div>
+
+<!-- Add Category Modal -->
+<div id="addCategoryModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000;">
+  <div style="background: white; margin: 10% auto; padding: 20px; width: 90%; max-width: 500px; border-radius: 8px;">
+    <h3>Add Category</h3>
+    <form id="addCategoryForm" method="post" action="/admin/addCategory" onsubmit="return handleFormSubmit(event)">
+      <div class="mb-4">
+        <label for="product_name" class="form-label">Name</label>
+        <input type="text" name="name" placeholder="Type here" class="form-control" id="product_name">
+        <div id="name-error" class="error-message"></div>
       </div>
-    </div>
+      <div class="mb-4">
+        <label class="form-label">Description</label>
+        <textarea placeholder="Type here" name="description" class="form-control" id="descriptionId"></textarea>
+        <div id="description-error" class="error-message"></div>
+      </div>
+      <button class="btn-submit" type="submit">Save Category</button>
+      <button type="button" class="btn btn-danger" style="padding: 8px 16px; margin-left: 10px;" onclick="closeAddModal()">Cancel</button>
+    </form>
   </div>
 </div>
 
@@ -372,6 +373,16 @@
       });
     });
   });
+
+  function showAddModal() {
+    document.getElementById('addCategoryForm').reset();
+    clearErrorMessage();
+    document.getElementById('addCategoryModal').style.display = 'block';
+  }
+
+  function closeAddModal() {
+    document.getElementById('addCategoryModal').style.display = 'none';
+  }
 
   function resetSearch() {
     document.querySelector('input[name="search"]').value = '';

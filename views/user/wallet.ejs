@@ -1,388 +1,460 @@
-<%- include('../partials/user/dasboard') %>
+<%- include('../partials/user/dashboard-layout') %>
 
-<!DOCTYPE html>
-<html lang="en">
+<style>
+  .wallet-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(135deg, var(--dash-primary), var(--dash-primary-dark));
+    color: white;
+    border-radius: 20px;
+    padding: 35px 40px;
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 30px;
+    box-shadow: 0 10px 30px rgba(139, 90, 43, 0.15);
+    gap: 30px;
+  }
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Wallet | Jordan Express</title>
-    <style>
-        body {
-            background-color: #f5f5f5;
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-        }
+  .wallet-card::after {
+    content: '';
+    position: absolute;
+    top: -50px;
+    right: -50px;
+    width: 200px;
+    height: 200px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 50%;
+  }
 
-        .container {
-            max-width: 1200px;
-            margin: 20px auto;
-            padding: 20px;
-        }
+  /* Structural improvement: stay relative for content stacking */
+  .wallet-card > * { position: relative; z-index: 2; }
 
-        h1 {
-            font-size: 24px;
-            margin-bottom: 20px;
-            color: #333;
-        }
+  .balance-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    opacity: 0.8;
+    margin-bottom: 5px;
+    font-weight: 600;
+  }
 
-        .wallet-balance {
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 4px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-            margin-bottom: 20px;
-        }
+  .balance-amount {
+    font-size: 32px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    letter-spacing: -0.5px;
+    color: #ffffff;
+  }
 
-        .wallet-balance h2 {
-            margin: 0 0 10px 0;
-            font-size: 18px;
-            color: #555;
-        }
+  .topup-box {
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(8px);
+    padding: 12px;
+    border-radius: 14px;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    max-width: 500px;
+  }
 
-        .wallet-balance span {
-            font-size: 28px;
-            font-weight: 600;
-            color: #3498db;
-        }
+  .topup-input-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-grow: 1;
+    padding-left: 10px;
+  }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            background-color: #fff;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-        }
+  .topup-input {
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+    width: 100%;
+    outline: none;
+  }
 
-        th,
-        td {
-            padding: 15px;
-            text-align: left;
-            border-bottom: 1px solid #eee;
-        }
+  .topup-input::placeholder {
+    color: rgba(255, 255, 255, 0.4);
+  }
 
-        th {
-            background-color: #f9f9f9;
-            font-weight: 600;
-            color: #555;
-        }
+  .btn-topup {
+    background: var(--dash-primary);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+    transition: var(--transition);
+    font-size: 14px;
+    white-space: nowrap;
+  }
 
-        .transaction-type {
-            padding: 5px 10px;
-            border-radius: 4px;
-            font-size: 12px;
-            font-weight: 600;
-        }
+  .btn-topup:hover {
+    background: #9a6644;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  }
 
-        .credit {
-            background-color: #d4edda;
-            color: #155724;
-        }
+  .error-message {
+    font-size: 13px;
+    font-weight: 600;
+    margin-top: 15px;
+    display: none;
+    color: #ffa8a8;
+    align-items: center;
+    gap: 8px;
+  }
 
-        .debit {
-            background-color: #f8d7da;
-            color: #721c24;
-        }
+  .error-message i { font-size: 14px; }
 
-        .no-transactions {
-            text-align: center;
-            padding: 40px;
-            color: #777;
-        }
+  .transaction-item {
+    background: white;
+    border: 1px solid var(--dash-border);
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 12px;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: 20px;
+    transition: var(--transition);
+  }
 
-        .no-transactions img {
-            width: 100px;
-            opacity: 0.5;
-            margin-bottom: 20px;
-        }
+  .trans-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+  }
 
-        .transaction-details {
-            font-size: 12px;
-            color: #666;
-            margin-top: 5px;
-        }
+  .icon-credit { background: #e8f5e9; color: #2e7d32; }
+  .icon-debit { background: #ffebee; color: #c62828; }
 
-        .add-money-section {
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 4px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-            margin-bottom: 20px;
-        }
+  .trans-info h4 {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--dash-text);
+    line-height: 1.4;
+  }
 
-        .add-money-section h2 {
-            margin: 0 0 10px 0;
-            font-size: 18px;
-            color: #555;
-        }
+  .trans-info p {
+    margin: 1px 0 0;
+    font-size: 11px;
+    color: var(--dash-text-muted);
+  }
 
-        .add-money-section form {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
+  .trans-amount {
+    font-weight: 700;
+    font-size: 14px;
+    white-space: nowrap;
+  }
 
-        .add-money-section input {
-            padding: 8px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            width: 150px;
-        }
+  .amount-credit { color: #2e7d32; }
+  .amount-debit { color: #c62828; }
 
-        .add-money-section button {
-            padding: 8px 15px;
-            background-color: #3498db;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
+  /* Pagination Styling */
+  .pagination-dash {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 30px;
+  }
 
-        .add-money-section button:hover {
-            background-color: #1b6799;
-        }
+  .page-link-dash {
+    width: 38px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    background: white;
+    border: 1px solid var(--dash-border);
+    color: var(--dash-text);
+    text-decoration: none;
+    transition: var(--transition);
+    font-weight: 700;
+    font-size: 14px;
+  }
 
-        .error-message {
-            color: #ff4444;
-            font-size: 12px;
-            margin-top: 5px;
-        }
+  .pagination-dots {
+    color: var(--dash-text-muted);
+    font-weight: 800;
+    letter-spacing: 1px;
+    padding: 0 5px;
+  }
 
-        /* Pagination Styles */
-        .pagination {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-top: 20px;
-        }
+  .page-link-dash:hover {
+    border-color: var(--dash-primary);
+    color: var(--dash-primary);
+    background: var(--primary-light);
+  }
 
-        .pagination a, .pagination span {
-            padding: 8px 12px;
-            margin: 0 5px;
-            text-decoration: none;
-            color: #333;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 14px;
-        }
+  .page-link-dash.active {
+    background: var(--dash-primary);
+    color: white;
+    border-color: var(--dash-primary);
+    box-shadow: 0 4px 12px rgba(139, 90, 43, 0.2);
+  }
 
-        .pagination a:hover {
-            background-color: #3498db;
-            color: #fff;
-            border-color: #3498db;
-        }
+  .page-link-dash.disabled {
+    opacity: 0.5;
+    pointer-events: none;
+    background: #f8f9fa;
+  }
 
-        .pagination .active {
-            background-color: #3498db;
-            color: #fff;
-            border-color: #3498db;
-        }
+  @media (max-width: 991px) {
+    .wallet-card { flex-direction: column; align-items: flex-start; padding: 30px 20px; gap: 20px; }
+    .topup-box { max-width: 100%; width: 100%; }
+    .balance-amount { margin-bottom: 0; }
+  }
 
-        .pagination .disabled {
-            color: #aaa;
-            border-color: #ddd;
-            cursor: not-allowed;
-        }
+  @media (max-width: 768px) {
+    .wallet-card { padding: 30px 20px; text-align: left; }
+    .balance-amount { font-size: 32px; }
+    .topup-box { flex-direction: column; padding: 15px; }
+    .topup-input-container { width: 100%; border-bottom: 1px solid rgba(255,255,255,0.1); padding: 0 0 10px 0; }
+    .btn-topup { width: 100%; height: 45px; }
+    .transaction-item { grid-template-columns: 1fr auto; gap: 10px; padding: 15px 12px; }
+    .trans-icon { display: none; }
+    .trans-info h4 { font-size: 12px; }
+    .trans-info p { font-size: 10px; }
+    .trans-amount { font-size: 12px; }
+  }
+</style>
 
-        .pagination .disabled:hover {
-            background-color: transparent;
-            color: #aaa;
-        }
-    </style>
+<div class="page-header">
+  <div class="page-info">
+    <h2>My Wallet</h2>
+    <p>Manage your digital balance and view transaction history.</p>
+  </div>
+</div>
 
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-</head>
+<div class="wallet-card">
+  <div class="balance-info">
+    <div class="balance-label">Current Balance</div>
+    <div class="balance-amount">
+      <%= new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(wallet.balance) %>
+    </div>
+  </div>
+  
+  <div class="topup-container">
+    <form id="addMoneyForm" class="topup-box">
+      <div class="topup-input-container">
+        <span style="font-size: 18px; opacity: 0.6;">₹</span>
+        <input type="text" id="addMoneyAmount" class="topup-input" placeholder="Amount..." maxlength="12" inputmode="numeric">
+      </div>
+      <button type="submit" class="btn-topup">
+        <i class="fas fa-plus me-1"></i> Add Money
+      </button>
+    </form>
+    <div id="addMoneyError" class="error-message">
+      <i class="fas fa-exclamation-circle"></i>
+      <span class="error-text"></span>
+    </div>
+  </div>
+</div>
 
-<body>
-    <div class="container">
-        <h1>My Wallet</h1>
-        <div class="add-money-section">
-            <h2>Add Money to Wallet</h2>
-            <form id="addMoneyForm">
-                <input type="number" id="addMoneyAmount" placeholder="Enter amount" min="1">
-                <button type="submit">Add Money</button>
-            </form>
-            <p id="addMoneyError" class="error-message"></p>
+<div class="dash-card">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 style="font-size: 18px; font-weight: 700; margin: 0;">Recent Transactions</h3>
+  </div>
+
+  <% if (wallet.transactions.length === 0) { %>
+    <div class="empty-state pt-5 pb-5">
+      <i class="fas fa-receipt empty-icon"></i>
+      <h3>No transactions found</h3>
+      <p>Your wallet activity will appear here once you make a purchase or top up your balance.</p>
+    </div>
+  <% } else { %>
+    <div class="transaction-history">
+      <% wallet.transactions.forEach(transaction => { %>
+        <div class="transaction-item">
+          <div class="trans-icon <%= transaction.type === 'credit' ? 'icon-credit' : 'icon-debit' %>">
+            <i class="fas <%= transaction.type === 'credit' ? 'fa-arrow-down' : 'fa-arrow-up' %>"></i>
+          </div>
+          <div class="trans-info">
+            <h4><%= transaction.description %></h4>
+            <p>
+              <%= transaction.date.toLocaleDateString('en-US', { day: 'numeric', month: 'short', year: 'numeric' }) %>
+              <% if (transaction.orderID) { %> | Order #<%= transaction.orderID %><% } %>
+            </p>
+          </div>
+          <div class="trans-amount <%= transaction.type === 'credit' ? 'amount-credit' : 'amount-debit' %>">
+            <%= transaction.type === 'credit' ? '+' : '-' %> <%= new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(transaction.amount) %>
+          </div>
         </div>
-        <div class="wallet-balance">
-            <h2>Current Balance</h2>
-            <span>
-                <%= new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(wallet.balance) %>
-            </span>
-        </div>
-        <table>
-            <thead>
-                <tr>
-                    <th>Date</th>
-                    <th>Type</th>
-                    <th>Amount</th>
-                    <th>Description</th>
-                    <th>Order ID</th>
-                </tr>
-            </thead>
-            <tbody>
-                <% if (wallet.transactions.length === 0) { %>
-                    <tr>
-                        <td colspan="5" class="no-transactions">
-                            <!-- <img src="/images/empty-wallet.png" alt="No transactions"> -->
-                            <p>No transactions yet.</p>
-                        </td>
-                    </tr>
-                <% } else { %>
-                    <% wallet.transactions.forEach(transaction => { %>
-                        <tr>
-                            <td>
-                                <%= transaction.date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) %>
-                            </td>
-                            <td>
-                                <span class="transaction-type <%= transaction.type %>">
-                                    <%= transaction.type.charAt(0).toUpperCase() + transaction.type.slice(1) %>
-                                </span>
-                            </td>
-                            <td>
-                                <%= new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(transaction.amount) %>
-                                <% if (transaction.order && transaction.order.discount > 0 && transaction.description.includes('returned')) { %>
-                                    <div class="transaction-details">
-                                        (Original: <%= new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(transaction.amount + (transaction.order.discount / transaction.order.orderItems.length)) %> -
-                                        Discount: <%= new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(transaction.order.discount / transaction.order.orderItems.length) %>)
-                                    </div>
-                                <% } %>
-                            </td>
-                            <td>
-                                <%= transaction.description %>
-                            </td>
-                            <td>
-                                <%= transaction.orderID || '-' %>
-                            </td>
-                        </tr>
-                    <% }) %>
-                <% } %>
-            </tbody>
-        </table>
-
-        <!-- Pagination Controls -->
-        <% if (totalTransactions > 0) { %>
-            <div class="pagination">
-                <% if (currentPage > 1) { %>
-                    <a href="/wallet?page=<%= currentPage - 1 %>&limit=<%= limit %>">Previous</a>
-                <% } else { %>
-                    <span class="disabled">Previous</span>
-                <% } %>
-
-                <% for (let i = 1; i <= totalPages; i++) { %>
-                    <a href="/wallet?page=<%= i %>&limit=<%= limit %>" class="<%= currentPage === i ? 'active' : '' %>">
-                        <%= i %>
-                    </a>
-                <% } %>
-
-                <% if (currentPage < totalPages) { %>
-                    <a href="/wallet?page=<%= currentPage + 1 %>&limit=<%= limit %>">Next</a>
-                <% } else { %>
-                    <span class="disabled">Next</span>
-                <% } %>
-            </div>
-        <% } %>
+      <% }) %>
     </div>
 
-    <script>
-        document.getElementById('addMoneyForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const amount = parseFloat(document.getElementById('addMoneyAmount').value);
-            const errorElement = document.getElementById('addMoneyError');
+    <!-- Pagination -->
+    <% if (totalPages > 1) { %>
+      <div class="pagination-dash">
+        <a href="?page=<%= currentPage - 1 %>&limit=<%= limit %>" class="page-link-dash <%= currentPage === 1 ? 'disabled' : '' %>">
+          <i class="fas fa-chevron-left"></i>
+        </a>
+        
+        <% 
+          let startPage = Math.max(1, currentPage - 1);
+          let endPage = Math.min(totalPages, currentPage + 1);
+          
+          if (currentPage <= 2) {
+            endPage = Math.min(totalPages, 3);
+          }
+          if (currentPage >= totalPages - 1) {
+            startPage = Math.max(1, totalPages - 2);
+          }
+        %>
 
-            if (!amount || amount <= 0) {
-                errorElement.textContent = 'Please enter a valid amount';
-                return;
-            }
-            if (amount < 1000) {
-                errorElement.textContent = 'Minimum added money is 1000';
-                return;
-            }
+        <% if (startPage > 1) { %>
+          <a href="?page=1&limit=<%= limit %>" class="page-link-dash">1</a>
+          <% if (startPage > 2) { %>
+            <span class="pagination-dots">...</span>
+          <% } %>
+        <% } %>
 
-            try {
-                const response = await fetch('/create-wallet-topup', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ amount })
-                });
-                const data = await response.json();
+        <% for(let i = startPage; i <= endPage; i++) { %>
+          <a href="?page=<%= i %>&limit=<%= limit %>" class="page-link-dash <%= currentPage === i ? 'active' : '' %>">
+            <%= i %>
+          </a>
+        <% } %>
 
-                if (!data.success) {
-                    errorElement.textContent = data.message || 'Failed to initiate payment';
-                    return;
-                }
+        <% if (endPage < totalPages) { %>
+          <% if (endPage < totalPages - 1) { %>
+            <span class="pagination-dots">...</span>
+          <% } %>
+          <a href="?page=<%= totalPages %>&limit=<%= limit %>" class="page-link-dash"><%= totalPages %></a>
+        <% } %>
+        
+        <a href="?page=<%= currentPage + 1 %>&limit=<%= limit %>" class="page-link-dash <%= currentPage === totalPages ? 'disabled' : '' %>">
+          <i class="fas fa-chevron-right"></i>
+        </a>
+      </div>
+    <% } %>
+  <% } %>
+</div>
 
-                const options = {
-                    key: '<%= process.env.RAZORPAY_KEY_ID %>',
-                    amount: data.order.amount,
-                    currency: 'INR',
-                    name: 'Jordan Express',
-                    description: 'Wallet Top-Up',
-                    order_id: data.order.id,
-                    handler: async function (response) {
-                        const verifyResponse = await fetch('/verify-wallet-topup', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                                razorpay_order_id: response.razorpay_order_id,
-                                razorpay_payment_id: response.razorpay_payment_id,
-                                razorpay_signature: response.razorpay_signature,
-                                amount
-                            })
-                        });
-                        const verifyData = await verifyResponse.json();
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+  // Real-time Indian currency formatting
+  const topupInput = document.getElementById('addMoneyAmount');
+  topupInput.addEventListener('input', function() {
+    // Strip everything except digits
+    let raw = this.value.replace(/[^0-9]/g, '');
+    if (raw) {
+      // Format using Indian locale (e.g., 2,00,000)
+      this.value = new Intl.NumberFormat('en-IN').format(parseInt(raw, 10));
+    } else {
+      this.value = '';
+    }
+  });
 
-                        if (verifyData.success) {
-                            Swal.fire({
-                                title: 'Success!',
-                                text: 'Money added to wallet successfully',
-                                icon: 'success',
-                                confirmButtonColor: '#8b5a2b'
-                            }).then(() => {
-                                window.location.href = '/wallet?page=1&limit=<%= limit %>'; // Redirect to first page
-                            });
-                        } else {
-                            Swal.fire({
-                                title: 'Error',
-                                text: verifyData.message || 'Failed to add money',
-                                icon: 'error',
-                                confirmButtonColor: '#8b5a2b'
-                            });
-                        }
-                    },
-                 
-                    theme: {
-                        color: '#8b5a2b'
-                    },
-                    modal: {
-                        ondismiss: function () {
-                            Swal.fire({
-                                title: 'Payment Cancelled',
-                                text: 'Top-up was not completed',
-                                icon: 'warning',
-                                confirmButtonColor: '#8b5a2b'
-                            });
-                        }
-                    }
-                };
+  document.getElementById('addMoneyForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    // Strip commas before parsing
+    const amountStr = document.getElementById('addMoneyAmount').value.replace(/,/g, '');
+    const amount = parseFloat(amountStr);
+    const errorElement = document.getElementById('addMoneyError');
 
-                const rzp = new Razorpay(options);
-                rzp.on('payment.failed', function (response) {
-                    Swal.fire({
-                        title: 'Payment Failed',
-                        text: 'Please try again',
-                        icon: 'error',
-                        confirmButtonColor: '#8b5a2b'
-                    });
-                });
-                rzp.open();
-            } catch (error) {
-                console.error('Error initiating top-up:', error);
-                errorElement.textContent = 'An error occurred. Please try again.';
-            }
-        });
-    </script>
-</body>
+    if (!amount || amount <= 0) {
+      errorElement.querySelector('.error-text').textContent = 'Please enter a valid amount';
+      errorElement.style.display = 'flex';
+      return;
+    }
+    if (amount < 100) {
+      errorElement.querySelector('.error-text').textContent = 'Minimum top-up amount is ₹100';
+      errorElement.style.display = 'flex';
+      return;
+    }
 
-</html>
+    try {
+      errorElement.querySelector('.error-text').textContent = 'Initiating transaction...';
+      errorElement.style.display = 'flex';
+      errorElement.style.color = '#ffffff'; // Status color
+      
+      const response = await fetch('/create-wallet-topup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ amount })
+      });
+      const data = await response.json();
+
+      if (!data.success) {
+        errorElement.querySelector('.error-text').textContent = data.message || 'Failed to initiate payment';
+        errorElement.style.display = 'flex';
+        errorElement.style.color = '#ffa8a8';
+        return;
+      }
+
+      errorElement.style.display = 'none';
+
+      const options = {
+        key: '<%= typeof razorpayKeyId !== "undefined" ? razorpayKeyId : "rzp_test_YourKeyHere" %>',
+        amount: data.order.amount,
+        currency: 'INR',
+        name: 'Jordan Express',
+        description: 'Wallet Top-Up',
+        order_id: data.order.id,
+        handler: async function (response) {
+          const verifyResponse = await fetch('/verify-wallet-topup', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+              amount
+            })
+          });
+          const verifyData = await verifyResponse.json();
+
+          if (verifyData.success) {
+            Swal.fire({
+              title: 'Success!',
+              text: 'Money added to wallet successfully',
+              icon: 'success',
+              confirmButtonColor: '#8b5a2b'
+            }).then(() => {
+              window.location.reload();
+            });
+          } else {
+            Swal.fire({
+              title: 'Error',
+              text: verifyData.message || 'Failed to add money',
+              icon: 'error',
+              confirmButtonColor: '#8b5a2b'
+            });
+          }
+        },
+        theme: { color: '#8b5a2b' },
+        modal: {
+          ondismiss: function () {
+            Swal.fire({
+              title: 'Payment Cancelled',
+              text: 'Top-up was not completed',
+              icon: 'warning',
+              confirmButtonColor: '#8b5a2b'
+            });
+          }
+        }
+      };
+
+      const rzp = new Razorpay(options);
+      rzp.open();
+    } catch (error) {
+      console.error('Error initiating top-up:', error);
+      errorElement.textContent = 'An error occurred. Please try again.';
+    }
+  });
+</script>
+
+<%- include('../partials/user/dashboard-footer') %>

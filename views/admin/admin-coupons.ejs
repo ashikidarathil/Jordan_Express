@@ -192,6 +192,7 @@
 
 <div class="content-header">
   <h2 class="content-title">Coupons</h2>
+  <button class="btn btn-submit" style="margin:0;" onclick="showAddModal()">+ Add New Coupon</button>
 </div>
 
 <header class="card-header">
@@ -208,37 +209,8 @@
 
 <div class="card">
   <div class="card-body">
-    <div class="row">
-      <div class="col-md-3">
-        <form method="post" action="/admin/coupons/add" onsubmit="return handleAddCoupon(event)">
-          <div class="mb-4">
-            <label for="coupon_name" class="form-label">Coupon Code</label>
-            <input type="text" name="name" placeholder="e.g., SAVE10" class="form-control" id="coupon_name">
-            <div id="name-error" class="error-message"></div>
-          </div>
-          <div class="mb-4">
-            <label for="expire_on" class="form-label">Expiration Date</label>
-            <input type="date" name="expireOn" class="form-control" id="expire_on" min="<%= new Date().toISOString().split('T')[0] %>">
-            <div id="expire-error" class="error-message"></div>
-          </div>
-          <div class="mb-4">
-            <label for="offer_price" class="form-label">Offer Price (₹)</label>
-            <input type="number" name="offerPrice" placeholder="e.g., 100" class="form-control" id="offer_price" min="0">
-            <div id="offer-error" class="error-message"></div>
-          </div>
-          <div class="mb-4">
-            <label for="minimum_price" class="form-label">Minimum Purchase (₹)</label>
-            <input type="number" name="minimumPrice" placeholder="e.g., 500" class="form-control" id="minimum_price" min="0">
-            <div id="minimum-error" class="error-message"></div>
-          </div>
-          <div class="d-grid">
-            <button class="btn-submit" type="submit">Add Coupon</button>
-          </div>
-        </form>
-      </div>
-      <div class="col-md-9">
-        <div class="table-responsive">
-          <table class="table table-hover">
+    <div class="table-responsive">
+      <table class="table table-hover">
             <thead>
               <tr>
                 <th>Coupon Code</th>
@@ -289,8 +261,37 @@
             </tbody>
           </table>
         </div>
+  </div>
+</div>
+
+<!-- Add Coupon Modal -->
+<div id="addCouponModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000;">
+  <div style="background: white; margin: 10% auto; padding: 20px; width: 90%; max-width: 500px; border-radius: 8px;">
+    <h3>Add Coupon</h3>
+    <form id="addCouponForm" method="post" action="/admin/coupons/add" onsubmit="return handleAddCoupon(event)">
+      <div class="mb-4">
+        <label for="coupon_name" class="form-label">Coupon Code</label>
+        <input type="text" name="name" placeholder="e.g., SAVE10" class="form-control" id="coupon_name">
+        <div id="name-error" class="error-message"></div>
       </div>
-    </div>
+      <div class="mb-4">
+        <label for="expire_on" class="form-label">Expiration Date</label>
+        <input type="date" name="expireOn" class="form-control" id="expire_on" min="<%= new Date().toISOString().split('T')[0] %>">
+        <div id="expire-error" class="error-message"></div>
+      </div>
+      <div class="mb-4">
+        <label for="offer_price" class="form-label">Offer Price (₹)</label>
+        <input type="number" name="offerPrice" placeholder="e.g., 100" class="form-control" id="offer_price" min="0">
+        <div id="offer-error" class="error-message"></div>
+      </div>
+      <div class="mb-4">
+        <label for="minimum_price" class="form-label">Minimum Purchase (₹)</label>
+        <input type="number" name="minimumPrice" placeholder="e.g., 500" class="form-control" id="minimum_price" min="0">
+        <div id="minimum-error" class="error-message"></div>
+      </div>
+      <button type="submit" class="btn-submit">Save Coupon</button>
+      <button type="button" class="btn btn-danger" style="padding: 8px 16px; margin-left: 10px;" onclick="closeAddModal()">Cancel</button>
+    </form>
   </div>
 </div>
 
@@ -424,6 +425,16 @@
     }
 
     return isValid;
+  }
+
+  function showAddModal() {
+    document.getElementById('addCouponForm').reset();
+    clearErrorMessages();
+    document.getElementById('addCouponModal').style.display = 'block';
+  }
+
+  function closeAddModal() {
+    document.getElementById('addCouponModal').style.display = 'none';
   }
 
   function showEditModal(id, name, expireOn, offerPrice, minimumPrice) {

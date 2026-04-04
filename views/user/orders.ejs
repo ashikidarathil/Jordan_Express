@@ -1,478 +1,451 @@
-<%- include('../partials/user/dasboard') %>
+<%- include('../partials/user/dashboard-layout') %>
 
-  <!DOCTYPE html>
-  <html lang="en">
+<style>
+  .order-card {
+    background: white;
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 24px;
+    border: 1px solid var(--dash-border);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+  }
 
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Orders | Jordan Express</title>
-    <style>
-      body {
-        background-color: #f5f5f5;
-        font-family: Arial, sans-serif;
-        margin: 0;
-        padding: 0;
-      }
+  .order-card:hover {
+    box-shadow: 0 12px 40px rgba(0,0,0,0.08);
+    transform: translateY(-4px);
+    border-color: var(--dash-primary);
+  }
 
-      .container {
-        max-width: 1200px;
-        margin: 20px auto;
-        padding: 20px;
-      }
+  .order-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 20px;
+  }
 
-      h1 {
-        font-size: 24px;
-        margin-bottom: 20px;
-        color: #333;
-      }
+  .order-id-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
 
-      .search {
-        margin-bottom: 20px;
-        display: flex;
-        gap: 10px;
-      }
+  .order-id-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--dash-text-muted);
+    font-weight: 700;
+  }
 
-      .search input {
-        padding: 10px 15px;
-        width: 300px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        font-size: 14px;
-      }
+  .order-id-value {
+    font-weight: 800;
+    color: var(--dash-text);
+    font-size: 16px;
+    letter-spacing: -0.5px;
+  }
 
-      .search-btn {
-        padding: 10px 13px;
-        background-color: #3498db;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-      }
+  .order-meta-info {
+    font-size: 13px;
+    color: var(--dash-text-muted);
+    margin-top: 2px;
+  }
 
-      .search-btn:hover {
-        background-color: #2980b9;
-      }
+  /* Image Stack */
+  .image-stack-container {
+    display: flex;
+    align-items: center;
+    margin-top: 15px;
+  }
 
-      table {
-        width: 100%;
-        border-collapse: collapse;
-        background-color: #fff;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-      }
+  .image-stack {
+    display: flex;
+    align-items: center;
+    padding-left: 10px;
+  }
 
-      th,
-      td {
-        padding: 15px;
-        text-align: left;
-        border-bottom: 1px solid #eee;
-      }
+  .stack-item {
+    width: 65px;
+    height: 65px;
+    border-radius: 14px;
+    border: 3px solid white;
+    background: #f8f9fa;
+    overflow: hidden;
+    margin-left: -25px;
+    position: relative;
+    box-shadow: 4px 0 15px rgba(0,0,0,0.08);
+    z-index: 1;
+    transition: transform 0.2s ease;
+  }
 
-      th {
-        background-color: #f9f9f9;
-        font-weight: 600;
-        color: #555;
-      }
+  .stack-item:first-child {
+    margin-left: 0;
+    z-index: 3;
+  }
+  .stack-item:nth-child(2) { z-index: 2; }
+  .stack-item:nth-child(3) { z-index: 1; }
 
-      .order-item {
-        display: flex;
-        align-items: center;
-        gap: 15px;
-      }
+  .stack-item:hover {
+    transform: translateY(-5px) scale(1.05);
+    z-index: 10 !important;
+  }
 
-      .order-item img {
-        width: 60px;
-        height: 60px;
-        object-fit: cover;
-        border-radius: 4px;
-        border: 1px solid #eee;
-      }
+  .stack-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
 
-      .order-item-info {
-        display: flex;
-        flex-direction: column;
-      }
+  .stack-more {
+    width: 45px;
+    height: 45px;
+    border-radius: 12px;
+    background: #f1f3f5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 800;
+    color: var(--dash-primary);
+    border: 2px solid white;
+    margin-left: 10px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.04);
+  }
 
-      .order-item-name {
-        font-weight: 600;
-        margin-bottom: 5px;
-      }
+  /* Status Badges */
+  .status-badge-lg {
+    padding: 8px 16px;
+    border-radius: 30px;
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
 
-      .order-item-id {
-        font-size: 12px;
-        color: #777;
-      }
+  .status-completed { background: #e8f5e9; color: #1b5e20; border: 1px solid rgba(27, 94, 32, 0.1); }
+  .status-cancelled { background: #ffebee; color: #c62828; border: 1px solid rgba(198, 40, 40, 0.1); }
+  .status-returned { background: #f3e5f5; color: #7b1fa2; border: 1px solid rgba(123, 31, 162, 0.1); }
+  .status-partially { background: #fff3e0; color: #e65100; border: 1px solid rgba(230, 81, 0, 0.1); }
+  .status-shipped { background: #e3f2fd; color: #1565c0; border: 1px solid rgba(21, 101, 192, 0.1); }
+  .status-pending { background: #f8f9fa; color: #495057; border: 1px solid #dee2e6; }
 
-      .btn {
-        padding: 8px 16px;
-        background-color: #8b5a2b;
-        color: #fff;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 13px;
-        transition: all 0.3s ease;
-      }
+  .order-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 25px;
+    padding-top: 20px;
+    border-top: 1px solid #f1f1f1;
+  }
 
-      .btn:hover {
-        background-color: #724a22;
-        transform: translateY(-1px);
-      }
+  .price-summary {
+    display: flex;
+    flex-direction: column;
+  }
 
-      .btn-outline {
-        background: transparent;
-        border: 1px solid #3498db;
-        color: #3498db;
-      }
+  .price-label {
+    font-size: 12px;
+    color: var(--dash-text-muted);
+    font-weight: 600;
+  }
 
-      .btn-outline:hover {
-        background-color: #3498db;
-        color: white;
-      }
+  .price-value {
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--dash-text);
+  }
 
-      .status {
-        padding: 5px 10px;
-        border-radius: 4px;
-        font-size: 12px;
-        font-weight: 600;
-        text-transform: capitalize;
-      }
+  .view-btn {
+    padding: 10px 20px;
+    border-radius: 12px;
+    background: #f8f9fa;
+    color: var(--dash-text);
+    font-weight: 700;
+    font-size: 13px;
+    text-decoration: none;
+    transition: var(--transition);
+    border: 1px solid var(--dash-border);
+  }
 
-      .status-pending {
-        background-color: #fff3cd;
-        color: #856404;
-      }
+  .view-btn:hover {
+    background: var(--dash-primary);
+    color: white;
+    border-color: var(--dash-primary);
+  }
 
-      .status-shipped {
-        background-color: #d4edda;
-        color: #155724;
-      }
+  .filter-bar {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 35px;
+    flex-wrap: wrap;
+  }
 
-      .status-delivered {
-        background-color: #d4edda;
-        color: #155724;
-      }
+  .search-box-dash {
+    flex: 1;
+    position: relative;
+    min-width: 250px;
+  }
 
-      .status-cancelled {
-        background-color: #f8d7da;
-        color: #721c24;
-      }
+  .search-box-dash input {
+    width: 100%;
+    padding: 14px 20px 14px 50px;
+    border-radius: 15px;
+    border: 1px solid var(--dash-border);
+    outline: none;
+    font-size: 14px;
+    transition: all 0.2s ease;
+    background: #fcfcfc;
+  }
 
-      .status-returned {
-        background-color: #138496;
-        color: white;
-      }
+  .search-box-dash input:focus {
+    background: white;
+    border-color: var(--dash-primary);
+    box-shadow: 0 0 0 4px rgba(var(--dash-primary-rgb), 0.1);
+  }
 
-      .status-return-request {
-        background-color: #ffccbc;
-        color: #d84315;
-      }
+  .search-box-dash i {
+    position: absolute;
+    left: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--dash-text-muted);
+    font-size: 16px;
+  }
 
-      .status-return-rejected {
-        background-color: #e0e0e0;
-        color: red;
-      }
+  .filter-select {
+    padding: 14px 20px;
+    border-radius: 15px;
+    border: 1px solid var(--dash-border);
+    background: #fcfcfc;
+    font-size: 14px;
+    outline: none;
+    cursor: pointer;
+    min-width: 180px;
+    font-weight: 600;
+  }
 
-      .no-orders {
-        text-align: center;
-        padding: 40px;
-        color: #777;
-      }
+  @media (max-width: 576px) {
+    .order-header { flex-direction: column; gap: 15px; }
+    .order-footer { flex-direction: column; gap: 20px; align-items: flex-start; }
+    .view-btn { width: 100%; text-align: center; }
+  }
 
-      .no-orders img {
-        width: 100px;
-        opacity: 0.5;
-        margin-bottom: 20px;
-      }
+  /* Pagination Styling */
+  .pagination-dash {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    margin-top: 50px;
+    padding: 20px;
+  }
 
-      .pagination {
-        display: flex;
-        justify-content: center;
-        margin-top: 30px;
-        gap: 5px;
-      }
+  .page-link-dash {
+    min-width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 14px;
+    border: 1px solid var(--dash-border);
+    text-decoration: none;
+    color: var(--dash-text);
+    font-weight: 700;
+    font-size: 14px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    background: white;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+  }
 
-      .pagination a,
-      .pagination span {
-        padding: 8px 16px;
-        border: 1px solid #ddd;
-        text-decoration: none;
-        color: #333;
-        border-radius: 4px;
-        transition: all 0.3s;
-      }
+  .page-link-dash:hover {
+    background: #f8f9fa;
+    border-color: #adb5bd;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(0,0,0,0.06);
+  }
 
-      .pagination a:hover {
-        background-color: #f5f5f5;
-      }
+  .page-link-dash.active {
+    background: var(--dash-primary);
+    color: white;
+    border-color: var(--dash-primary);
+    box-shadow: 0 8px 20px rgba(var(--dash-primary-rgb), 0.2);
+  }
 
-      .pagination .current {
-        background-color: #3498db;
-        color: white;
-      }
+  .page-link-dash.disabled {
+    opacity: 0.3;
+    pointer-events: none;
+    background: #f1f3f5;
+  }
+</style>
 
-      .pagination .disabled {
-        color: #aaa;
-        pointer-events: none;
-        border-color: #eee;
-      }
+<div class="page-header mb-4">
+  <div class="page-info">
+    <h2 style="font-weight: 800; letter-spacing: -1px;">My Orders</h2>
+    <p style="color: var(--dash-text-muted); font-weight: 500;">Track and manage your recent purchases and returns.</p>
+  </div>
+</div>
 
-      .payment-method {
-        font-size: 12px;
-        color: #555;
-        text-transform: capitalize;
-      }
+<div class="filter-bar">
+  <div class="search-box-dash">
+    <i class="fas fa-search"></i>
+    <input type="text" id="orderSearch" placeholder="Search Order ID or Product..." value="<%= searchQuery %>">
+  </div>
+  
+  <select class="filter-select" id="statusFilter" onchange="filterOrders()">
+    <option value="">All Statuses</option>
+    <option value="Pending" <%= statusFilter === 'Pending' ? 'selected' : '' %>>Pending</option>
+    <option value="Shipped" <%= statusFilter === 'Shipped' ? 'selected' : '' %>>Shipped</option>
+    <option value="Delivered" <%= statusFilter === 'Delivered' ? 'selected' : '' %>>Delivered</option>
+    <option value="Cancelled" <%= statusFilter === 'Cancelled' ? 'selected' : '' %>>Cancelled</option>
+    <option value="Returned" <%= statusFilter === 'Returned' ? 'selected' : '' %>>Returned</option>
+  </select>
+</div>
 
-      .pagination .ellipsis {
-        padding: 8px 16px;
-        color: #aaa;
-        border: none;
-        pointer-events: none;
-      }
-    </style>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-  </head>
+<% if (orders.length === 0) { %>
+  <div class="dash-card">
+    <div class="empty-state">
+      <i class="fas fa-shopping-bag empty-icon"></i>
+      <h3>No orders found</h3>
+      <p>It looks like you haven't placed any orders yet.</p>
+      <a href="/shop" class="btn-dash btn-dash-primary">
+        <i class="fas fa-shopping-cart"></i> Start Shopping
+      </a>
+    </div>
+  </div>
+<% } else { %>
+  <div class="orders-container">
+    <% orders.forEach(order => { %>
+      <div class="order-card">
+        <div class="order-header">
+          <div class="order-id-group">
+            <span class="order-id-label">Order Reference</span>
+            <span class="order-id-value">#<%= order.orderID %></span>
+            <div class="order-meta-info">
+              <i class="far fa-calendar-alt me-1"></i> 
+              <%= new Date(order.createdOn).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) %>
+            </div>
+          </div>
+          
+          <% 
+            let statusClass = 'status-pending';
+            const s = order.displayStatus?.toLowerCase() || '';
+            if (s.includes('completed')) statusClass = 'status-completed';
+            else if (s.includes('shipped')) statusClass = 'status-shipped';
+            else if (s.includes('cancelled')) statusClass = 'status-cancelled status-partially';
+            else if (s.includes('returned')) statusClass = 'status-returned status-partially';
+            
+            // Refine for full vs partial
+            if (order.displayStatus === 'Cancelled') statusClass = 'status-cancelled';
+            if (order.displayStatus === 'Returned') statusClass = 'status-returned';
+            if (order.displayStatus.includes('Partially')) statusClass = 'status-partially';
+          %>
+          
+          <span class="status-badge-lg <%= statusClass %>">
+            <i class="fas fa-circle" style="font-size: 6px;"></i>
+            <%= order.displayStatus %>
+          </span>
+        </div>
 
-  <body>
-    <div class="container">
-      <h1>My Orders</h1>
-      <div class="search">
-        <input type="text" id="searchInput" placeholder="Search by Order ID or Product Name"
-          value="<%= searchQuery || '' %>">
-        <button class="search-btn" onclick="searchOrders()">Search</button>
-      </div>
-      <table id="orderTable">
-        <thead>
-          <tr>
-            <th>Item</th>
-            <th>Date</th>
-            <th>Payment Method</th>
-            <th>Status</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          <% if (orders.length===0) { %>
-            <tr>
-              <td colspan="5" class="no-orders">
-                <img src="/images/empty-order.png" alt="No orders">
-                <p>You haven't placed any orders yet.</p>
-              </td>
-            </tr>
-            <% } else { %>
-              <% orders.forEach(order=> { %>
-                <% order.orderItems.forEach(item=> { %>
-                  <tr>
-                    <td>
-                      <div class="order-item">
-                        <% if (item.product?.productImage) { %>
-                          <img src="/uploads/product-image/<%= item.product.productImage[0] %>"
-                            alt="<%= item.product.productName %>" style="width: 130px;">
-                          <% } else { %>
-                            <img src="/images/default-product.jpg" alt="Product image">
-                            <% } %>
-                              <div class="order-item-info">
-                                <span class="order-item-name">
-                                  <%= item.product?.productName || 'Product' %>
-                                </span>
-                                <span class="order-item-id">Order #<%= order.orderID %></span>
-                                <span style="font-size: 12px; color: #777;">Size: <%= item.size %></span>
-                              </div>
-                      </div>
-                    </td>
-                    <td>
-                      <%= order.createdOn.toLocaleDateString('en-US', { year: 'numeric' , month: 'short' ,
-                        day: 'numeric' }) %>
-                    </td>
-                    <td>
-                      <span class="payment-method" style="font-size: 16px;">
-                        <%= order.paymentMethod %>
-                          <% if (order.paymentMethod==='Wallet' ) { %>
-                            (₹<%= order.walletAmount %>)
-                              <% } %>
-                      </span>
-                    </td>
-                    <td>
-                      <span class="status status-<%= item.status.toLowerCase().replace(' ', '-') %>">
-                        <%= item.status %>
-                      </span>
-                    </td>
-                    <td>
-                      <button class="btn btn-outline"
-                        onclick="window.location.href='/order-details/<%= order.orderID %>'">
-                        Details
-                      </button>
-                    </td>
-                  </tr>
-                  <% }) %>
-                    <% }) %>
-                      <% } %>
-        </tbody>
-      </table>
-      <div class="pagination">
-        <!-- Previous Page Link -->
-        <% if (currentPage> 1) { %>
-          <a href="?page=<%= currentPage - 1 %>&search=<%= searchQuery || '' %>">«</a>
-          <% } else { %>
-            <span class="disabled">«</span>
+        <div class="image-stack-container">
+          <div class="image-stack">
+            <% order.orderItems.slice(0, 3).forEach((item, index) => { %>
+              <div class="stack-item" title="<%= item.product?.productName %>">
+                <% if (item.product?.productImage && item.product.productImage[0]) { %>
+                  <img src="/uploads/product-image/<%= item.product.productImage[0] %>" alt="Product">
+                <% } else { %>
+                  <img src="/images/default-product.jpg" alt="Default">
+                <% } %>
+              </div>
+            <% }) %>
+            
+            <% if (order.orderItems.length > 3) { %>
+              <div class="stack-more">
+                +<%= order.orderItems.length - 3 %>
+              </div>
             <% } %>
+          </div>
+          <div class="ms-3 d-none d-sm-block">
+            <div style="font-size: 14px; font-weight: 700; color: var(--dash-text);">
+              <%= order.orderItems[0].product?.productName %>
+              <% if (order.orderItems.length > 1) { %>
+                <span style="font-weight: 500; color: var(--dash-text-muted);">
+                  & <%= order.orderItems.length - 1 %> other items
+                </span>
+              <% } %>
+            </div>
+          </div>
+        </div>
 
-              <!-- First Page -->
-              <% if (totalPages> 1) { %>
-                <% if (currentPage===1) { %>
-                  <span class="current">1</span>
-                  <% } else { %>
-                    <a href="?page=1&search=<%= searchQuery || '' %>">1</a>
-                    <% } %>
-                      <% } %>
-
-                        <!-- Ellipsis after first page if needed -->
-                        <% if (totalPages> 4 && currentPage > 3) { %>
-                          <span class="ellipsis">...</span>
-                          <% } %>
-
-                            <!-- Middle Pages (current page and neighbors) -->
-                            <% const startPage=Math.max(2, currentPage - 1); const endPage=Math.min(totalPages - 1,
-                              currentPage + 1); for (let i=startPage; i <=endPage; i++) { %>
-                              <% if (i===currentPage) { %>
-                                <span class="current">
-                                  <%= i %>
-                                </span>
-                                <% } else { %>
-                                  <a href="?page=<%= i %>&search=<%= searchQuery || '' %>">
-                                    <%= i %>
-                                  </a>
-                                  <% } %>
-                                    <% } %>
-
-                                      <!-- Ellipsis before last page if needed -->
-                                      <% if (totalPages> 5 && currentPage < totalPages - 2) { %>
-                                          <span class="ellipsis">...</span>
-                                          <% } %>
-
-                                            <!-- Last Page -->
-                                            <% if (totalPages> 1 && totalPages !== currentPage) { %>
-                                              <a href="?page=<%= totalPages %>&search=<%= searchQuery || '' %>">
-                                                <%= totalPages %>
-                                              </a>
-                                              <% } else if (totalPages===currentPage && totalPages> 1) { %>
-                                                <span class="current">
-                                                  <%= totalPages %>
-                                                </span>
-                                                <% } %>
-
-                                                  <!-- Next Page Link -->
-                                                  <% if (currentPage < totalPages) { %>
-                                                    <a
-                                                      href="?page=<%= currentPage + 1 %>&search=<%= searchQuery || '' %>">»</a>
-                                                    <% } else { %>
-                                                      <span class="disabled">»</span>
-                                                      <% } %>
+        <div class="order-footer">
+          <div class="price-summary">
+            <span class="price-label">Total Amount</span>
+            <span class="price-value">₹<%= order.finalAmount.toLocaleString('en-IN') %></span>
+          </div>
+          <a href="/order-details/<%= order.orderID %>" class="view-btn">
+            View Details <i class="fas fa-arrow-right ms-2" style="font-size: 11px;"></i>
+          </a>
+        </div>
       </div>
+    <% }) %>
+  </div>
+
+  <!-- Smart Pagination -->
+  <% if (totalPages > 1) { %>
+    <div class="pagination-dash">
+      <a href="?page=<%= currentPage - 1 %>&search=<%= searchQuery %>&status=<%= statusFilter %>" 
+         class="page-link-dash <%= currentPage === 1 ? 'disabled' : '' %>">
+        <i class="fas fa-chevron-left"></i>
+      </a>
+      
+      <% 
+        const delta = 1;
+        const range = [];
+        for (let i = Math.max(2, currentPage - delta); i <= Math.min(totalPages - 1, currentPage + delta); i++) {
+          range.push(i);
+        }
+
+        if (currentPage - delta > 2) range.unshift('...');
+        if (currentPage + delta < totalPages - 1) range.push('...');
+
+        range.unshift(1);
+        if (totalPages > 1) range.push(totalPages);
+      %>
+
+      <% range.forEach(p => { %>
+        <% if (p === '...') { %>
+          <span class="page-link-dash disabled" style="border: none; box-shadow: none; background: transparent;">...</span>
+        <% } else { %>
+          <a href="?page=<%= p %>&search=<%= searchQuery %>&status=<%= statusFilter %>" 
+             class="page-link-dash <%= currentPage === p ? 'active' : '' %>">
+            <%= p %>
+          </a>
+        <% } %>
+      <% }) %>
+      
+      <a href="?page=<%= currentPage + 1 %>&search=<%= searchQuery %>&status=<%= statusFilter %>" 
+         class="page-link-dash <%= currentPage === totalPages ? 'disabled' : '' %>">
+        <i class="fas fa-chevron-right"></i>
+      </a>
     </div>
-    </div>
-    <script>
-      function searchOrders() {
-        const searchInput = document.getElementById('searchInput').value.trim();
-        // Redirect to the same page with the search query
-        window.location.href = `/orders?page=1&search=${encodeURIComponent(searchInput)}`;
-      }
+  <% } %>
+<% } %>
 
-      // Make search work on Enter key
-      document.getElementById('searchInput').addEventListener('keyup', function (e) {
-        if (e.key === 'Enter') {
-          searchOrders();
-        }
-      });
+<script>
+  function filterOrders() {
+    const search = document.getElementById('orderSearch').value;
+    const status = document.getElementById('statusFilter').value;
+    window.location.href = `/orders?page=1&search=${encodeURIComponent(search)}&status=${status}`;
+  }
 
-      async function cancelOrder(orderId) {
-        const { value: reason } = await Swal.fire({
-          title: 'Cancel Order',
-          input: 'textarea',
-          inputLabel: 'Reason for cancellation (optional):',
-          inputPlaceholder: 'Let us know why you\'re cancelling...',
-          showCancelButton: true,
-          confirmButtonColor: '#3498db',
-          cancelButtonColor: '#6c757d',
-        });
+  document.getElementById('orderSearch').addEventListener('keypress', function (e) {
+    if (e.key === 'Enter') {
+      filterOrders();
+    }
+  });
+</script>
 
-        if (reason === undefined) return; // User clicked cancel
-
-        try {
-          const response = await fetch(`/cancel-order/${orderId}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ reason })
-          });
-          const data = await response.json();
-
-          if (data.success) {
-            await Swal.fire({
-              title: 'Success!',
-              text: 'Your order has been cancelled.',
-              icon: 'success',
-              confirmButtonColor: '#3498db'
-            });
-            window.location.reload();
-          } else {
-            throw new Error(data.message || 'Failed to cancel order');
-          }
-        } catch (error) {
-          Swal.fire({
-            title: 'Error',
-            text: error.message,
-            icon: 'error',
-            confirmButtonColor: '#3498db'
-          });
-        }
-      }
-
-      async function returnOrder(orderId) {
-        const { value: reason } = await Swal.fire({
-          title: 'Return Order',
-          input: 'textarea',
-          inputLabel: 'Reason for return (required):',
-          inputPlaceholder: 'Please tell us why you\'re returning this order...',
-          inputValidator: (value) => {
-            if (!value) {
-              return 'You need to provide a reason for return!';
-            }
-          },
-          showCancelButton: true,
-          confirmButtonColor: '#3498db',
-        });
-
-        if (!reason) return; // User clicked cancel or didn't provide reason
-
-        try {
-          const response = await fetch(`/return-order/${orderId}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ reason })
-          });
-          const data = await response.json();
-
-          if (data.success) {
-            await Swal.fire({
-              title: 'Success!',
-              text: 'Your return request has been submitted.',
-              icon: 'success',
-              confirmButtonColor: '#3498db'
-            });
-            window.location.reload();
-          } else {
-            throw new Error(data.message || 'Failed to process return');
-          }
-        } catch (error) {
-          Swal.fire({
-            title: 'Error',
-            text: error.message,
-            icon: 'error',
-            confirmButtonColor: '#8b5a2b'
-          });
-        }
-      }
-    </script>
-  </body>
-
-  </html>
+<%- include('../partials/user/dashboard-footer') %>

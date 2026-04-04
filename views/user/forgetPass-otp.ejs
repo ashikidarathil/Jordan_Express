@@ -1,520 +1,376 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-  <meta charset="UTF-8" />
-  <meta name="description" content="Jordan Express - Email Verification" />
-  <meta name="keywords" content="Jordan Express, verification, OTP" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-  <title>Jordan Express - Verify Email</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verify OTP - Jordan Express</title>
+  
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <!-- SweetAlert2 CSS -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+  
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
-
     :root {
-      --primary-color: #277ed0;
-      --secondary-color: #4292dc;
-      --accent-color: #4895ef;
-      --text-color: #333;
-      --light-bg: #f8f9fa;
-      --border-radius: 10px;
-      --box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+      --primary: #895D39;
+      --primary-dark: #5A3A22;
+      --primary-light: #FDF8F4;
+      --text-main: #2D3436;
+      --text-muted: #636E72;
+      --bg-white: #FFFFFF;
+      --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    * {
-      padding: 0;
-      margin: 0;
-      box-sizing: border-box;
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
       font-family: 'Inter', sans-serif;
-      text-decoration: none;
-      transition: 0.3s;
-    }
-
-    body,
-    html {
-      height: 100%;
-      margin: 0;
-      background: #f8f9fa;
-      /* Match product-detail background */
-      overflow: auto;
-    }
-
-    .container {
-      display: flex;
-      justify-content: center;
-      align-items: center;
+      background: var(--primary-light);
       min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       padding: 20px;
+      color: var(--text-main);
     }
 
-    .login_wrap {
+    .auth-card {
       width: 100%;
-      max-width: 450px;
-      padding: 40px;
-      border-radius: var(--border-radius);
-      background: #fff;
-      border: 1px solid #eee;
-      box-shadow: 0 3px 12px rgba(137, 93, 57, 0.08);
-      /* Match product-detail shadow */
-      position: relative;
-      overflow: hidden;
-    }
-
-    .login_wrap::before {
-      content: "";
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 5px;
-      background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
-    }
-
-    .heading_s1 {
-      margin-bottom: 30px;
+      max-width: 420px;
+      background: var(--bg-white);
+      padding: 50px 40px;
+      border-radius: 30px;
+      box-shadow: 0 40px 100px rgba(137, 93, 57, 0.08);
       text-align: center;
     }
 
-    .heading_s1 h3 {
-      margin: 0;
-      font-size: 24px;
-      /* Match product-detail title size */
-      font-weight: 400;
-      /* Match product-detail title weight */
-      color: #000;
-      /* Match product-detail title color */
-      position: relative;
-      display: inline-block;
+    .icon-box {
+      width: 70px;
+      height: 70px;
+      background: #E8F5E9;
+      color: #2E7D32;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 30px;
+      font-size: 28px;
     }
 
-    .heading_s1 h3::after {
-      content: "";
-      display: block;
-      width: 50%;
-      height: 3px;
-      background: var(--primary-color);
-      margin: 10px auto 0;
-      border-radius: 2px;
+    .auth-card h1 {
+      font-size: 26px;
+      font-weight: 800;
+      margin-bottom: 12px;
+    }
+
+    .auth-card p {
+      color: var(--text-muted);
+      font-size: 14px;
+      line-height: 1.6;
+      margin-bottom: 30px;
     }
 
     .otp-container {
       display: flex;
-      flex-direction: column;
-      align-items: center;
-      margin-top: 20px;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 30px;
     }
 
-    .form-group {
-      width: 100%;
-      margin-bottom: 25px;
+    .otp-input {
+      width: 48px;
+      height: 56px;
+      border: 1px solid #eee;
+      background: #fafafa;
+      border-radius: 12px;
       text-align: center;
-
-    }
-
-    .form-group label {
-      font-weight: 400;
-      /* Match product-detail label weight */
-      margin-bottom: 8px;
-      display: block;
-
-      color: var(--text-color);
-    }
-
-    .form-control {
-      height: 50px;
-      border-radius: var(--border-radius);
-      border: 1px solid #ddd;
-      padding: 10px 15px;
-      font-size: 16px;
-      width: 100%;
-      transition: all 0.3s;
-      letter-spacing: 8px;
-      text-align: center;
-      font-weight: 600;
-      color: #606060;
-      /* Match product-detail text color */
-    }
-
-    .form-control:focus {
-      border-color: var(--primary-color);
-      box-shadow: 0 0 0 3px rgba(137, 93, 57, 0.2);
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text-main);
+      transition: var(--transition);
       outline: none;
-      animation: pulse 1s;
     }
 
-    .otp-timer-wrapper {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      margin-bottom: 20px;
-      width: 100%;
-    }
-
-    .otp-timer {
-      width: 80px;
-      height: 80px;
-      border-radius: 50%;
-      background: #f0f0f0;
-      border: 3px solid var(--primary-color);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 16px;
-      font-weight: 600;
-      color: white;
-      text-align: center;
-      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
-    }
-
-    .otp-timer.expired {
-      color: #dc3545;
-      font-size: 12px;
-    }
-
-    .btn {
-      height: 50px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: var(--border-radius);
-      font-weight: 400;
-      /* Match product-detail button weight */
-      font-size: 16px;
-      transition: all 0.3s ease;
-      cursor: pointer;
-    }
-
-    .btn-primary {
-      background: var(--primary-color);
-      border: none;
-      color: #fff;
-      width: 100%;
-      box-shadow: 0 4px 6px rgba(137, 93, 57, 0.2);
-    }
-
-    .btn-primary:hover {
-      background-color: white;
-      border: 1px solid var(--primary-color);
-      color: var(--primary-color);
+    .otp-input:focus {
+      border-color: var(--primary);
+      background: white;
+      box-shadow: 0 0 0 4px rgba(137, 93, 57, 0.05);
       transform: translateY(-2px);
-      box-shadow: 0 6px 10px rgba(137, 93, 57, 0.3);
     }
 
-    .resend-button {
-      margin-top: 10px;
-      color: var(--primary-color);
-      text-decoration: none;
+    .countdown-timer {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 25px;
+    }
+
+    .countdown-timer #timerValue {
+      color: var(--primary);
+      font-weight: 700;
+    }
+
+    .btn-auth-primary {
+      width: 100%;
+      padding: 18px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 15px;
+      font-size: 16px;
+      font-weight: 700;
       cursor: pointer;
-      font-weight: 500;
+      transition: var(--transition);
+      margin-bottom: 25px;
+    }
+
+    .btn-auth-primary:hover {
+      background: var(--primary-dark);
+      transform: translateY(-2px);
+    }
+
+    .resend-btn {
       background: none;
       border: none;
+      color: var(--primary);
+      font-weight: 700;
       font-size: 14px;
+      cursor: pointer;
+      transition: var(--transition);
+      text-decoration: none;
     }
 
-    .resend-button:hover {
-      text-decoration: underline;
-      color: var(--secondary-color);
+    .resend-btn:disabled { color: #ccc; cursor: not-allowed; }
+    .resend-btn:not(:disabled):hover { text-decoration: underline; }
+
+    .error-message {
+      font-size: 11px;
+      color: #dc3545;
+      margin-top: -15px;
+      margin-bottom: 20px;
+      display: none;
+      font-weight: 600;
+      animation: fadeIn 0.3s ease;
     }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-5px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      75% { transform: translateX(5px); }
+    }
+
+    .form-error .otp-input {
+      border-color: #dc3545 !important;
+      background-color: #fff9f9;
+    }
+
+    .back-link {
+        display: block;
+        margin-top: 25px;
+        color: var(--text-muted);
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 600;
+    }
+    .back-link:hover { color: var(--primary); }
 
     .alert {
-      margin-top: 15px;
-      padding: 15px;
-      border-radius: var(--border-radius);
-      text-align: center;
-    }
-
-    .alert-danger {
-      background-color: #f8d7da;
-      border: 1px solid #f5c6cb;
-      color: #721c24;
-    }
-
-    .text-muted {
-      color: #606060;
-      /* Match product-detail muted text color */
-    }
-
-    .text-center {
-      text-align: center;
-    }
-
-    .text-center a {
-      color: var(--primary-color);
-      font-weight: 500;
-      text-decoration: underline;
-    }
-
-    .text-center a:hover {
-      color: var(--secondary-color);
-    }
-
-    .pt-25 {
-      padding-top: 25px;
-    }
-
-    /* SweetAlert2 Custom Styles */
-    body.swal2-shown> :not(.swal2-container) {
-      filter: blur(2px);
-    }
-
-    body.swal2-shown {
-      overflow-y: auto !important;
-      padding-right: 0 !important;
-    }
-
-    .swal2-container {
-      padding: 0 !important;
-    }
-
-    /* Animation for OTP input */
-    @keyframes pulse {
-      0% {
-        transform: scale(1);
-      }
-
-      50% {
-        transform: scale(1.05);
-      }
-
-      100% {
-        transform: scale(1);
-      }
-    }
-
-    @media (max-width: 480px) {
-      .login_wrap {
-        padding: 20px;
-      }
-
-      .heading_s1 h3 {
-        font-size: 1.4rem;
-      }
-
-      .form-control {
-        height: 45px;
-        font-size: 14px;
-      }
-
-      .btn {
-        height: 45px;
-        font-size: 14px;
-      }
-
-      .otp-timer {
-        width: 50px;
-        height: 50px;
-        font-size: 12px;
-      }
+      position: fixed;
+      top: 40px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #dc3545;
+      color: white;
+      padding: 12px 25px;
+      border-radius: 12px;
+      font-weight: 600;
+      z-index: 1000;
     }
   </style>
 </head>
-
 <body>
-  <div class="container">
-    <div class="login_wrap">
-      <div class="padding_eight_all bg-white">
-        <div class="heading_s1">
-          <h3>Email Verification</h3>
-        </div>
-        <p class="text-center text-muted">We've sent a verification code to your email address</p>
 
-        <div class="otp-container">
-          <form id="otpForm" method="post">
-            <div class="form-group">
-              <label for="otp">Enter OTP:</label>
-              <input type="text" id="otp" name="otp" class="form-control" maxlength="6" />
-            </div>
-            <div class="form-group">
-              <button type="submit" class="btn btn-primary">
-                <i class="fas fa-check-circle mr-2"></i> Verify OTP
-              </button>
-            </div>
-          </form>
+  <% if (locals.message && locals.message.length> 0) { %>
+    <div class="alert" id="alert"><%= locals.message %></div>
+  <% } %>
 
-          <div class="form-group otp-timer-wrapper">
-            <div class="otp-timer" id="otpTimer"></div>
-          </div>
-          <div class="form-group">
-            <button type="button" class="resend-button" id="resendBtn" onclick="resendOTP()" disabled>Resend
-              OTP</button>
-          </div>
-          <div class="alert alert-danger" id="errorMessage" style="display: none;"></div>
-        </div>
-
-        <div class="text-muted text-center pt-25">
-          Already verified? <a href="/login">Login now</a>
-        </div>
-      </div>
+  <div class="auth-card">
+    <div class="icon-box">
+      <i class="fas fa-shield-alt"></i>
     </div>
+    <h1>Verify it's you</h1>
+    <p>Please enter the 6-digit code we sent to your email address to continue.</p>
+
+    <form id="otpForm">
+      <div class="otp-container">
+        <input type="text" class="otp-input" maxlength="1" oninput="this.value=this.value.replace(/[^0-9]/g,'')">
+        <input type="text" class="otp-input" maxlength="1" oninput="this.value=this.value.replace(/[^0-9]/g,'')">
+        <input type="text" class="otp-input" maxlength="1" oninput="this.value=this.value.replace(/[^0-9]/g,'')">
+        <input type="text" class="otp-input" maxlength="1" oninput="this.value=this.value.replace(/[^0-9]/g,'')">
+        <input type="text" class="otp-input" maxlength="1" oninput="this.value=this.value.replace(/[^0-9]/g,'')">
+        <input type="text" class="otp-input" maxlength="1" oninput="this.value=this.value.replace(/[^0-9]/g,'')">
+      </div>
+
+      <div id="error-otp" class="error-message">Please enter all 6 digits.</div>
+
+      <div class="countdown-timer" id="timerContainer">
+        Resend code in <span id="timerValue">60</span>s
+      </div>
+
+      <button type="submit" class="btn-auth-primary">Verify & Reset</button>
+
+      <button type="button" id="resendOtp" class="resend-btn" disabled onclick="handleResendOtp()">Resend New code</button>
+    </form>
+
+    <a href="/forget-password" class="back-link">
+      <i class="fas fa-arrow-left"></i> Wrong email? Go back
+    </a>
   </div>
 
-  <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+  <script src="registration/vendor/jquery/jquery.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-
-
   <script>
-    let otpTimeInterval;
     let timer = 60;
+    let timerInterval;
 
-    function updateTimerColor(percentage) {
-      const timerElement = document.getElementById('otpTimer');
-      if (percentage > 50) {
-        timerElement.style.backgroundColor = '#28a745';
-      } else if (percentage > 25) {
-        timerElement.style.backgroundColor = '#ffc107';
-      } else {
-        timerElement.style.backgroundColor = '#dc3545';
-      }
-    }
-
-    function startOtpTimer() {
-      const timerElement = document.getElementById('otpTimer');
-      const resendBtn = document.getElementById('resendBtn');
-
-      otpTimeInterval = setInterval(function () {
-        const minutes = Math.floor(timer / 60);
-        const seconds = timer % 60;
-        timerElement.textContent = `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
-        updateTimerColor((timer / 60) * 100);
-
-        if (--timer < 0) {
-          clearInterval(otpTimeInterval);
-          timerElement.textContent = 'Expired';
-          timerElement.style.backgroundColor = '#dc3545';
-          resendBtn.disabled = false;
+    function startTimer() {
+      timer = 60;
+      const timerBtn = document.getElementById('resendOtp');
+      const timerVal = document.getElementById('timerValue');
+      timerBtn.disabled = true;
+      timerVal.textContent = timer;
+      
+      clearInterval(timerInterval);
+      timerInterval = setInterval(() => {
+        timer--;
+        timerVal.textContent = timer;
+        if (timer <= 0) {
+          clearInterval(timerInterval);
+          timerBtn.disabled = false;
+          document.getElementById('timerContainer').style.visibility = 'hidden';
         }
       }, 1000);
     }
 
-    function initializeOtpTimer() {
-      clearInterval(otpTimeInterval);
-      timer = 60;
-      const resendBtn = document.getElementById('resendBtn');
-      resendBtn.disabled = true;
-      startOtpTimer();
-    }
+    startTimer();
 
-    function resendOTP() {
+    // OTP auto-focus logic
+    const inputs = document.querySelectorAll('.otp-input');
+    inputs.forEach((input, index) => {
+      input.addEventListener('input', (e) => {
+        if (e.target.value.length === 1 && index < inputs.length - 1) {
+          inputs[index + 1].focus();
+        }
+      });
+
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Backspace' && e.target.value.length === 0 && index > 0) {
+          inputs[index - 1].focus();
+        }
+      });
+    });
+
+    const errorOtp = document.getElementById('error-otp');
+
+    document.getElementById('otpForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      let otpValue = "";
+      inputs.forEach(i => otpValue += i.value);
+
+      document.querySelector('.otp-container').classList.remove('form-error');
+      errorOtp.style.display = 'none';
+
+      if (otpValue.length < 6) {
+        errorOtp.style.display = 'block';
+        document.querySelector('.otp-container').classList.add('form-error');
+        
+        const card = document.querySelector('.auth-card');
+        card.style.animation = 'none';
+        card.offsetHeight; // trigger reflow
+        card.style.animation = 'shake 0.4s ease';
+        return;
+      }
+
+      try {
+        const response = await $.ajax({
+          type: 'POST',
+          url: '/verify-forgetPass-otp',
+          contentType: 'application/json',
+          data: JSON.stringify({ otp: otpValue })
+        });
+
+        if (response.success) {
+          Swal.fire({
+            icon: 'success',
+            title: 'Verified!',
+            text: 'Redirecting to reset your password...',
+            showConfirmButton: false,
+            timer: 1500
+          }).then(() => {
+            window.location.href = response.redirectURL || response.redirectUrl;
+          });
+        } else {
+          Swal.fire({ icon: 'error', title: 'Verification Failed', text: response.message, confirmButtonColor: '#895D39' });
+        }
+      } catch (err) {
+        const msg = err.responseJSON && err.responseJSON.message ? err.responseJSON.message : 'Something went wrong. Please try again.';
+        Swal.fire({ icon: 'error', title: 'Error', text: msg, confirmButtonColor: '#895D39' });
+      }
+    });
+
+    async function handleResendOtp() {
+      document.getElementById('resendOtp').disabled = true;
+
+      // Show loading indicator
       Swal.fire({
-        title: 'Sending...',
-        text: 'Sending a new OTP to your email',
+        title: 'Sending OTP...',
+        text: 'Please wait while we send a new code to your email.',
         allowOutsideClick: false,
-        showConfirmButton: false,
+        background: '#fff',
+        color: '#2d2d2d',
         didOpen: () => {
           Swal.showLoading();
         }
       });
 
-      $.ajax({
-        type: 'POST',
-        url: '/resend-forgot-otp',  
-        success: function (response) {
-          Swal.close();
-
-          if (response.success) {
-            Swal.fire({
-              icon: 'success',
-              title: 'OTP Resent',
-              text: 'A new OTP has been sent to your email.',
-              timer: 2000,
-              showConfirmButton: false
-            });
-            initializeOtpTimer();  // Reset and start timer again
-          } else {
-            Swal.fire({
-              icon: 'error',
-              title: 'Error',
-              text: response.message || 'Failed to resend OTP'
-            });
-          }
-        },
-        error: function (xhr, status, error) {
-          Swal.close();
+      try {
+        const res = await fetch('/resend-forgot-otp', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' }
+        });
+        const response = await res.json();
+        
+        if (response.success) {
           Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: 'Failed to resend OTP. Please try again.'
+            icon: 'success',
+            title: 'OTP Resent!',
+            text: 'A new verification code has been sent to your email address.',
+            confirmButtonText: 'Got it',
+            confirmButtonColor: '#895D39',
+            background: '#fff',
+            customClass: {
+              popup: 'rounded-4'
+            }
+          }).then(() => {
+            document.getElementById('timerContainer').style.visibility = 'visible';
+            startTimer();
+            inputs.forEach(i => i.value = '');
+            inputs[0].focus();
+          });
+        } else {
+          Swal.fire({ icon: 'error', title: 'Error', text: response.message || 'Failed to resend. Try again later.', confirmButtonColor: '#895D39' }).then(() => {
+            document.getElementById('resendOtp').disabled = false;
           });
         }
-      });
-    }
-
-    function validateOTPForm() {
-      const otpInput = document.getElementById('otp');
-      const otpValue = otpInput.value.trim();
-      const errorMessage = document.getElementById('errorMessage');
-
-      if (otpValue === '') {
-        errorMessage.textContent = 'Please enter the OTP.';
-        errorMessage.style.display = 'block';
-        return false;
-      } else if (otpValue.length !== 6 || isNaN(otpValue)) {
-        errorMessage.textContent = 'Please enter a valid 6-digit OTP.';
-        errorMessage.style.display = 'block';
-        return false;
-      } else {
-        errorMessage.style.display = 'none';
-
-        Swal.fire({
-          title: 'Verifying...',
-          text: 'Please wait while we verify your OTP',
-          allowOutsideClick: false,
-          showConfirmButton: false,
-          didOpen: () => {
-            Swal.showLoading();
-          }
+      } catch (err) {
+        Swal.fire({ icon: 'error', title: 'Error', text: 'Network or internal server error', confirmButtonColor: '#895D39' }).then(() => {
+          document.getElementById('resendOtp').disabled = false;
         });
-
-        $.ajax({
-          type: 'POST',
-          url: '/verify-forgetPass-otp',
-          data: { otp: otpValue },
-          dataType: 'json',
-          success: function (response) {
-            Swal.close();
-            if (response.success) {
-              Swal.fire({
-                icon: 'success',
-                title: 'OTP Verified',
-                text: 'Your email has been successfully verified.',
-                showConfirmButton: false,
-                timer: 1500
-              }).then(() => {
-                window.location.href = response.redirectURL || '/reset-password';
-              });
-            } else {
-              Swal.fire({
-                icon: 'error',
-                title: 'Invalid OTP',
-                text: response.message || 'Please try again.'
-              });
-            }
-          },
-          error: function (xhr, status, error) {
-            Swal.close();
-            Swal.fire({
-              icon: 'error',
-              title: 'Error',
-              text: 'A server error occurred. Please try again.'
-            });
-          }
-        });
-        return false;
       }
     }
-
-    document.addEventListener('DOMContentLoaded', function () {
-      initializeOtpTimer();
-      document.getElementById('otpForm').addEventListener('submit', function (e) {
-        e.preventDefault();
-        validateOTPForm();
-      });
-    });
   </script>
 </body>
-
 </html>

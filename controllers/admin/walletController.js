@@ -60,7 +60,6 @@ const getWalletTransactions = async (req, res) => {
     const totalTransactions = wallet.transactions.length;
     const totalPages = Math.ceil(totalTransactions / limit);
 
-    // Fetch order details for transactions with orderID
     const transactionsWithOrders = await Promise.all(
       transactions.map(async (transaction) => {
         if (transaction.orderID) {

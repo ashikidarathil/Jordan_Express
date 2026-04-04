@@ -1,834 +1,370 @@
 <%- include('../partials/user/header') %>
 
-  <!DOCTYPE html>
-  <html lang="en">
-
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shop | Your Brand</title>
-
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <style>
-      @import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
-
-      * {
-        padding: 0;
-        margin: 0;
-        box-sizing: border-box;
-        font-family: 'Inter', sans-serif;
-        text-decoration: none;
-        transition: 0.3s;
-      }
-
-      body {
-        background-color: #f8f9fa;
-        color: #895D39;
-      }
-
-      .main {
-        display: flex;
-        padding-top: 20px;
-        padding-left: 110px;
-        padding-right: 110px;
-        margin: 0px;
-        margin-bottom: 200px;
-      }
-
-      .filters {
-
-        margin-left: 20px;
-        flex: 0 0 250px;
-        background: white;
-        padding: 1.5rem;
-        border-radius: 12px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+<style>
+    .shop-sidebar {
+        background: #fff;
+        border-radius: 15px;
+        padding: 20px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
         height: fit-content;
-        margin-bottom: 50px;
-      }
-
-      .filter-section {
-        margin-bottom: 1.5rem;
-        border-bottom: 1px solid #eee;
-        padding-bottom: 1.5rem;
-      }
-
-      .filter-section:last-child {
-        border-bottom: 0;
-        margin-bottom: 0;
-      }
-
-      .filter-title {
-        font-size: 18px;
+    }
+    .filter-group-title {
         font-weight: 800;
-        margin-bottom: 1rem;
+        color: var(--text-dark);
+        margin-bottom: 15px;
         display: flex;
         justify-content: space-between;
         align-items: center;
-      }
-
-      .filter-title button {
-        background: none;
-        border: none;
-        cursor: pointer;
-        font-size: 0.8rem;
-        color: #666;
-      }
-
-      .filter-title button:hover {
-        color: #895D39;
-      }
-
-      .checkbox-group {
-        font-weight: 700;
-        color: #606060;
-        font-size: 14px;
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-      }
-
-      .checkbox-item {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-      }
-
-      .checkbox-item input {
-        cursor: pointer;
-      }
-
-      .color-options {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.5rem;
-      }
-
-      .color-option {
-        width: 25px;
-        height: 25px;
-        border-radius: 50%;
-        cursor: pointer;
-        border: 2px solid #eee;
-        transition: transform 0.2s, box-shadow 0.2s;
-      }
-
-      .color-option:hover {
-        transform: scale(1.1);
-        box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
-      }
-
-      .color-option.selected {
-        box-shadow: 0 0 0 2px #895D39;
-      }
-
-      .price-buttons a {
-        display: flex;
-        gap: 0.5rem;
-        margin-top: 0.5rem;
+    }
+    .filter-group-title span { font-size: 1.1rem; }
+    
+    .price-range-btn {
+        display: block;
         width: 100%;
-        flex-wrap: wrap;
-        flex-direction: column;
-      }
-
-      .price-button {
-        flex: 1;
-        min-width: calc(25% - 0.5rem);
-        padding: 0.5rem;
-        border: 1px solid #ddd;
-        color: #606060;
-        border-radius: 4px;
-        background: white;
-        cursor: pointer;
+        text-align: left;
+        padding: 8px 15px;
+        margin-bottom: 8px;
+        border: 1px solid #eee;
+        border-radius: 8px;
+        background: #f8f9fa;
+        color: var(--text-muted);
         font-size: 0.9rem;
         font-weight: 600;
-        transition: all 0.2s ease;
-      }
-
-
-      .price-button:hover {
-        background: #f5f5f5;
-      }
-
-      .price-button.active {
-        background: #895D39;
-        color: white;
-        border-color: #895D39;
-      }
-
-
-
-      .products .items {
-        display: grid;
-        grid-template-columns: repeat(3, 280px);
-        gap: 30px;
-        padding: 0px;
-        margin: 0px;
-      }
-
-      .products .items .item {
-        position: relative;
-        overflow: hidden;
-        border: 1px solid lightgray;
-        border-radius: 6px;
-        background-color: white;
-      }
-
-      .products .items .item:hover {
-        transform: translateY(-6px);
-        box-shadow: 0 6px 20px rgba(137, 93, 57, 0.12);
-      }
-
-      .products .items .item img {
-        width: 100%;
-        margin-bottom: 20px;
-      }
-
-      .products .items .item .title-prod {
-        color: #111;
-        font-size: 20px;
-        text-align: center;
-      }
-
-      .products .items .item .title-prod:hover {
-        color: #895D39;
-      }
-
-      .products .items .item .stars {
-        margin: 10px 0;
-      }
-
-      .products .items .item .stars i {
-        color: #ffdc19;
-      }
-
-      .products .items .item .price span {
-        color: #895D39;
-        font-size: 24px;
-        font-weight: 600;
-        margin-right: 20px;
-        cursor: pointer;
-      }
-
-      .products .items .item .price del {
-        color: #606060;
-        font-size: 20px;
-        text-decoration: line-through;
-      }
-
-      a {
-        text-decoration: none;
-        color: #895D39;
-      }
-
-      .products .items .item .icon-product {
-        position: absolute;
-        top: 50%;
-        transform: translateY(-50%);
-        right: -50px;
-        display: flex;
-        flex-direction: column;
-        transition: right 0.3s ease;
-      }
-
-      .products .items .item:hover .icon-product {
-        right: 30px;
-      }
-
-      .products .items .item .icon-product i {
-        width: 40px;
-        height: 40px;
-        text-align: center;
-        line-height: 40px;
-        border: 1px solid #1111116e;
-        color: #111;
-        background-color: #fff;
-        font-size: 18px;
-        margin-bottom: 10px;
-        transition: background-color 0.3s, color 0.3s;
-      }
-
-      .products .items .item .icon-product i:hover {
-        background-color: #895D39;
+        transition: all 0.2s;
+    }
+    .price-range-btn:hover {
+        background: var(--primary-color);
         color: #fff;
-      }
+        border-color: var(--primary-color);
+    }
 
-      /* Responsive grid adjustments */
-      @media (max-width: 1200px) {
-        .products .items {
-          grid-template-columns: repeat(3, 1fr);
+
+
+    @media (min-width: 992px) {
+        .shop-sidebar {
+            position: sticky;
+            top: 100px;
+            z-index: 10;
         }
-      }
+    }
 
-      @media (max-width: 768px) {
-        .products .items {
-          grid-template-columns: repeat(2, 1fr);
+    @media (max-width: 991px) {
+        .offcanvas-body .shop-sidebar {
+            background: transparent;
+            box-shadow: none;
+            padding: 20px 25px !important;
+            border-radius: 0;
+            margin-bottom: 0;
         }
-      }
-
-      @media (max-width: 480px) {
-        .products .items {
-          grid-template-columns: 1fr;
-        }
-      }
-
-      .toolbar {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 1rem 0;
-        margin-bottom: 1rem;
-      }
-
-      .sort-options select {
-        padding: 0.5rem 1rem;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        background-color: white;
-        cursor: pointer;
-      }
-
-      .view-options {
-        display: flex;
-        gap: 0.5rem;
-      }
-
-      .view-btn {
-        background: white;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        padding: 0.5rem;
-        cursor: pointer;
-        transition: background 0.2s;
-      }
-
-      .view-btn:hover {
-        background-color: #f0f0f0;
-      }
-
-      .view-btn.active {
-        background-color: #895D39;
-        color: white;
-        border-color: #895D39;
-      }
-
-      .pagination {
-        display: flex;
-        justify-content: center;
-      }
-
-      .pagination .page-item {
-        margin-bottom: -120px;
-        margin-top: 60px;
-      }
-
-      .pagination .page-link {
-        padding: 8px 16px;
-        border: 1px solid #ddd;
-        border-radius: 10px;
-        color: #555;
-        text-decoration: none;
-        transition: all 0.3s ease;
-        margin-right: 5px;
-        margin-left: 5px;
-      }
-
-      .pagination .page-link:hover {
-        background-color: #895D39;
-        color: white;
-        border-color: #895D39;
-      }
-
-      .page-item {
-        list-style: none;
-      }
-
-      .page-link {
-        padding: 0.5rem 1rem;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        color: #895D39;
-        text-decoration: none;
-        transition: background-color 0.3s, color 0.3s;
-      }
-
-      ul.size-list {
-        list-style-type: none;
-        padding: 0;
-        margin: 0;
-      }
-
-      ul.size-list li {
-        padding: 5px 0;
-        border-bottom: 1px solid #ddd;
-      }
-
-      ul.size-list li:last-child {
-        border-bottom: none;
-      }
-
-
-      @media (max-width: 768px) {
-        main {
-          flex-direction: column;
-        }
-
-        .filters {
-          flex: 0 0 auto;
-          width: 100%;
-        }
-
-        .products .items .item {
-          width: 48%;
-        }
-      }
-
-      .modal-container {
+    }
+    
+    .modal-container {
         display: none;
         position: fixed;
-        top: 80px;
+        top: 100px;
         right: 20px;
-        z-index: 1000;
-        animation: slideIn 0.5s forwards;
-      }
-
-      .modal-content {
-        background-color: #f8f8f8;
-        border-left: 4px solid #8b5a2b;
-        font-size: 14px;
+        z-index: 2000;
+    }
+    .modal-content-custom {
+        padding: 15px 25px;
+        border-radius: 10px;
+        color: #fff;
         font-weight: 600;
-        padding: 15px 20px;
-        border-radius: 4px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        max-width: 300px;
-        border-radius: 20px;
-        position: relative;
-      }
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+    .modal-success-bg { background-color: #28a745; }
+    .modal-error-bg { background-color: #dc3545; }
+</style>
 
-      .modal-error .modal-content {
-        border: none;
-        background-color: #ff3333;
-        color: white;
-      }
-
-      .modal-success .modal-content {
-        background-color: #33cc33;
-        border: none;
-        color: white;
-      }
-
-      .discount-badge {
-        position: absolute;
-        top: 1.5rem;
-        left: 1.2rem;
-        background-color: #FFD700;
-        color: #895D39;
-        font-size: 4px;
-        font-weight: 600;
-        padding: 5px 10px;
-        border-radius: 5px;
-      }
-
-
-      @keyframes slideIn {
-        from {
-          transform: translateX(100%);
-        }
-
-        to {
-          transform: translateX(0);
-        }
-      }
-
-      @keyframes slideOut {
-        from {
-          transform: translateX(0);
-        }
-
-        to {
-          transform: translateX(100%);
-        }
-      }
-
-      /* Existing pagination styles */
-      .pagination .page-link {
-        padding: 8px 16px;
-        border: 1px solid #ddd;
-        border-radius: 3px;
-        color: #555;
-        text-decoration: none;
-        transition: all 0.3s ease;
-      }
-
-      .pagination .page-link:hover {
-        background-color: #895D39;
-        color: white;
-        border-color: #895D39;
-      }
-
-      /* Style for disabled buttons */
-      .page-item.disabled .page-link {
-        color: #ccc;
-        pointer-events: none;
-        background-color: #f8f9fa;
-        border-color: #ddd;
-      }
-
-
-      .page-item.active .page-link {
-        background-color: #895D39;
-        color: white;
-        border-color: #895D39;
-        cursor: default;
-        
-      }
-    </style>
-
-  </head>
-
-  <div id="modal-container" class="modal-container">
-    <div class="modal-content">
-      <!-- <span class="modal-close">×</span> -->
-      <p id="modal-message"></p>
+<div id="modal-container" class="modal-container">
+    <div id="modal-content-box" class="modal-content-custom">
+        <p id="modal-message" class="mb-0"></p>
     </div>
-  </div>
+</div>
 
-  <div class="container">
-    <div class="main">
-
-      <!-- Filters Sidebar -->
-      <aside class="filters">
-        <div class="filter-section">
-          <div class="filter-title">
-            <span>Categories</span>
-            <button id="clearFilters">Clear</button>
-          </div>
-          <div class="checkbox-group">
-            <%for(let i=0;i< category.length;i++){%>
-              <label class="checkbox-item">
-                <input type="checkbox" value="<%= category[i]._id %>" class="category-filter">
-                <%= category[i].name %>
-              </label>
-              <%}%>
-          </div>
+<div class="container py-5">
+    <div class="row">
+        <!-- Filters Trigger (Mobile) -->
+        <div class="d-lg-none mb-4">
+            <button class="btn btn-primary-custom w-100 py-3 d-flex align-items-center justify-content-center gap-2 shadow-sm" type="button" data-bs-toggle="offcanvas" data-bs-target="#shopSidebarOffcanvas" aria-controls="shopSidebarOffcanvas">
+                <i class="fa-solid fa-filter"></i> FILTER PRODUCTS
+            </button>
         </div>
 
-        <div class="filter-section">
-          <div class="filter-title">
-            <span>Price Range</span>
-          </div>
-          <div class="price-buttons">
-            <a href="/filterPrice?gt=0&lt=5000"><button class="price-button">&#8377;0 - &#8377;5,000</button></a>
-            <a href="/filterPrice?gt=5000&lt=10000"><button class="price-button">&#8377;5000 -
-                &#8377;10,000</button></a>
-            <a href="/filterPrice?gt=10000&lt=15000"><button class="price-button">&#8377;10,000 -
-                &#8377;15,000</button></a>
-            <a href="/filterPrice?gt=15000&lt=20000"><button class="price-button">&#8377;15,000 -
-                &#8377;20,000</button></a>
-            <!-- <a href="/filterPrice?gte=200"><button class="price-button">Above $200</button></a> -->
-          </div>
-        </div>
+        <!-- Sidebar Filters -->
+        <aside class="col-lg-3">
+            <div class="offcanvas-lg offcanvas-start" tabindex="-1" id="shopSidebarOffcanvas" aria-labelledby="shopSidebarOffcanvasLabel">
+                <div class="offcanvas-header d-lg-none border-bottom px-4 py-3">
+                    <h5 class="offcanvas-title fw-bold text-dark mb-0" id="shopSidebarOffcanvasLabel">FILTERS</h5>
+                    <button type="button" class="btn-close shadow-none" data-bs-dismiss="offcanvas" data-bs-target="#shopSidebarOffcanvas" aria-label="Close"></button>
+                </div>
+                
+                <div class="offcanvas-body p-0">
+                    <div class="shop-sidebar w-100">
+                        <!-- Clear All Filters Button -->
+                        <div class="mb-4">
+                            <button class="btn btn-primary-custom w-100 py-2 d-flex align-items-center justify-content-center gap-2" id="clearAll">
+                                <i class="fa-solid fa-rotate-left small"></i> Clear All Filters
+                            </button>
+                        </div>
 
-        <!-- New Sorting Options Section -->
-        <div class="filter-section">
-          <div class="filter-title">
-            <span>Sort By</span>
-            <button id="clearSorting">Clear</button>
-          </div>
-          <div class="checkbox-group">
-            <label class="checkbox-item">
-              <input type="checkbox" name="sort" value="newest" class="sort-filter" <%=sort==='newest' ? 'checked' : ''
-                %>>
-              Newest Arrivals
-            </label>
-            <label class="checkbox-item">
-              <input type="checkbox" name="sort" value="price-low" class="sort-filter" <%=sort==='price-low' ? 'checked'
-                : '' %>>
-              Price: Low to High
-            </label>
-            <label class="checkbox-item">
-              <input type="checkbox" name="sort" value="price-high" class="sort-filter" <%=sort==='price-high'
-                ? 'checked' : '' %>>
-              Price: High to Low
-            </label>
-            <label class="checkbox-item">
-              <input type="checkbox" name="sort" value="a-z" class="sort-filter" <%=sort==='a-z' ? 'checked' : '' %>>
-              Name: A to Z
-            </label>
-            <label class="checkbox-item">
-              <input type="checkbox" name="sort" value="z-a" class="sort-filter" <%=sort==='z-a' ? 'checked' : '' %>>
-              Name: Z to A
-            </label>
-          </div>
-        </div>
-      </aside>
+                        <!-- Categories -->
+                        <div class="mb-4 pb-4 border-bottom">
+                            <div class="filter-group-title">
+                                <span>Categories</span>
+                            </div>
+                            <div class="d-flex flex-column gap-2">
+                                <% for(let i=0; i < category.length; i++) { %>
+                                    <div class="form-check">
+                                        <input class="form-check-input category-filter" type="checkbox" value="<%= category[i]._id %>" id="cat-<%= i %>">
+                                        <label class="form-check-label small fw-semibold text-muted" for="cat-<%= i %>">
+                                            <%= category[i].name %>
+                                        </label>
+                                    </div>
+                                <% } %>
+                            </div>
+                        </div>
 
-      <div class="products" >
-        <div class="contnaier">
-          <% if (products.length===0) { %>
-            <div class="no-products" style="text-align: center; padding: 50px; margin-left: 100px;">
-              <h3 style="margin-left: 100px;text-wrap: nowrap;">No products found matching your filters</h3>
-              <a href="/shop" class="btn"
-                style="background-color: #895D39; color: white; padding: 10px 20px; border-radius: 5px; margin-top: 20px; display: inline-block;margin-left: 200px;">
-                Go Back
-              </a>
-            </div>
-            <% } else { %>
-              <div class="items">
-                <% for(let i=0; i < products.length; i++) { %>
-                  <div class="item">
-                    <a href="/productDetails?id=<%=products[i]._id %>">
-                      <img src="uploads/product-image/<%= products[i].productImage[0] %>"
-                        alt="<%= products[i].productName %>">
-                    </a>
-                    <div class="product-desc">
-                      <a href="#" class="title-prod">
-                        <%= products[i].productName %>
-                      </a>
-                      <div class="stars">
-                        <i class="fa-solid fa-star"></i>
-                        <i class="fa-solid fa-star"></i>
-                        <i class="fa-solid fa-star"></i>
-                        <i class="fa-solid fa-star"></i>
-                        <i class="fa-solid fa-star-half-stroke"></i>
-                      </div>
-                      <div class="price">
-                        <span>
-                          <%= new Intl.NumberFormat('en-IN', { style: 'currency' , currency: 'INR' ,
-                            minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(products[i].salePrice) %>
-                        </span>
-                        <% if (products[i].discountPercentage> 0) { %>
-                          <del>
-                            <%= new Intl.NumberFormat('en-IN', { style: 'currency' , currency: 'INR' ,
-                              minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(products[i].regularPrice) %>
-                          </del>
-                          <span class="discount-badge" style="font-size: 12px;">
-                            <%= products[i].discountPercentage %>% OFF
-                          </span>
-                          <% } %>
-                      </div>
-                      <div class="icon-product">
-                        <a href="#" class="wishlist-icon" data-product-id="<%= products[i]._id %>"
-                          title="Add to Wishlist">
-                          <i class="fa-regular fa-heart"></i>
-                        </a>
-                        <a href="/productDetails?id=<%=products[i]._id %>"><i class="fa-solid fa-cart-shopping"></i></a>
-                        <a href="#"><i class="fa-solid fa-right-left"></i></a>
-                      </div>
+                        <!-- Price Ranges -->
+                        <div class="mb-4 pb-4 border-bottom">
+                            <div class="filter-group-title">
+                                <span>Price Range</span>
+                            </div>
+                            <div class="d-flex flex-column">
+                                <a href="/filterPrice?gt=0&lt=5000" class="text-decoration-none price-range-btn">&#8377;0 - &#8377;5,000</a>
+                                <a href="/filterPrice?gt=5000&lt=10000" class="text-decoration-none price-range-btn">&#8377;5,000 - &#8377;10,000</a>
+                                <a href="/filterPrice?gt=10000&lt=15000" class="text-decoration-none price-range-btn">&#8377;10,000 - &#8377;15,000</a>
+                                <a href="/filterPrice?gt=15000&lt=20000" class="text-decoration-none price-range-btn">&#8377;15,000 - &#8377;20,000</a>
+                            </div>
+                        </div>
+
+                        <!-- Sort Options -->
+                        <div>
+                            <div class="filter-group-title">
+                                <span>Sort By</span>
+                            </div>
+                            <div class="d-flex flex-column gap-2">
+                                <% const sortOptions = [
+                                    { val: 'newest', label: 'Newest Arrivals' },
+                                    { val: 'price-low', label: 'Price: Low to High' },
+                                    { val: 'price-high', label: 'Price: High to Low' },
+                                    { val: 'a-z', label: 'Name: A to Z' },
+                                    { val: 'z-a', label: 'Name: Z to A' }
+                                ]; %>
+                                <% sortOptions.forEach((opt, idx) => { %>
+                                    <div class="form-check">
+                                        <input class="form-check-input sort-filter" type="checkbox" name="sort" value="<%= opt.val %>" id="sort-<%= idx %>" <%= sort === opt.val ? 'checked' : '' %>>
+                                        <label class="form-check-label small fw-semibold text-muted" for="sort-<%= idx %>">
+                                            <%= opt.label %>
+                                        </label>
+                                    </div>
+                                <% }) %>
+                            </div>
+                        </div>
                     </div>
-                  </div>
-                  <% } %>
-              </div>
+                </div>
+            </div>
+        </aside>
 
-              <% } %>
-        </div>
+        <!-- Main Content -->
+        <main class="col-lg-9">
+            <!-- Search and Header Toolbar -->
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4 p-3 bg-white rounded-4 shadow-sm">
+                <h4 class="fw-bold mb-0 text-dark">Our Collection</h4>
+                
+                <form class="shop-search-form d-flex align-items-center" action="/search" method="post" style="max-width: 400px; width: 100%;">
+                    <div class="input-group">
+                        <input type="text" name="query" class="form-control border-end-0 rounded-start-pill px-4" placeholder="Search products..." style="height: 45px;" value="<%= search %>">
+                        <% if (search && search.trim() !== '') { %>
+                            <a href="/shop" class="btn btn-primary-custom border-start-0 rounded-end-pill px-3 d-flex align-items-center justify-content-center" style="height: 45px; width: 45px;">
+                                <i class="fa-solid fa-xmark text-white"></i>
+                            </a>
+                        <% } else { %>
+                            <button class="btn btn-primary-custom border-start-0 rounded-end-pill px-3" type="submit" style="height: 45px;">
+                                <i class="fa-solid fa-search text-white"></i>
+                            </button>
+                        <% } %>
+                    </div>
+                </form>
+            </div>
 
-        <% if (totalPages > 1) { %>
-          <nav aria-label="Page navigation">
-            <ul class="pagination" style="margin-left: 130px; padding: 20px 0px;">
-              <!-- Previous Button -->
-              <li class="page-item <%= currentPages === 1 ? 'disabled' : '' %>">
-                <a class="page-link"
-                  href="<%= currentPages > 1 ? `/shop?page=${currentPages - 1}&search=${search}&sort=${sort}` : '#' %>"
-                  aria-label="Previous">
-                  <span aria-hidden="true">Previous</span>
-                </a>
-              </li>
-        
-              <!-- Page Numbers -->
-              <% for (let i = 1; i <= totalPages; i++) { %>
-                <li class="page-item <%= currentPages === i ? 'active' : '' %>">
-                  <a class="page-link" href="/shop?page=<%= i %>&search=<%= search %>&sort=<%= sort %>">
-                    <%= i %>
-                  </a>
-                </li>
-              <% } %>
-        
-              <!-- Next Button -->
-              <li class="page-item <%= currentPages === totalPages ? 'disabled' : '' %>">
-                <a class="page-link"
-                  href="<%= currentPages < totalPages ? `/shop?page=${currentPages + 1}&search=${search}&sort=${sort}` : '#' %>"
-                  aria-label="Next">
-                    <span aria-hidden="true">Next</span>
-                  </a>
-                </li>
-            </ul>
-          </nav>
-        <% } %>
-      </div>
+            <% if (products.length === 0) { %>
+                <div class="text-center py-5 bg-white rounded-4 shadow-sm">
+                    <div class="mb-4">
+                        <i class="fa-solid fa-magnifying-glass fs-1 text-muted opacity-25"></i>
+                    </div>
+                    <h3 class="fw-bold text-dark">No products found</h3>
+                    <p class="text-muted mb-4">Try adjusting your filters or search keywords.</p>
+                    <a href="/shop" class="btn btn-primary-custom px-4 rounded-pill">View All Products</a>
+                </div>
+            <% } else { %>
+                <div class="row g-4 mb-5">
+                    <% for(let i=0; i < products.length; i++) { %>
+                        <div class="col-6 col-md-4">
+                            <div class="product-card-custom item position-relative h-100">
+                                <% if (products[i].discountPercentage > 0) { %>
+                                    <span class="discount-badge"><%= products[i].discountPercentage %>% OFF</span>
+                                <% } %>
+                                
+                                <a href="/productDetails?id=<%= products[i]._id %>" class="d-block overflow-hidden">
+                                    <img src="uploads/product-image/<%= products[i].productImage[0] %>" 
+                                         alt="<%= products[i].productName %>" class="img-fluid w-100" style="aspect-ratio: 1; object-fit: cover;">
+                                </a>
+                                
+                                <div class="p-3 text-center">
+                                    <a href="/productDetails?id=<%= products[i]._id %>" class="text-decoration-none text-dark fw-bold d-block mb-1 text-truncate">
+                                        <%= products[i].productName %>
+                                    </a>
+                                    <div class="text-warning small mb-2">
+                                        <i class="fa-solid fa-star"></i>
+                                        <i class="fa-solid fa-star"></i>
+                                        <i class="fa-solid fa-star"></i>
+                                        <i class="fa-solid fa-star"></i>
+                                        <i class="fa-solid fa-star-half-stroke"></i>
+                                    </div>
+                                    <div class="price">
+                                        <span class="fw-bold text-primary-custom fs-5">
+                                            <%= new Intl.NumberFormat('en-IN', { style: 'currency' , currency: 'INR' , minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(products[i].salePrice) %>
+                                        </span>
+                                        <% if (products[i].discountPercentage > 0) { %>
+                                            <del class="text-muted small ms-2" style="text-decoration: line-through !important;">
+                                                <%= new Intl.NumberFormat('en-IN', { style: 'currency' , currency: 'INR' , minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(products[i].regularPrice) %>
+                                            </del>
+                                        <% } %>
+                                    </div>
+                                </div>
+                                
+                                <!-- Overlay Icons -->
+                                <div class="icon-product">
+                                    <a href="#" class="wishlist-icon shadow-sm" data-product-id="<%= products[i]._id %>" title="Add to Wishlist">
+                                        <i class="fa-regular fa-heart"></i>
+                                    </a>
+                                    <a href="/productDetails?id=<%= products[i]._id %>" class="shadow-sm" title="View Details">
+                                        <i class="fa-solid fa-cart-shopping"></i>
+                                    </a>
+                                    <a href="#" title="Compare">
+                                        <i class="fa-solid fa-right-left"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    <% } %>
+                </div>
+
+                <!-- Pagination -->
+                <% if (totalPages > 1) { %>
+                    <nav aria-label="Product pagination">
+                        <ul class="pagination justify-content-center">
+                            <li class="page-item <%= currentPages === 1 ? 'disabled' : '' %>">
+                                <a class="page-link" href="<%= currentPages > 1 ? `/shop?page=${currentPages - 1}&search=${search}&sort=${sort}` : '#' %>">Previous</a>
+                            </li>
+                            
+                            <% for (let i = 1; i <= totalPages; i++) { %>
+                                <li class="page-item <%= currentPages === i ? 'active' : '' %>">
+                                    <a class="page-link" href="/shop?page=<%= i %>&search=<%= search %>&sort=<%= sort %>"><%= i %></a>
+                                </li>
+                            <% } %>
+                            
+                            <li class="page-item <%= currentPages === totalPages ? 'disabled' : '' %>">
+                                <a class="page-link" href="<%= currentPages < totalPages ? `/shop?page=${currentPages + 1}&search=${search}&sort=${sort}` : '#' %>">Next</a>
+                            </li>
+                        </ul>
+                    </nav>
+                <% } %>
+            <% } %>
+        </main>
     </div>
-  </div>
+</div>
 
-
-
-  <script>
-
-
-
-
+<script>
     document.addEventListener('DOMContentLoaded', function () {
+        // Filter logic preservation
+        const categoryCheckboxes = document.querySelectorAll('.category-filter');
+        const urlParams = new URLSearchParams(window.location.search);
+        const categoryParam = urlParams.get('category');
+        const sortParam = urlParams.get('sort');
 
-      const categoryCheckboxes = document.querySelectorAll('.category-filter');
-      const urlParams = new URLSearchParams(window.location.search);
-      const categoryParam = urlParams.get('category');
-      const sortParam = urlParams.get('sort');
-
-      if (categoryParam) {
-        const selectedCategories = categoryParam.split(',');
-        categoryCheckboxes.forEach(checkbox => {
-          if (selectedCategories.includes(checkbox.value)) {
-            checkbox.checked = true;
-          }
-        });
-      }
-
-      categoryCheckboxes.forEach(checkbox => {
-        checkbox.addEventListener('change', function () {
-          const selectedCategories = [];
-          document.querySelectorAll('.category-filter:checked').forEach(checked => {
-            selectedCategories.push(checked.value);
-          });
-
-          const currentParams = new URLSearchParams(window.location.search);
-          if (selectedCategories.length > 0) {
-            currentParams.set('category', selectedCategories.join(','));
-          } else {
-            currentParams.delete('category');
-          }
-          if (sortParam) currentParams.set('sort', sortParam);
-
-          let newUrl = '/filter?' + currentParams.toString().replace(/&$/, '');
-          window.location.href = newUrl;
-        });
-      });
-
-      const sortCheckboxes = document.querySelectorAll('.sort-filter');
-      if (sortParam) {
-        sortCheckboxes.forEach(checkbox => {
-          if (checkbox.value === sortParam) checkbox.checked = true;
-        });
-      }
-
-      sortCheckboxes.forEach(checkbox => {
-        checkbox.addEventListener('change', function () {
-          if (this.checked) {
-            sortCheckboxes.forEach(cb => { if (cb !== this) cb.checked = false; });
-            const currentParams = new URLSearchParams(window.location.search);
-            currentParams.set('sort', this.value);
-            let newUrl = window.location.pathname + '?' + currentParams.toString().replace(/&$/, '');
-            window.location.href = newUrl;
-          } else {
-            const currentParams = new URLSearchParams(window.location.search);
-            currentParams.delete('sort');
-            let newUrl = window.location.pathname + '?' + currentParams.toString().replace(/&$/, '');
-            window.location.href = newUrl;
-          }
-        });
-      });
-
-      document.getElementById('clearFilters').addEventListener('click', function () {
-        document.querySelectorAll('.category-filter').forEach(checkbox => checkbox.checked = false);
-        const currentParams = new URLSearchParams(window.location.search);
-        currentParams.delete('category');
-        let newUrl = '/shop?' + currentParams.toString().replace(/&$/, '');
-        window.location.href = newUrl;
-      });
-
-      document.getElementById('clearSorting').addEventListener('click', function () {
-        document.querySelectorAll('.sort-filter').forEach(checkbox => checkbox.checked = false);
-        const currentParams = new URLSearchParams(window.location.search);
-        currentParams.delete('sort');
-        let newUrl = window.location.pathname + '?' + currentParams.toString().replace(/&$/, '');
-        window.location.href = newUrl;
-      });
-
-      // Modal Functions
-      function showModal(message, type = 'info') {
-        const modal = document.getElementById('modal-container');
-        const modalMessage = document.getElementById('modal-message');
-        modal.className = 'modal-container';
-        let icon = '';
-        if (type === 'error') {
-          modal.classList.add('modal-error');
-          icon = '<i class="fas fa-exclamation-circle"></i> ';
-        } else if (type === 'success') {
-          modal.classList.add('modal-success');
-          icon = '<i class="fas fa-check-circle"></i> ';
-        }
-        modalMessage.innerHTML = icon + message;
-        modal.style.display = 'block';
-        setTimeout(() => hideModal(), 3000);
-      }
-
-      function hideModal() {
-        const modal = document.getElementById('modal-container');
-        modal.style.animation = 'slideOut 0.5s forwards';
-        setTimeout(() => {
-          modal.style.display = 'none';
-          modal.style.animation = 'slideIn 0.5s forwards';
-        }, 500);
-      }
-
-      // Wishlist Functionality
-      document.querySelectorAll('.wishlist-icon').forEach(icon => {
-        const productId = icon.dataset.productId;
-
-        // Check initial wishlist state
-        checkWishlistStatus(productId, icon);
-
-        icon.addEventListener('click', async function (e) {
-          e.preventDefault();
-          const isActive = this.classList.contains('active');
-
-          try {
-            const url = isActive ? '/remove-from-wishlist' : '/add-to-wishlist';
-            const response = await fetch(url, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ productId })
+        if (categoryParam) {
+            const selectedCategories = categoryParam.split(',');
+            categoryCheckboxes.forEach(checkbox => {
+                if (selectedCategories.includes(checkbox.value)) checkbox.checked = true;
             });
-            const data = await response.json();
-
-            if (data.success) {
-              this.classList.toggle('active');
-              const heart = this.querySelector('i');
-              heart.classList.toggle('fa-regular');
-              heart.classList.toggle('fa-solid');
-              showModal(
-                isActive ? 'Removed from wishlist!' : 'Added to wishlist!',
-                'success'
-              );
-            } else {
-              showModal(data.message || 'Failed to update wishlist', 'error');
-            }
-          } catch (error) {
-            console.error('Error:', error);
-            showModal('Network error. Please try again.', 'error');
-          }
-        });
-      });
-
-      // Function to check if product is in wishlist on page load
-      async function checkWishlistStatus(productId, icon) {
-        try {
-          const response = await fetch('/wishlist');
-          const wishlistPage = await response.text();
-          const parser = new DOMParser();
-          const doc = parser.parseFromString(wishlistPage, 'text/html');
-          if (doc.querySelector(`[data-product-id="${productId}"]`)) {
-            icon.classList.add('active');
-            icon.querySelector('i').classList.remove('fa-regular');
-            icon.querySelector('i').classList.add('fa-solid');
-          }
-        } catch (error) {
-          console.error('Error checking wishlist status:', error);
         }
-      }
+
+        categoryCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function () {
+                const selectedCategories = Array.from(document.querySelectorAll('.category-filter:checked')).map(cb => cb.value);
+                const currentParams = new URLSearchParams(window.location.search);
+                if (selectedCategories.length > 0) currentParams.set('category', selectedCategories.join(','));
+                else currentParams.delete('category');
+                
+                window.location.href = '/filter?' + currentParams.toString();
+            });
+        });
+
+        const sortCheckboxes = document.querySelectorAll('.sort-filter');
+        sortCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function () {
+                if (this.checked) {
+                    sortCheckboxes.forEach(cb => { if (cb !== this) cb.checked = false; });
+                    const currentParams = new URLSearchParams(window.location.search);
+                    currentParams.set('sort', this.value);
+                    window.location.href = window.location.pathname + '?' + currentParams.toString();
+                }
+            });
+        });
+
+        document.getElementById('clearAll').addEventListener('click', () => {
+            window.location.href = '/shop';
+        });
+
+        // Notification Modal
+        function showModal(message, type = 'info') {
+            const container = document.getElementById('modal-container');
+            const contentBox = document.getElementById('modal-content-box');
+            const msgP = document.getElementById('modal-message');
+            
+            contentBox.classList.remove('modal-success-bg', 'modal-error-bg');
+            if (type === 'success') contentBox.classList.add('modal-success-bg');
+            else if (type === 'error') contentBox.classList.add('modal-error-bg');
+            
+            msgP.textContent = message;
+            container.style.display = 'block';
+            setTimeout(() => { container.style.display = 'none'; }, 3000);
+        }
+
+        // Wishlist Logic
+        document.querySelectorAll('.wishlist-icon').forEach(icon => {
+            const productId = icon.dataset.productId;
+            
+            // Check initial state
+            fetch('/wishlist').then(r => r.text()).then(html => {
+                if (html.includes(`data-product-id="${productId}"`)) {
+                    icon.classList.add('active');
+                    icon.querySelector('i').classList.replace('fa-regular', 'fa-solid');
+                }
+            });
+
+            icon.addEventListener('click', async function (e) {
+                e.preventDefault();
+                const isActive = this.classList.contains('active');
+                try {
+                    const res = await fetch(isActive ? '/remove-from-wishlist' : '/add-to-wishlist', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ productId })
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        this.classList.toggle('active');
+                        this.querySelector('i').classList.toggle('fa-regular');
+                        this.querySelector('i').classList.toggle('fa-solid');
+                        showModal(isActive ? 'Removed from wishlist!' : 'Added to wishlist!', 'success');
+                    }
+                } catch (err) { showModal('Error updating wishlist', 'error'); }
+            });
+        });
     });
-  </script>
-  </body>
+</script>
 
-  </html>
-
-  <%- include('../partials/user/footer') %>
+<%- include('../partials/user/footer') %>

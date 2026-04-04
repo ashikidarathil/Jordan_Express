@@ -212,7 +212,7 @@ const moveToCart = async (req, res) => {
       res.status(200).json({
           success: true,
           message: 'Moved to cart successfully',
-          cartCount: cart.item.length,
+          cartCount: cart.item.reduce((count, item) => count + item.size.length, 0),
           wishlistCount: wishlist ? wishlist.products.length : 0
       });
 

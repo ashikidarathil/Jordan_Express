@@ -51,14 +51,11 @@ router.post('/resend-forgot-otp',profileController.resendOtp)
 router.post('/reset-password',profileController.postNewPassword)
 router.get('/userProfile',userAuth,profileController.userProfile)
 router.get('/edit-Profile',userAuth,profileController.editProfile)
-router.get('/change-email',userAuth,profileController.changeEmail)
 router.post('/change-email',userAuth,profileController.verifyEmail)
 router.post('/verify-email-otp',userAuth,profileController.verifyEmailOtp)
 router.post('/resend-email-otp',userAuth,profileController.resendEmailOtp)
-router.get('/update-email',userAuth,profileController.getUpdateEmail)
 router.post('/update-email',userAuth,profileController.updateEmail)
-router.get('/change-pass',userAuth,profileController.changePass)
-router.get('/change-name', userAuth,profileController.changeName);
+router.post('/change-password',userAuth,profileController.changePassword)
 router.post('/update-name', userAuth,profileController.updateName);
 router.get('/referral', userAuth, userController.getReferralPage);
 

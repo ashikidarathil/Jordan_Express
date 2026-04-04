@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Dashboard | Jordan Express</title>
+  
+  <!-- Fonts & Icons -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Core CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/theme.css">
+
+  <style>
+    :root {
+      --dash-primary: #8b5a2b;
+      --dash-primary-dark: #724922;
+      --primary-light: #fdfaf7;
+      --dash-bg: #f8f9fa;
+      --dash-card: #ffffff;
+      --dash-sidebar: #ffffff;
+      --dash-text: #2d3436;
+      --dash-text-muted: #636e72;
+      --dash-border: #edf2f7;
+      --dash-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+      --dash-radius: 16px;
+      --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    body {
+      background-color: var(--dash-bg);
+      font-family: 'Poppins', sans-serif;
+      overflow-x: hidden;
+      margin: 0;
+      padding: 0;
+    }
+
+    .dashboard-container {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* Sidebar Styles */
+    .sidebar-container {
+      width: 280px;
+      background: var(--dash-sidebar);
+      border-right: 1px solid var(--dash-border);
+      padding: 30px 20px;
+      flex-shrink: 0;
+      position: fixed;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      height: 100vh;
+      overflow-y: auto;
+      transition: var(--transition);
+      z-index: 100; /* Kept low to allow modals to overlay */
+    }
+
+    .dash-main {
+      flex: 1;
+      margin-left: 280px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      width: calc(100% - 280px);
+    }
+
+    /* New White Header */
+    .dash-header-top {
+      height: 70px;
+      background: white;
+      border-bottom: 1px solid var(--dash-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 40px;
+      position: sticky;
+      top: 0;
+      z-index: 90; /* Kept below sidebar and modals */
+      box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+      transition: var(--transition);
+      margin-bottom: 0 !important;
+    }
+
+    .dash-logo-mob {
+      display: none;
+      font-weight: 900;
+      font-size: 20px;
+      color: var(--dash-primary);
+      text-decoration: none;
+      letter-spacing: -1px;
+    }
+
+    .back-to-shop {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+      color: var(--dash-text-muted);
+      font-size: 14px;
+      font-weight: 600;
+      transition: var(--transition);
+    }
+
+    .back-to-shop:hover {
+      color: var(--dash-primary);
+    }
+
+    /* Nav Links */
+    .nav-menu {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .nav-link-dash {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      text-decoration: none;
+      color: var(--dash-text-muted);
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 14px;
+      transition: var(--transition);
+    }
+
+    .nav-link-dash i {
+      width: 20px;
+      text-align: center;
+    }
+
+    .nav-link-dash:hover {
+      background: var(--primary-light);
+      color: var(--dash-primary);
+    }
+
+    .nav-link-dash.active {
+      background: var(--dash-primary);
+      color: white;
+      box-shadow: 0 4px 12px rgba(139, 90, 43, 0.2);
+    }
+
+    /* Clean Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      border-radius: var(--dash-radius);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .empty-state i.empty-icon {
+      font-size: 55px;
+      color: var(--dash-primary);
+      opacity: 0.15;
+      margin-bottom: 20px;
+    }
+
+    .empty-state h3 {
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--dash-text);
+      margin-bottom: 12px;
+    }
+
+    .empty-state p {
+      font-size: 14px;
+      color: var(--dash-text-muted);
+      max-width: 400px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+    
+    .empty-state .btn-dash {
+      margin-top: 25px;
+    }
+
+    /* Content Area */
+    .dashboard-content {
+      padding: 25px 40px;
+      flex: 1;
+    }
+
+    a, a:hover, a:focus {
+      text-decoration: none !important;
+      outline: none;
+      color: inherit;
+    }
+
+    .btn-dash {
+      padding: 8px 20px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+      transition: var(--transition);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      border: none;
+      white-space: nowrap;
+    }
+
+    .btn-dash-primary {
+      background: var(--dash-primary);
+      color: white !important;
+    }
+
+    .btn-dash-primary:hover {
+      background: var(--dash-primary-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(139, 90, 43, 0.25);
+    }
+
+    .btn-dash-white {
+      background: white;
+      color: var(--dash-primary) !important;
+    }
+
+    .btn-dash-white:hover {
+      background: #fdfaf7;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    .btn-dash-outline {
+      background: transparent;
+      border: 1px solid var(--dash-border);
+      color: var(--dash-text) !important;
+    }
+
+    .btn-dash-outline:hover {
+      background: #f8f9fa;
+      border-color: #cbd5e0;
+    }
+
+    /* Mobile Overrides */
+    @media (max-width: 991px) {
+      .sidebar-container {
+        display: none;
+      }
+      .dash-main {
+        margin-left: 0;
+        width: 100%;
+      }
+      .dash-header-top {
+        height: 60px;
+        padding: 0 15px;
+        margin-bottom: 0 !important;
+      }
+      .dash-logo-mob {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 10px;
+        background: transparent !important;
+        padding: 0 !important;
+      }
+      .dashboard-content {
+        padding: 15px 15px 100px 15px;
+      }
+      
+      .mobile-nav {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 70px;
+        background: white;
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        box-shadow: 0 -5px 20px rgba(0,0,0,0.05);
+        z-index: 1000;
+        padding-bottom: env(safe-area-inset-bottom);
+      }
+
+      .mob-nav-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+        text-decoration: none;
+        color: var(--dash-text-muted);
+        font-size: 10px;
+        font-weight: 700;
+      }
+
+      .mob-nav-item i { font-size: 20px; }
+      .mob-nav-item.active { color: var(--dash-primary); }
+    }
+
+    .page-header {
+      margin-bottom: 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 20px;
+    }
+
+    .dash-icon-box {
+      width: 38px;
+      height: 38px;
+      background: #f8f9fa;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--dash-text-muted);
+      transition: var(--transition);
+      cursor: pointer;
+      font-size: 1.1rem;
+    }
+
+    .dash-icon-box:hover {
+      background: var(--dash-border);
+      color: var(--dash-primary);
+      transform: translateY(-2px);
+    }
+
+    .page-info h2 {
+      font-size: 26px;
+      font-weight: 800;
+      color: var(--dash-text);
+      margin-bottom: 4px;
+      letter-spacing: -0.5px;
+    }
+
+    .page-info p {
+      color: var(--dash-text-muted);
+      font-size: 14px;
+      margin: 0;
+    }
+
+    /* Utility Cards */
+    .dash-card {
+      background: white;
+      border-radius: var(--dash-radius);
+      border: 1px solid var(--dash-border);
+      padding: 30px;
+      box-shadow: var(--dash-shadow);
+      margin-bottom: 25px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="dashboard-container">
+  <!-- Desktop Sidebar -->
+  <aside class="sidebar-container">
+   
+
+    <div class="mb-4 px-2 d-flex align-items-center gap-3">
+      <div style="width: 40px; height: 40px; background: var(--dash-primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700;">
+        <%= (typeof user !== 'undefined' && user && user.name) ? user.name.charAt(0).toUpperCase() : 'U' %>
+      </div>
+      <div>
+        <div style="font-size: 14px; font-weight: 700; color: var(--dash-text);"><%= (typeof user !== 'undefined' && user && user.name) ? user.name : 'User' %></div>
+        <p style="font-size: 11px; color: var(--dash-text-muted); margin: 0;">Verified Account</p>
+      </div>
+    </div>
+
+    <nav class="nav-menu">
+      <% const currentPath = typeof activePage !== 'undefined' ? activePage : '' %>
+      <a href="/userProfile" class="nav-link-dash <%= currentPath === 'profile' ? 'active' : '' %>">
+        <i class="fas fa-th-large"></i> Overview
+      </a>
+      <a href="/orders" class="nav-link-dash <%= currentPath === 'orders' ? 'active' : '' %>">
+        <i class="fas fa-shopping-bag"></i> My Orders
+      </a>
+      <a href="/address" class="nav-link-dash <%= currentPath === 'address' ? 'active' : '' %>">
+        <i class="fas fa-map-marker-alt"></i> Addresses
+      </a>
+      <a href="/wallet" class="nav-link-dash <%= currentPath === 'wallet' ? 'active' : '' %>">
+        <i class="fas fa-wallet"></i> My Wallet
+      </a>
+      <a href="/referral" class="nav-link-dash <%= currentPath === 'referral' ? 'active' : '' %>">
+        <i class="fas fa-user-plus"></i> Refer & Earn
+      </a>
+      <a href="/edit-profile" class="nav-link-dash <%= currentPath === 'edit-profile' ? 'active' : '' %>">
+        <i class="fas fa-cog"></i> Settings
+      </a>
+      <hr style="margin: 20px 0; opacity: 0.1;">
+      <a href="/logout" class="nav-link-dash" style="color: #e53e3e;">
+        <i class="fas fa-sign-out-alt"></i> Logout
+      </a>
+    </nav>
+  </aside>
+
+  <!-- Main Content Area -->
+  <main class="dash-main">
+    <!-- Clean Dashboard Header -->
+    <header class="dash-header-top">
+      <div class="d-flex align-items-center gap-3">
+        <!-- Mobile Menu Trigger -->
+        <button class="btn p-0 d-lg-none border-0 shadow-none dash-logo-mob" type="button" data-bs-toggle="offcanvas" data-bs-target="#dashboardOffcanvas" aria-controls="dashboardOffcanvas">
+          <i class="fas fa-bars fs-5 text-dark"></i>
+        </button>
+        <!-- Desktop Logo Placeholder -->
+        <div class="d-none d-lg-block"></div>
+      </div>
+      
+      <div class="d-flex align-items-center gap-2">
+        <a href="/" class="dash-icon-box" title="Go to Home">
+          <i class="fas fa-home"></i>
+        </a>
+      </div>
+    </header>
+
+    <div class="dashboard-content">
+      <!-- Sub-page content starts here -->
+
+<!-- Mobile Offcanvas Navigation -->
+<div class="offcanvas offcanvas-start" tabindex="-1" id="dashboardOffcanvas" aria-labelledby="dashboardOffcanvasLabel" style="width: 280px; border-right: none;">
+  <div class="offcanvas-header border-bottom px-4 py-3 d-flex align-items-center justify-content-between">
+    <div class="d-flex align-items-center gap-3">
+      <div style="width: 40px; height: 40px; background: var(--dash-primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px;">
+        <%= (typeof user !== 'undefined' && user && user.name) ? user.name.charAt(0).toUpperCase() : 'U' %>
+      </div>
+      <div>
+        <div style="font-size: 14px; font-weight: 700; color: var(--dash-text); line-height: 1.2;"><%= (typeof user !== 'undefined' && user && user.name) ? user.name : 'User' %></div>
+        <div style="font-size: 11px; color: var(--dash-text-muted);">Verified Account</div>
+      </div>
+    </div>
+    <button type="button" class="btn p-0 border-0 shadow-none dash-logo-mob ms-2" data-bs-dismiss="offcanvas" aria-label="Close">
+      <i class="fas fa-bars fs-5 text-dark"></i>
+    </button>
+  </div>
+  <div class="offcanvas-body p-4">
+
+    <nav class="nav-menu">
+      <% const offPath = typeof activePage !== 'undefined' ? activePage : '' %>
+      <a href="/userProfile" class="nav-link-dash <%= offPath === 'profile' ? 'active' : '' %>">
+        <i class="fas fa-th-large"></i> Overview
+      </a>
+      <a href="/orders" class="nav-link-dash <%= offPath === 'orders' ? 'active' : '' %>">
+        <i class="fas fa-shopping-bag"></i> My Orders
+      </a>
+      <a href="/address" class="nav-link-dash <%= offPath === 'address' ? 'active' : '' %>">
+        <i class="fas fa-map-marker-alt"></i> Addresses
+      </a>
+      <a href="/wallet" class="nav-link-dash <%= offPath === 'wallet' ? 'active' : '' %>">
+        <i class="fas fa-wallet"></i> My Wallet
+      </a>
+      <a href="/referral" class="nav-link-dash <%= offPath === 'referral' ? 'active' : '' %>">
+        <i class="fas fa-user-plus"></i> Refer & Earn
+      </a>
+      <a href="/edit-profile" class="nav-link-dash <%= offPath === 'edit-profile' ? 'active' : '' %>">
+        <i class="fas fa-cog"></i> Settings
+      </a>
+      <hr style="margin: 20px 0; opacity: 0.1;">
+      <a href="/logout" class="nav-link-dash" style="color: #e53e3e;">
+        <i class="fas fa-sign-out-alt"></i> Logout
+      </a>
+    </nav>
+  </div>
+</div>

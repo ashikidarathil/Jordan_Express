@@ -11,159 +11,228 @@ const generateInvoice = async (order) => {
     doc.on('error', reject);
 
     // Constants for layout
-    const PAGE_WIDTH = 595; // A4 width in points
-    const LEFT_MARGIN = 20;
-    const RIGHT_MARGIN = 20;
-    const CONTENT_WIDTH = PAGE_WIDTH - LEFT_MARGIN - RIGHT_MARGIN;
-    const CENTER_X = LEFT_MARGIN + (CONTENT_WIDTH / 2);
-    const LINE_GAP = 15;
+    const PAGE_WIDTH = 595;
+    const PAGE_HEIGHT = 842;
+    const MARGIN = 40;
+    const CONTENT_WIDTH = PAGE_WIDTH - (MARGIN * 2);
+    // Formatting helper (Indian Number System)
+    const formatCurrency = (amount) => `Rs. ${parseFloat(amount).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
-    // Set a font that supports the Rupee symbol
-    doc.font('Times-Roman');
+    // 1. HEADER SECTION
+    // Logo styling
+    doc.image('public/img/Image.PNG', MARGIN - 15, MARGIN - 20, { width: 120 });
+    
+    // Invoice Title (Right aligned)
+    doc.fontSize(28)
+       .font('Helvetica-Bold')
+       .fillColor('#895D39')
+       .text('INVOICE', PAGE_WIDTH - MARGIN - 150, MARGIN, { width: 150, align: 'right' });
 
-    // Header with logo and invoice info
-    doc.image('public/image/JD-new.png', LEFT_MARGIN - 20, -5, { width: 100 })
-       .fontSize(20)
-       .fillColor('#444444')
-       .text('INVOICE', 0, 40, { align: 'center' })
-       .fontSize(10)
-       .text(`Invoice #: ${order.orderID}`, PAGE_WIDTH - RIGHT_MARGIN - 100, 35, { width: 100, align: 'right' })
-       .text(`Date: ${order.createdOn.toLocaleDateString()}`, PAGE_WIDTH - RIGHT_MARGIN - 100, 85, { width: 100, align: 'right' });
-
-    // Company and Customer Info
-    const infoTop = 140;
-    const infoWidth = CONTENT_WIDTH / 2 - 20;
-
-    // Company Info (left)
+    // Invoice Details (Right aligned under title)
     doc.fontSize(10)
-       .font('Times-Bold')
-       .text('FROM:', LEFT_MARGIN, infoTop, { width: infoWidth, align: 'left' })
-       .font('Times-Roman')
-       .text('Jordan Express', LEFT_MARGIN, infoTop + LINE_GAP, { width: infoWidth, align: 'left' })
-       .text('123 Sneaker Street', LEFT_MARGIN, infoTop + LINE_GAP * 2, { width: infoWidth, align: 'left' })
-       .text('New York, NY 10001', LEFT_MARGIN, infoTop + LINE_GAP * 3, { width: infoWidth, align: 'left' })
-       .text('Phone: (123) 456-7890', LEFT_MARGIN, infoTop + LINE_GAP * 4, { width: infoWidth, align: 'left' })
-       .text('Email: info@jordanexpress.com', LEFT_MARGIN, infoTop + LINE_GAP * 5, { width: infoWidth, align: 'left' });
+       .font('Helvetica')
+       .fillColor('#555555')
+       .text(`Invoice No: ${order.orderID || order.invoiceNumber}`, PAGE_WIDTH - MARGIN - 200, MARGIN + 35, { width: 200, align: 'right' })
+       .text(`Date: ${order.createdOn.toLocaleDateString('en-IN')}`, PAGE_WIDTH - MARGIN - 200, MARGIN + 50, { width: 200, align: 'right' })
+       .text(`Payment Method: ${order.paymentMethod === 'COD' ? 'Cash on Delivery' : order.paymentMethod}`, PAGE_WIDTH - MARGIN - 200, MARGIN + 65, { width: 200, align: 'right' });
 
-    // Customer Info (right)
-    doc.font('Times-Bold')
-       .text('BILL TO:', CENTER_X + 10, infoTop, { width: infoWidth, align: 'right' })
-       .font('Times-Roman')
-       .text(order.address.label || 'N/A', CENTER_X + 10, infoTop + LINE_GAP, { width: infoWidth, align: 'right' })
-       .text(order.address.street || 'N/A', CENTER_X + 10, infoTop + LINE_GAP * 2, { width: infoWidth, align: 'right' })
-       .text(`${order.address.city || 'N/A'}, ${order.address.state || 'N/A'} ${order.address.zipCode || 'N/A'}`, CENTER_X + 10, infoTop + LINE_GAP * 3, { width: infoWidth, align: 'right' })
-       .text(order.address.country || 'N/A', CENTER_X + 10, infoTop + LINE_GAP * 4, { width: infoWidth, align: 'right' })
-       .text(`Phone: ${order.address.phone || 'N/A'}`, CENTER_X + 10, infoTop + LINE_GAP * 5, { width: infoWidth, align: 'right' });
-
-    // Payment Method
-    doc.fontSize(10)
-       .text(`Payment Method: ${order.paymentMethod === 'COD' ? 'Cash on Delivery' : order.paymentMethod}`, 
-             0, infoTop + LINE_GAP * 7, { width: PAGE_WIDTH, align: 'center' });
-
-    // Items Table
-    const tableTop = infoTop + LINE_GAP * 9;
-    const tableWidth = CONTENT_WIDTH;
-    const columnWidths = {
-      item: 160, // Reduced to accommodate new columns
-      size: 60,
-      qty: 50,
-      basePrice: 80,
-      gst: 80,
-      amount: 80
-    };
-    const tableLeft = CENTER_X - (tableWidth / 2);
-
-    // Table Header
-    doc.font('Times-Bold')
-       .fontSize(10)
-       .text('Item', tableLeft, tableTop, { width: columnWidths.item, align: 'left' })
-       .text('Size', tableLeft + columnWidths.item, tableTop, { width: columnWidths.size, align: 'center' })
-       .text('Qty', tableLeft + columnWidths.item + columnWidths.size, tableTop, { width: columnWidths.qty, align: 'right' })
-       .text('Base Price', tableLeft + columnWidths.item + columnWidths.size + columnWidths.qty, tableTop, { width: columnWidths.basePrice, align: 'right' })
-       .text('GST (18%)', tableLeft + columnWidths.item + columnWidths.size + columnWidths.qty + columnWidths.basePrice, tableTop, { width: columnWidths.gst, align: 'right' })
-       .text('Amount', tableLeft + columnWidths.item + columnWidths.size + columnWidths.qty + columnWidths.basePrice + columnWidths.gst, tableTop, { width: columnWidths.amount, align: 'right' })
-       .moveTo(tableLeft, tableTop + LINE_GAP)
-       .lineTo(tableLeft + tableWidth, tableTop + LINE_GAP)
+    // Header Divider
+    doc.moveTo(MARGIN, 140)
+       .lineTo(PAGE_WIDTH - MARGIN, 140)
+       .strokeColor('#dddddd')
+       .lineWidth(1)
        .stroke();
 
+    // 2. ADDRESS SECTION
+    const addressTop = 160;
+    
+    // From section
+    doc.fontSize(10)
+       .font('Helvetica-Bold')
+       .fillColor('#333333')
+       .text('FROM:', MARGIN, addressTop)
+       .font('Helvetica')
+       .fillColor('#555555')
+       .text('Jordan Express', MARGIN, addressTop + 15)
+       .text('123 Sneaker Street', MARGIN, addressTop + 30)
+       .text('New York, NY 10001', MARGIN, addressTop + 45)
+       .text('Phone: (123) 456-7890', MARGIN, addressTop + 60)
+       .text('Email: info@jordanexpress.com', MARGIN, addressTop + 75);
+
+    // To section
+    const rightColLeft = PAGE_WIDTH / 2;
+    const address = order.address || {};
+    
+    doc.font('Helvetica-Bold')
+       .fillColor('#333333')
+       .text('BILL TO:', rightColLeft, addressTop)
+       .font('Helvetica')
+       .fillColor('#555555')
+       .text(address.label || 'N/A', rightColLeft, addressTop + 15)
+       .text(address.street || 'N/A', rightColLeft, addressTop + 30)
+       .text(`${address.city || ''}, ${address.state || ''} ${address.zipCode || ''}`, rightColLeft, addressTop + 45)
+       .text(address.country || 'N/A', rightColLeft, addressTop + 60)
+       .text(`Phone: ${address.phone || 'N/A'}`, rightColLeft, addressTop + 75);
+
+    // 3. ITEMS TABLE
+    let tableTop = 270;
+    
+    const colX = {
+      product: MARGIN,
+      size: MARGIN + 200,
+      qty: MARGIN + 250,
+      basePrice: MARGIN + 300,
+      gst: MARGIN + 380,
+      amount: MARGIN + 450
+    };
+    
+    const colW = {
+      product: 190,
+      size: 40,
+      qty: 40,
+      basePrice: 70,
+      gst: 60,
+      amount: 65
+    };
+
+    // Table Header Background
+    doc.rect(MARGIN, tableTop, CONTENT_WIDTH, 25)
+       .fill('#f8f9fa');
+
+    // Table Header Text
+    doc.fontSize(10)
+       .font('Helvetica-Bold')
+       .fillColor('#333333')
+       .text('Product Name', colX.product + 5, tableTop + 8, { width: colW.product, align: 'left' })
+       .text('Size', colX.size, tableTop + 8, { width: colW.size, align: 'center' })
+       .text('Qty', colX.qty, tableTop + 8, { width: colW.qty, align: 'center' })
+       .text('Base Price', colX.basePrice, tableTop + 8, { width: colW.basePrice, align: 'right' })
+       .text('GST (18%)', colX.gst, tableTop + 8, { width: colW.gst, align: 'right' })
+       .text('Amount', colX.amount, tableTop + 8, { width: colW.amount, align: 'right' });
+
+    let currentY = tableTop + 35;
+
     // Table Rows
-    let currentY = tableTop + LINE_GAP + 10;
+    doc.font('Helvetica')
+       .fillColor('#555555')
+       .fontSize(9);
+
     order.orderItems.forEach(item => {
+      // Skip cancelled or returned items if necessary, assuming all are shown on invoice
       const amount = item.price * item.quantity;
-      const basePrice = amount / 1.18; // Total base price for quantity
-      const gstAmount = amount - basePrice; // Total GST for quantity
+      const basePrice = amount / 1.18;
+      const gstAmount = amount - basePrice;
       const size = item.size || 'N/A';
-      
-      doc.font('Times-Roman')
-         .fontSize(9)
-         .text(item.product.productName || 'Unknown Item', tableLeft, currentY, { width: columnWidths.item, align: 'left' })
-         .text(size, tableLeft + columnWidths.item, currentY, { width: columnWidths.size, align: 'center' })
-         .text(item.quantity.toString(), tableLeft + columnWidths.item + columnWidths.size, currentY, { width: columnWidths.qty, align: 'right' })
-         .text(` ${basePrice.toFixed(2)}`, tableLeft + columnWidths.item + columnWidths.size + columnWidths.qty, currentY, { width: columnWidths.basePrice, align: 'right' })
-         .text(` ${gstAmount.toFixed(2)}`, tableLeft + columnWidths.item + columnWidths.size + columnWidths.qty + columnWidths.basePrice, currentY, { width: columnWidths.gst, align: 'right' })
-         .text(` ${amount.toFixed(2)}`, tableLeft + columnWidths.item + columnWidths.size + columnWidths.qty + columnWidths.basePrice + columnWidths.gst, currentY, { width: columnWidths.amount, align: 'right' });
-      currentY += LINE_GAP;
+      const productName = item.product.productName || 'Unknown Item';
+
+      // Height calculation for wrapping text
+      const nameHeight = doc.heightOfString(productName, { width: colW.product - 10 });
+      const rowHeight = Math.max(nameHeight, 15) + 10; // 10 is padding
+
+      // Check for page break
+      if (currentY + rowHeight > PAGE_HEIGHT - 150) {
+        doc.addPage();
+        currentY = MARGIN;
+      }
+
+      // Draw bottom border for the row
+      doc.moveTo(MARGIN, currentY + rowHeight - 5)
+         .lineTo(PAGE_WIDTH - MARGIN, currentY + rowHeight - 5)
+         .strokeColor('#eeeeee')
+         .lineWidth(1)
+         .stroke();
+
+      doc.text(productName, colX.product + 5, currentY, { width: colW.product - 10, align: 'left' })
+         .text(size, colX.size, currentY, { width: colW.size, align: 'center' })
+         .text(item.quantity.toString(), colX.qty, currentY, { width: colW.qty, align: 'center' })
+         .text(formatCurrency(basePrice), colX.basePrice, currentY, { width: colW.basePrice, align: 'right' })
+         .text(formatCurrency(gstAmount), colX.gst, currentY, { width: colW.gst, align: 'right' })
+         .text(formatCurrency(amount), colX.amount, currentY, { width: colW.amount, align: 'right' });
+
+      currentY += rowHeight;
     });
 
-    // Summary
-    const summaryTop = Math.max(currentY + 20, 500);
-    const summaryWidth = 200;
-    const summaryLeft = PAGE_WIDTH - RIGHT_MARGIN - summaryWidth;
-    
-    let summaryY = summaryTop;
+    // 4. SUMMARY SECTION
+    const summaryTop = currentY + 20;
 
-    // Define subtotal and delivery charge
-    const subtotal = order.totalPrice;
-    const deliveryCharge = order.deliveryCharge || 0;
-    
-    // Calculate GST for subtotal and delivery
-    const baseSubtotal = subtotal / 1.18;
-    const gstSubtotal = subtotal - baseSubtotal;
-    const baseDelivery = deliveryCharge / 1.18;
-    const gstDelivery = deliveryCharge - baseDelivery;
-    const totalAmount = subtotal + deliveryCharge - (order.discount || 0);
-    const baseTotal = totalAmount / 1.18;
-    const gstTotal = totalAmount - baseTotal;
-
-    const summaryItems = [
-      ['Subtotal (Excl. GST):', baseSubtotal],
-      ['GST (18%) on Subtotal:', gstSubtotal],
-      ['Subtotal (Incl. GST):', subtotal],
-      // ['Delivery Charge (Excl. GST):', baseDelivery],
-      // ['GST (18%) on Delivery:', gstDelivery],
-      ['Delivery Charge :', deliveryCharge]
-    ];
-
-    if (order.discount > 0) {
-      summaryItems.push(['Discount:', -order.discount]);
+    // Check for page break before summary
+    if (summaryTop + 150 > PAGE_HEIGHT - MARGIN) {
+        doc.addPage();
+        currentY = MARGIN;
+    } else {
+        currentY = summaryTop;
     }
 
-    doc.font('Times-Roman')
-       .fontSize(10);
+    const summaryLeft = PAGE_WIDTH - MARGIN - 250;
+    const summaryRight = PAGE_WIDTH - MARGIN;
 
-    summaryItems.forEach(([label, value]) => {
-      doc.text(label, summaryLeft, summaryY, { width: 100, align: 'right' })
-         .text(` ${Math.abs(value).toFixed(2)}`, summaryLeft + 100, summaryY, { width: 100, align: 'right' });
-      summaryY += LINE_GAP;
-    });
+    const subtotal = order.totalPrice;
+    const deliveryCharge = order.deliveryCharge || 0;
+    const discount = order.discount || 0;
+    const totalAmount = subtotal + deliveryCharge - discount;
+    const baseSubtotal = subtotal / 1.18;
+    const gstSubtotal = subtotal - baseSubtotal;
 
-    // Total
-    doc.moveTo(summaryLeft, summaryY + 5)
-       .lineTo(summaryLeft + summaryWidth, summaryY + 5)
-       .stroke()
-       .font('Times-Bold')
-       .text('Total (Incl. GST):', summaryLeft, summaryY + 15, { width: 100, align: 'right' })
-       .text(` ${totalAmount.toFixed(2)}`, summaryLeft + 100, summaryY + 15, { width: 100, align: 'right' })
-       .font('Times-Roman')
-       .fontSize(8)
-   
+    doc.fontSize(10)
+       .font('Helvetica');
 
-    // Footer
-    const footerTop = summaryY + 190;
-    doc.font('Times-Italic')
-       .fontSize(8)
-       .text('Thank you for your purchase!', 0, footerTop, { width: PAGE_WIDTH, align: 'center' })
-       .text('Please contact us at support@jordanexpress.com for any questions', 0, footerTop + LINE_GAP, { width: PAGE_WIDTH, align: 'center' });
+    const addSummaryRow = (label, value, y, isBold = false) => {
+        if (isBold) {
+            doc.font('Helvetica-Bold').fillColor('#333333');
+        } else {
+            doc.font('Helvetica').fillColor('#555555');
+        }
+        doc.text(label, summaryLeft, y, { width: 140, align: 'right' })
+           .text(formatCurrency(value), summaryLeft + 150, y, { width: 100, align: 'right' });
+    };
+
+    addSummaryRow('Subtotal (Excl. GST):', baseSubtotal, currentY);
+    addSummaryRow('GST (18%) on Subtotal:', gstSubtotal, currentY + 18);
+    addSummaryRow('Subtotal (Incl. GST):', subtotal, currentY + 36);
+    addSummaryRow('Delivery Charge:', deliveryCharge, currentY + 54);
+
+    let totalY = currentY + 72;
+
+    if (discount > 0) {
+        doc.fillColor('#e74c3c');
+        doc.text('Discount:', summaryLeft, totalY, { width: 140, align: 'right' })
+           .text(`- ${formatCurrency(discount)}`, summaryLeft + 150, totalY, { width: 100, align: 'right' });
+        totalY += 18;
+    }
+
+    // Divider before total
+    doc.moveTo(summaryLeft + 50, totalY)
+       .lineTo(summaryRight, totalY)
+       .strokeColor('#cccccc')
+       .lineWidth(1)
+       .stroke();
+
+    // Total Background Box
+    doc.rect(summaryLeft + 20, totalY + 10, 230, 30)
+       .fill('#f8f9fa');
+
+    // Total Text
+    doc.fillColor('#895D39')
+       .font('Helvetica-Bold')
+       .fontSize(12)
+       .text('Total (Incl. GST):', summaryLeft, totalY + 18, { width: 140, align: 'right' })
+       .text(formatCurrency(totalAmount), summaryLeft + 150, totalY + 18, { width: 100, align: 'right' });
+
+    // 5. FOOTER SECTION
+    const footerTop = PAGE_HEIGHT - MARGIN - 40;
+    
+    // Top border for footer
+    doc.moveTo(MARGIN, footerTop - 15)
+       .lineTo(PAGE_WIDTH - MARGIN, footerTop - 15)
+       .strokeColor('#dddddd')
+       .lineWidth(1)
+       .stroke();
+
+    doc.font('Helvetica')
+       .fontSize(9)
+       .fillColor('#888888')
+       .text('Thank you for your business!', MARGIN, footerTop, { width: CONTENT_WIDTH, align: 'center' })
+       .text('For any inquiries regarding this invoice, please contact support@jordanexpress.com', MARGIN, footerTop + 12, { width: CONTENT_WIDTH, align: 'center' });
 
     doc.end();
   });

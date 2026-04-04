@@ -2,6 +2,7 @@ const userModel = require('../../models/userSchema')
 const nodemailer = require('nodemailer')
 const env = require('dotenv').config()
 const bcrypt = require('bcrypt')
+const { getOtpTemplate } = require('../../helpers/otpEmail');
 const categoryModel = require('../../models/categorySchema')
 const productModel = require('../../models/productSchema')
 const brandModel = require('../../models/brandSchema')
@@ -189,9 +190,9 @@ async function sendVerificationEmail(email, otp) {
     const info = await transporter.sendMail({
       from: process.env.NODEMAILER_EMAIL,
       to: email,
-      subject: 'Verify your account',
-      text: `Your OTP is ${otp}`,
-      html: `<b>Your OTP:${otp}</b>`
+      subject: 'Verify Your Jordan Express Account',
+      text: `Your Verification Code is: ${otp}`,
+      html: getOtpTemplate(otp)
     })
 
     return info.accepted.length > 0
@@ -747,9 +748,15 @@ const sortProducts = async (req, res) => {
 const getReferralPage = async (req, res) => {
   try {
     const userId = req.session.user;
-    const user = await userModel.findById(userId);
+    let user = await userModel.findById(userId);
     if (!user) {
       return res.redirect('/login');
+    }
+
+    // Auto-generate referral code if missing
+    if (!user.referralCode) {
+      user.referralCode = await generateReferralCode();
+      await user.save();
     }
 
     const referredUsers = await userModel.find({ _id: { $in: user.referredUsers } });
@@ -757,7 +764,8 @@ const getReferralPage = async (req, res) => {
     res.render('referral', {
       user,
       referredUsers,
-      cartCount: req.cartCount
+      cartCount: req.cartCount,
+      activePage: 'referral'
     });
   } catch (error) {
     console.error('Error loading referral page:', error);
@@ -767,12 +775,26 @@ const getReferralPage = async (req, res) => {
 
 
 
-const getAboutPage = (req, res) => {
-  res.render('about');
+const getAboutPage = async (req, res) => {
+  try {
+    const userId = req.session.user;
+    const userData = userId ? await userModel.findById(userId) : null;
+    res.render('about', { user: userData });
+  } catch (error) {
+    console.error('Error loading about page:', error);
+    res.redirect('/pageNotFound');
+  }
 };
 
-const getContactPage = (req, res) => {
-  res.render('contact');
+const getContactPage = async (req, res) => {
+  try {
+    const userId = req.session.user;
+    const userData = userId ? await userModel.findById(userId) : null;
+    res.render('contact', { user: userData });
+  } catch (error) {
+    console.error('Error loading contact page:', error);
+    res.redirect('/pageNotFound');
+  }
 };
 
 

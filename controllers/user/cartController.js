@@ -7,6 +7,8 @@ const Category = require('../../models/categorySchema');
 const getCartPage = async (req, res) => {
     try {
       const userId = req.session.user;
+      const userData = await User.findById(userId);
+
       const cart = await Cart.findOne({ userID: userId }).populate({
         path: 'item.productID',
         select: 'productName productImage regularPrice salePrice size status isBlocked isListed',
@@ -14,6 +16,7 @@ const getCartPage = async (req, res) => {
 
       if (!cart || cart.item.length === 0) {
         return res.render('cart', {
+          user: userData,
           cartItems: [],
           subtotal: 0,
           total: 0,
@@ -61,6 +64,7 @@ const getCartPage = async (req, res) => {
       const total = subtotal;
 
       res.render('cart', {
+        user: userData,
         cartItems,
         subtotal,
         total,
@@ -185,7 +189,7 @@ const addToCart = async (req, res) => {
 
         await cart.save();
 
-        const cartCount = cart.item.length;
+        const cartCount = cart.item.reduce((count, item) => count + item.size.length, 0);
 
         res.status(200).json({
             success: true,
@@ -328,7 +332,7 @@ const removeSizeFromItem = async (req, res) => {
             success: true,
             subtotal: subtotal,
             total: subtotal,
-            cartCount: cart.item.length,
+            cartCount: cart.item.reduce((count, item) => count + item.size.length, 0),
             itemRemoved: cart.item.findIndex(item => item._id.toString() === itemId) === -1
         });
 
@@ -368,7 +372,7 @@ const removeFromCart = async (req, res) => {
             success: true,
             subtotal: subtotal,
             total: subtotal,
-            cartCount: cart.item.length
+            cartCount: cart.item.reduce((count, item) => count + item.size.length, 0)
         });
 
     } catch (error) {

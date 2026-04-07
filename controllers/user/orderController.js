@@ -570,7 +570,7 @@ const getWalletPage = async (req, res) => {
         totalTransactions: 0,
         limit,
         activePage: 'wallet',
-        user: await userModel.findById(userId)
+        user: await User.findById(userId)
       });
     }
 

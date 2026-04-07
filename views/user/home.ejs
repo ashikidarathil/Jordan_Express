@@ -78,13 +78,14 @@
 
 
         @media (max-width: 768px) {
-            .hero { padding: 60px 0 0 0 !important; margin: 0 !important; height: auto !important; }
-            .hero h1 { font-size: 1.6rem; margin: 10px 0; }
-            .hero .lead { font-size: 0.85rem; margin-bottom: 1.5rem !important; }
-            .hero .slider-container { min-height: auto !important; padding: 10px !important; }
-            .hero .slide-content { padding: 30px 55px; } 
-            .hero .arrow-left, .hero .arrow-right { width: 38px !important; height: 38px !important; } 
-            .hero .btn-primary-custom { padding: 6px 10px !important; font-size: 0.65rem !important; }
+            .hero { padding: 40px 0 0 0 !important; margin: 0 !important; height: auto !important; }
+            .hero h1 { font-size: 1.4rem; margin: 8px 0; line-height: 1.2; }
+            .hero .lead { font-size: 0.75rem; margin-bottom: 1rem !important; line-height: 1.4; }
+            .hero .slide-content p:first-child { font-size: 0.65rem; margin-bottom: 4px !important; }
+            .hero .slider-container { min-height: 300px !important; padding: 5px !important; }
+            .hero .slide-content { padding: 20px 55px !important; } 
+            .hero .arrow-left, .hero .arrow-right { width: 32px !important; height: 32px !important; font-size: 0.8rem; } 
+            .hero .btn-primary-custom { padding: 5px 12px !important; font-size: 0.7rem !important; }
         }
 
         .hero .arrow-left, .hero .arrow-right {
@@ -92,6 +93,15 @@
             align-items: center;
             justify-content: center;
             padding: 0 !important;
+            background-color: #8b5a2b !important;
+            border: none !important;
+            color: white !important;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1) !important;
+        }
+
+        .hero .arrow-left:hover, .hero .arrow-right:hover {
+            background-color: #6f4722 !important;
+            transform: scale(1.05);
         }
 
         .modal-container {
@@ -155,11 +165,11 @@
                 </div>
 
                 <!-- Navigation Arrows -->
-                <div class="position-absolute top-50 start-0 translate-middle-y ps-3">
-                    <button class="btn btn-light rounded-circle shadow-sm arrow-left" style="width: 45px; height: 45px;"><i class="fa-solid fa-chevron-left"></i></button>
+                <div class="position-absolute top-50 start-0 translate-middle-y ps-2 ps-md-4">
+                    <button class="btn rounded-circle shadow-sm arrow-left" style="width: 45px; height: 45px;"><i class="fa-solid fa-chevron-left"></i></button>
                 </div>
-                <div class="position-absolute top-50 end-0 translate-middle-y pe-3">
-                    <button class="btn btn-light rounded-circle shadow-sm arrow-right" style="width: 45px; height: 45px;"><i class="fa-solid fa-chevron-right"></i></button>
+                <div class="position-absolute top-50 end-0 translate-middle-y pe-2 pe-md-4">
+                    <button class="btn rounded-circle shadow-sm arrow-right" style="width: 45px; height: 45px;"><i class="fa-solid fa-chevron-right"></i></button>
                 </div>
             </div>
         </div>

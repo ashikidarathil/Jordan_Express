@@ -122,6 +122,10 @@
     @media (max-width: 576px) {
         .product-img-cart { width: 80px; height: 80px; }
         .cart-card { padding: 15px !important; }
+        .checkout-btn-responsive {
+            padding: 10px 20px !important;
+            font-size: 0.9rem;
+        }
     }
 </style>
 
@@ -271,7 +275,7 @@
                             const anyUnavailable = cartItems.some(item => item.productID.status === 'Out of Stock' || item.productID.isBlocked || !item.productID.isListed);
                         %>
                         
-                        <button class="btn w-100 mt-4 px-4 py-3 rounded-pill fw-bold <%= anyUnavailable ? 'btn-secondary disabled' : 'btn-primary-custom' %>" 
+                        <button class="btn w-100 mt-4 px-4 py-3 rounded-pill fw-bold checkout-btn-responsive <%= anyUnavailable ? 'btn-secondary disabled' : 'btn-primary-custom' %>" 
                                 id="proceedToCheckout">
                             Proceed to Checkout <i class="fas fa-arrow-right ms-2"></i>
                         </button>

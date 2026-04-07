@@ -74,6 +74,88 @@
     }
     .modal-success-bg { background-color: #28a745; }
     .modal-error-bg { background-color: #dc3545; }
+
+    /* Luxury Price Range Slider Styles */
+    .price-slider-container {
+        padding: 5px 0 25px;
+    }
+    .slider-display {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px; /* Restored compact spacing after tooltip removal */
+        background: rgba(139, 90, 43, 0.05); /* Very light primary */
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        padding: 12px 20px;
+        border-radius: 12px;
+        border: 1px solid rgba(139, 90, 43, 0.1);
+        font-family: 'Outfit', sans-serif;
+        box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+    }
+    .slider-display span {
+        font-weight: 800;
+        font-size: 1rem;
+        color: var(--primary-color);
+        letter-spacing: -0.5px;
+    }
+    .slider-track-wrapper {
+        position: relative;
+        width: 100%;
+        height: 6px;
+        background: #f1f1f1;
+        border-radius: 10px;
+        margin: 0 10px;
+    }
+    .slider-track {
+        position: absolute;
+        height: 100%;
+        background: linear-gradient(90deg, var(--primary-color), #d4af37); /* Gold accent gradient */
+        border-radius: 10px;
+        box-shadow: 0 0 12px rgba(139, 90, 43, 0.3);
+    }
+    .slider-input-wrapper {
+        position: relative;
+        height: 20px;
+        display: flex;
+        align-items: center;
+    }
+    .slider-input-wrapper input[type="range"] {
+        position: absolute;
+        width: 100%;
+        background: none;
+        pointer-events: none;
+        -webkit-appearance: none;
+        appearance: none;
+        z-index: 2;
+    }
+    input[type="range"]::-webkit-slider-thumb {
+        height: 24px;
+        width: 10px; /* Pill shape */
+        border-radius: 5px;
+        background: #fff;
+        border: 2.5px solid var(--primary-color);
+        pointer-events: auto;
+        -webkit-appearance: none;
+        cursor: grab;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.15), 0 0 0 4px rgba(139, 90, 43, 0.05);
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    input[type="range"]::-webkit-slider-thumb:active {
+        cursor: grabbing;
+        transform: scaleY(1.2);
+        box-shadow: 0 6px 15px rgba(0,0,0,0.2), 0 0 0 6px rgba(139, 90, 43, 0.1);
+    }
+    input[type="range"]::-moz-range-thumb {
+        height: 24px;
+        width: 10px;
+        border-radius: 5px;
+        background: #fff;
+        border: 2.5px solid var(--primary-color);
+        pointer-events: auto;
+        cursor: grab;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    }
 </style>
 
 <div id="modal-container" class="modal-container">
@@ -116,7 +198,8 @@
                             <div class="d-flex flex-column gap-2">
                                 <% for(let i=0; i < category.length; i++) { %>
                                     <div class="form-check">
-                                        <input class="form-check-input category-filter" type="checkbox" value="<%= category[i]._id %>" id="cat-<%= i %>">
+                                        <input class="form-check-input category-filter" type="checkbox" value="<%= category[i]._id %>" id="cat-<%= i %>" 
+                                               <%= selectedCategories.includes(category[i]._id.toString()) ? 'checked' : '' %>>
                                         <label class="form-check-label small fw-semibold text-muted" for="cat-<%= i %>">
                                             <%= category[i].name %>
                                         </label>
@@ -125,16 +208,28 @@
                             </div>
                         </div>
 
-                        <!-- Price Ranges -->
+                        <!-- Price Ranges Slider -->
                         <div class="mb-4 pb-4 border-bottom">
                             <div class="filter-group-title">
                                 <span>Price Range</span>
                             </div>
-                            <div class="d-flex flex-column">
-                                <a href="/filterPrice?gt=0&lt=5000" class="text-decoration-none price-range-btn">&#8377;0 - &#8377;5,000</a>
-                                <a href="/filterPrice?gt=5000&lt=10000" class="text-decoration-none price-range-btn">&#8377;5,000 - &#8377;10,000</a>
-                                <a href="/filterPrice?gt=10000&lt=15000" class="text-decoration-none price-range-btn">&#8377;10,000 - &#8377;15,000</a>
-                                <a href="/filterPrice?gt=15000&lt=20000" class="text-decoration-none price-range-btn">&#8377;15,000 - &#8377;20,000</a>
+                            <div class="price-slider-container">
+                                <div class="slider-display mb-3">
+                                    <span id="min-val">₹<%= minPrice %></span>
+                                    <span class="text-muted fw-normal">to</span>
+                                    <span id="max-val">₹<%= maxPrice > 50000 ? '50,000+' : maxPrice %></span>
+                                </div>
+                                <div class="slider-input-wrapper">
+                                    <div class="slider-track-wrapper">
+                                        <div class="slider-track" id="slider-track"></div>
+                                    </div>
+                                    <input type="range" id="min-price-slider" min="0" max="50000" value="<%= minPrice %>" step="500">
+                                    <input type="range" id="max-price-slider" min="0" max="50000" value="<%= maxPrice > 50000 ? 50000 : maxPrice %>" step="500">
+                                </div>
+                                <div class="d-flex justify-content-between mt-2">
+                                    <small class="text-muted">₹0</small>
+                                    <small class="text-muted">₹50,000+</small>
+                                </div>
                             </div>
                         </div>
 
@@ -153,7 +248,7 @@
                                 ]; %>
                                 <% sortOptions.forEach((opt, idx) => { %>
                                     <div class="form-check">
-                                        <input class="form-check-input sort-filter" type="checkbox" name="sort" value="<%= opt.val %>" id="sort-<%= idx %>" <%= sort === opt.val ? 'checked' : '' %>>
+                                        <input class="form-check-input sort-filter" type="radio" name="sort" value="<%= opt.val %>" id="sort-<%= idx %>" <%= sort === opt.val ? 'checked' : '' %>>
                                         <label class="form-check-label small fw-semibold text-muted" for="sort-<%= idx %>">
                                             <%= opt.label %>
                                         </label>
@@ -256,17 +351,17 @@
                     <nav aria-label="Product pagination">
                         <ul class="pagination justify-content-center">
                             <li class="page-item <%= currentPages === 1 ? 'disabled' : '' %>">
-                                <a class="page-link" href="<%= currentPages > 1 ? `/shop?page=${currentPages - 1}&search=${search}&sort=${sort}` : '#' %>">Previous</a>
+                                <a class="page-link" href="<%= currentPages > 1 ? `/shop?page=${currentPages - 1}&search=${search}&sort=${sort}&category=${selectedCategories.join(',')}&gt=${minPrice}&lt=${maxPrice}` : '#' %>">Previous</a>
                             </li>
                             
                             <% for (let i = 1; i <= totalPages; i++) { %>
                                 <li class="page-item <%= currentPages === i ? 'active' : '' %>">
-                                    <a class="page-link" href="/shop?page=<%= i %>&search=<%= search %>&sort=<%= sort %>"><%= i %></a>
+                                    <a class="page-link" href="/shop?page=<%= i %>&search=<%= search %>&sort=<%= sort %>&category=<%= selectedCategories.join(',') %>&gt=<%= minPrice %>&lt=<%= maxPrice %>"><%= i %></a>
                                 </li>
                             <% } %>
                             
                             <li class="page-item <%= currentPages === totalPages ? 'disabled' : '' %>">
-                                <a class="page-link" href="<%= currentPages < totalPages ? `/shop?page=${currentPages + 1}&search=${search}&sort=${sort}` : '#' %>">Next</a>
+                                <a class="page-link" href="<%= currentPages < totalPages ? `/shop?page=${currentPages + 1}&search=${search}&sort=${sort}&category=${selectedCategories.join(',')}&gt=${minPrice}&lt=${maxPrice}` : '#' %>">Next</a>
                             </li>
                         </ul>
                     </nav>
@@ -278,41 +373,75 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        // Filter logic preservation
-        const categoryCheckboxes = document.querySelectorAll('.category-filter');
-        const urlParams = new URLSearchParams(window.location.search);
-        const categoryParam = urlParams.get('category');
-        const sortParam = urlParams.get('sort');
+        function applyFilters() {
+            const selectedCategories = Array.from(document.querySelectorAll('.category-filter:checked')).map(cb => cb.value);
+            const selectedSort = document.querySelector('.sort-filter:checked')?.value;
+            const searchQuery = document.querySelector('input[name="query"]')?.value || '';
+            
+            const gt = document.getElementById('min-price-slider').value;
+            let lt = document.getElementById('max-price-slider').value;
+            
+            // If Max is at its top limit, let's treat it as "no limit" for the backend
+            if (parseInt(lt) === 50000) lt = 1000000; 
 
-        if (categoryParam) {
-            const selectedCategories = categoryParam.split(',');
-            categoryCheckboxes.forEach(checkbox => {
-                if (selectedCategories.includes(checkbox.value)) checkbox.checked = true;
-            });
+            const params = new URLSearchParams();
+            if (selectedCategories.length > 0) params.set('category', selectedCategories.join(','));
+            params.set('gt', gt);
+            params.set('lt', lt);
+            if (selectedSort) params.set('sort', selectedSort);
+            if (searchQuery) params.set('search', searchQuery);
+
+            window.location.href = '/shop?' + params.toString();
         }
 
-        categoryCheckboxes.forEach(checkbox => {
-            checkbox.addEventListener('change', function () {
-                const selectedCategories = Array.from(document.querySelectorAll('.category-filter:checked')).map(cb => cb.value);
-                const currentParams = new URLSearchParams(window.location.search);
-                if (selectedCategories.length > 0) currentParams.set('category', selectedCategories.join(','));
-                else currentParams.delete('category');
-                
-                window.location.href = '/filter?' + currentParams.toString();
-            });
+        // Slider Logic
+        const minSlider = document.getElementById('min-price-slider');
+        const maxSlider = document.getElementById('max-price-slider');
+        const minValDisp = document.getElementById('min-val');
+        const maxValDisp = document.getElementById('max-val');
+        const track = document.getElementById('slider-track');
+        const minGap = 2000; 
+
+        function updateSliderTrack() {
+            const minVal = parseInt(minSlider.value);
+            const maxVal = parseInt(maxSlider.value);
+            const percent1 = (minVal / minSlider.max) * 100;
+            const percent2 = (maxVal / maxSlider.max) * 100;
+            
+            track.style.left = percent1 + "%";
+            track.style.width = (percent2 - percent1) + "%";
+            
+            minValDisp.textContent = `₹${minVal.toLocaleString()}`;
+            maxValDisp.textContent = maxVal >= 50000 ? '₹50,000+' : `₹${maxVal.toLocaleString()}`;
+        }
+
+        minSlider.addEventListener('input', () => {
+            if (parseInt(maxSlider.value) - parseInt(minSlider.value) <= minGap) {
+                minSlider.value = parseInt(maxSlider.value) - minGap;
+            }
+            minSlider.style.zIndex = "3";
+            maxSlider.style.zIndex = "2";
+            updateSliderTrack();
         });
 
-        const sortCheckboxes = document.querySelectorAll('.sort-filter');
-        sortCheckboxes.forEach(checkbox => {
-            checkbox.addEventListener('change', function () {
-                if (this.checked) {
-                    sortCheckboxes.forEach(cb => { if (cb !== this) cb.checked = false; });
-                    const currentParams = new URLSearchParams(window.location.search);
-                    currentParams.set('sort', this.value);
-                    window.location.href = window.location.pathname + '?' + currentParams.toString();
-                }
-            });
+        maxSlider.addEventListener('input', () => {
+            if (parseInt(maxSlider.value) - parseInt(minSlider.value) <= minGap) {
+                maxSlider.value = parseInt(minSlider.value) + minGap;
+            }
+            maxSlider.style.zIndex = "3";
+            minSlider.style.zIndex = "2";
+            updateSliderTrack();
         });
+
+        // Trigger filter only on release (change) to avoid too many reloads
+        minSlider.addEventListener('change', applyFilters);
+        maxSlider.addEventListener('change', applyFilters);
+
+        document.querySelectorAll('.category-filter, .sort-filter').forEach(el => {
+            el.addEventListener('change', applyFilters);
+        });
+
+        updateSliderTrack(); // Initial track state
 
         document.getElementById('clearAll').addEventListener('click', () => {
             window.location.href = '/shop';

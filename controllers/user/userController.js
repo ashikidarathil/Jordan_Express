@@ -24,29 +24,51 @@ const calculateDiscountPercentage = (products) => {
 
 const loadShop = async (req, res) => {
   try {
-    const search = req.query.search || '';
-    const sortBy = req.query.sort || '';
     const user = req.session.user;
-    const userData = await userModel.findOne({ _id: user });
-    const categories = await categoryModel.find({ isListed: true });
-
-    const categoryId = categories.map((category) => category._id.toString());
-
+    const userData = user ? await userModel.findById(user) : null;
+    
+    // Get all query params
+    const selectedCategories = req.query.category ? req.query.category.split(',') : [];
+    const minPrice = req.query.gt ? parseFloat(req.query.gt) : 0;
+    const maxPrice = req.query.lt ? parseFloat(req.query.lt) : Number.MAX_SAFE_INTEGER;
+    const sortBy = req.query.sort || '';
+    const search = req.query.search || '';
     const page = parseInt(req.query.page) || 1;
     const limit = 9;
     const skip = (page - 1) * limit;
 
-    let products = await productModel.find({
+    // Build the query
+    const categories = await categoryModel.find({ isListed: true });
+    const categoryIds = categories.map(c => c._id.toString());
+    
+    let query = {
       isBlocked: false,
       isListed: true,
-      category: { $in: categoryId },
-      "size.quantity": { $gt: 0 },
-    }).lean();
+      "size.quantity": { $gt: 0 }
+    };
 
-    // Calculate discount percentage
+    // Filter by Category
+    if (selectedCategories.length > 0) {
+      query.category = { $in: selectedCategories };
+    } else {
+      query.category = { $in: categoryIds };
+    }
+
+    // Filter by Price
+    query.salePrice = { $gte: minPrice, $lte: maxPrice };
+
+    // Filter by Search
+    if (search) {
+      query.productName = { $regex: search, $options: 'i' };
+    }
+
+    // Fetch products
+    let products = await productModel.find(query).lean();
+    
+    // Calculate discounts
     products = calculateDiscountPercentage(products);
 
-    // Apply sorting
+    // Sorting
     switch (sortBy) {
       case 'price-low':
         products.sort((a, b) => a.salePrice - b.salePrice);
@@ -64,25 +86,25 @@ const loadShop = async (req, res) => {
         products.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
     }
 
-    const paginatedProducts = products.slice(skip, skip + limit);
     const totalProducts = products.length;
+    const paginatedProducts = products.slice(skip, skip + limit);
     const totalPages = Math.ceil(totalProducts / limit);
-
-    const categoriesWithId = categories.map(category => ({ _id: category._id, name: category.name }));
 
     res.render('shop', {
       user: userData,
       products: paginatedProducts,
-      category: categoriesWithId,
-    
+      category: categories,
       currentPages: page,
       totalPages: totalPages,
       search: search,
-      sort: sortBy
+      sort: sortBy,
+      selectedCategories: selectedCategories,
+      minPrice: minPrice,
+      maxPrice: maxPrice
     });
   } catch (error) {
     console.error("Error loading shop page:", error);
-    res.status(500).render('error', { message: 'Failed to load shop page' });
+    res.status(500).render('page-404', { message: 'Failed to load shop page' });
   }
 };
 
@@ -453,296 +475,11 @@ const logout = async (req, res) => {
 }
 
 
-// Filter products
-const filterProduct = async (req, res) => {
-  try {
-    const user = req.session.user;
-    const category = req.query.category;
-    const search = req.query.search || '';
-    const sortBy = req.query.sort || '';
-
-    const findCategory = category ? await categoryModel.findOne({ _id: category }) : null;
-
-    const query = {
-      isListed: true,
-      isBlocked: false,
-      "size.quantity": { $gt: 0 },
-    };
-
-    if (search) {
-      query.productName = { $regex: search, $options: 'i' };
-    }
-
-    if (findCategory) {
-      query.category = findCategory._id;
-    }
-
-    let findProducts = await productModel.find(query).lean();
-
-    // Calculate discount percentage
-    findProducts = calculateDiscountPercentage(findProducts);
-
-    // Apply sorting
-    switch (sortBy) {
-      case 'price-low':
-        findProducts.sort((a, b) => a.salePrice - b.salePrice);
-        break;
-      case 'price-high':
-        findProducts.sort((a, b) => b.salePrice - a.salePrice);
-        break;
-      case 'a-z':
-        findProducts.sort((a, b) => a.productName.localeCompare(b.productName));
-        break;
-      case 'z-a':
-        findProducts.sort((a, b) => b.productName.localeCompare(a.productName));
-        break;
-      default:
-        findProducts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-    }
-
-    const categories = await categoryModel.find({ isListed: true });
-
-    let itemsPerPage = 9;
-    let currentPages = parseInt(req.query.page) || 1;
-    let startIndex = (currentPages - 1) * itemsPerPage;
-    let endIndex = startIndex + itemsPerPage;
-    let totalPages = Math.ceil(findProducts.length / itemsPerPage);
-    let currentProducts = findProducts.slice(startIndex, endIndex);
-
-    let userData = null;
-    if (user) {
-      userData = await userModel.findOne({ _id: user });
-      if (userData) {
-        const searchEntry = {
-          category: findCategory ? findCategory : null,
-          searchedOn: new Date()
-        };
-        userData.searchHistory.push(searchEntry);
-        await userData.save();
-      }
-    }
-
-    req.session.filteredProducts = currentProducts;
-
-    res.render("shop", {
-      user: userData,
-      products: currentProducts,
-      noProducts: true, // Add this flag
-      totalPages,
-      currentPages,
-      category: categories || null,
-      search: search,
-      sort: sortBy 
-    });
-  } catch (error) {
-    console.error("Filter error:", error);
-    res.redirect('/pageNotFound');
-  }
-};
-
-
-
-// filter By price
-const filterByPrice = async (req, res) => {
-  try {
-    const search = req.query.search || '';
-    const user = req.session.user;
-    const sortBy = req.query.sort || '';
-    const userData = await userModel.findOne({ _id: user });
-
-    const categories = await categoryModel.find({ isListed: true }).lean();
-
-    const findProduct = await productModel.find({
-      salePrice: { $gt: req.query.gt, $lt: req.query.lt },
-      isBlocked: false,
-      isListed: true,
-      "size.quantity": { $gt: 0 },
-    }).lean();
-
-    // Calculate discount percentage
-    let products = calculateDiscountPercentage(findProduct);
-
-    // Apply sorting
-    switch (sortBy) {
-      case 'price-low':
-        products.sort((a, b) => a.salePrice - b.salePrice);
-        break;
-      case 'price-high':
-        products.sort((a, b) => b.salePrice - a.salePrice);
-        break;
-      case 'a-z':
-        products.sort((a, b) => a.productName.localeCompare(b.productName));
-        break;
-      case 'z-a':
-        products.sort((a, b) => b.productName.localeCompare(a.productName));
-        break;
-      default:
-        products.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-    }
-
-    let itemsPerPage = 9;
-    let currentPages = parseInt(req.query.page) || 1;
-    let startIndex = (currentPages - 1) * itemsPerPage;
-    let endIndex = startIndex + itemsPerPage;
-    let totalPages = Math.ceil(products.length / itemsPerPage);
-
-    const currentProducts = products.slice(startIndex, endIndex);
-
-    req.session.filteredProducts = products;
-
-    res.render('shop', {
-      user: userData,
-      products: currentProducts,
-      category: categories,
-      noProducts: true, // Add this flag
-      totalPages,
-      currentPages,
-      search,
-      sort: sortBy
-    });
-  } catch (error) {
-    console.log(error);
-    res.redirect('/pageNotFound');
-  }
-};
-
-
-// Search product
-const searchProducts = async (req, res) => {
-  try {
-    const user = req.session.user;
-    const userData = user ? await userModel.findOne({ _id: user }) : null;
-    const search = req.body.query || '';
-    const sortBy = req.query.sort || '';
-
-    const categories = await categoryModel.find({ isListed: true }).lean();
-    const categoryId = categories.map(category => category._id.toString());
-
-    const escapedSearch = search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-
-    let searchResult = await productModel.find({
-      productName: { $regex: escapedSearch, $options: 'i' },
-      isBlocked: false,
-      isListed: true,
-      "size.quantity": { $gt: 0 },
-      category: { $in: categoryId },
-    }).lean();
-
-    // Calculate discount percentage
-    searchResult = calculateDiscountPercentage(searchResult);
-
-    // Apply sorting
-    switch (sortBy) {
-      case 'price-low':
-        searchResult.sort((a, b) => a.salePrice - b.salePrice);
-        break;
-      case 'price-high':
-        searchResult.sort((a, b) => b.salePrice - a.salePrice);
-        break;
-      case 'a-z':
-        searchResult.sort((a, b) => a.productName.localeCompare(b.productName));
-        break;
-      case 'z-a':
-        searchResult.sort((a, b) => b.productName.localeCompare(a.productName));
-        break;
-      default:
-        searchResult.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-    }
-
-    let itemsPerPage = 9;
-    let currentPages = parseInt(req.query.page) || 1;
-    let startIndex = (currentPages - 1) * itemsPerPage;
-    let endIndex = startIndex + itemsPerPage;
-    let totalPages = Math.ceil(searchResult.length / itemsPerPage);
-    const currentProducts = searchResult.slice(startIndex, endIndex);
-
-    req.session.filteredProducts = searchResult;
-
-    res.render('shop', {
-      user: userData,
-      products: currentProducts,
-      category: categories,
-      totalPages,
-      currentPages,
-      search: search,
-      sort: sortBy
-    });
-  } catch (error) {
-    console.error("Search error:", error);
-    res.redirect("/pageNotFound");
-  }
-};
-
-
-
-const sortProducts = async (req, res) => {
-  try {
-    const user = req.session.user;
-    const sortBy = req.query.sort || '';
-    const search = req.query.search || '';
-
-    const userData = user ? await userModel.findOne({ _id: user }) : null;
-    const categories = await categoryModel.find({ isListed: true }).lean();
-    const categoryId = categories.map(category => category._id.toString());
-
-    const query = {
-      isBlocked: false,
-      isListed: true,
-      "size.quantity": { $gt: 0 },
-      category: { $in: categoryId }
-    };
-
-    if (search) {
-      query.productName = { $regex: search, $options: 'i' };
-    }
-
-    let products = await productModel.find(query).lean();
-
-    // Calculate discount percentage
-    products = calculateDiscountPercentage(products);
-
-    // Apply sorting
-    switch (sortBy) {
-      case 'price-low':
-        products.sort((a, b) => a.salePrice - b.salePrice);
-        break;
-      case 'price-high':
-        products.sort((a, b) => b.salePrice - a.salePrice);
-        break;
-      case 'a-z':
-        products.sort((a, b) => a.productName.localeCompare(b.productName));
-        break;
-      case 'z-a':
-        products.sort((a, b) => b.productName.localeCompare(a.productName));
-        break;
-      default:
-        products.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-    }
-
-    const itemsPerPage = 9;
-    const currentPages = parseInt(req.query.page) || 1;
-    const startIndex = (currentPages - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    const totalPages = Math.ceil(products.length / itemsPerPage);
-    const currentProducts = products.slice(startIndex, endIndex);
-
-    req.session.filteredProducts = products;
-
-    res.render('shop', {
-      user: userData,
-      products: currentProducts,
-      category: categories,
-      noProducts: true, 
-      totalPages,
-      currentPages,
-      search: search,
-      sort: sortBy
-    });
-  } catch (error) {
-    console.error("Sort error:", error);
-    res.redirect("/pageNotFound");
-  }
-};
+// Standard unified filter functions that all point to loadShop now
+const filterProduct = (req, res) => res.redirect('/shop?' + new URLSearchParams(req.query).toString());
+const filterByPrice = (req, res) => res.redirect('/shop?' + new URLSearchParams(req.query).toString());
+const searchProducts = (req, res) => res.redirect('/shop?' + new URLSearchParams(req.body).toString()); // Search usually uses POST
+const sortProducts = (req, res) => res.redirect('/shop?' + new URLSearchParams(req.query).toString());
 
 
 const getReferralPage = async (req, res) => {

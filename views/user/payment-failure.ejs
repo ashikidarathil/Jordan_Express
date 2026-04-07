@@ -195,6 +195,12 @@
     .header-banner-failure h1 {
       font-size: 26px;
     }
+    .order-ref-value {
+      font-size: 14px;
+    }
+    .summary-line {
+      font-size: 13px;
+    }
   }
 </style>
 
@@ -220,7 +226,7 @@
           <h2 class="summary-title"><i class="fas fa-file-invoice"></i> Order Details</h2>
           <div class="summary-line">
             <span>Order Reference</span>
-            <span style="font-weight: 600; color: var(--text-main);">#<%= orderId %></span>
+            <span class="order-ref-value" style="font-weight: 600; color: var(--text-main);">#<%= orderId %></span>
           </div>
           <% if (typeof orderTotal !== 'undefined' && orderTotal !== null) { %>
             <% 
